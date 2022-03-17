@@ -31,14 +31,6 @@
 
 
 
-#define PRINT_DIM(X) std::cout << #X << " rows " << X.rows() << " cols " << X.cols() << std::endl;
-#define RAD2DEG(X) (180.0/M_PI*(X))
-
-double mod180(double angle) {
-    return (angle - floor(angle / M_PI) * M_PI);
-}
-
-
 
 int main(int argc, char **argv) {
     cuars::AngularRadonSpectrum2d arsSrc;
@@ -317,8 +309,8 @@ int main(int argc, char **argv) {
     rotTrue = pointsDst.getRotTheta() - pointsSrc.getRotTheta();
     std::cout << "\n***\npointsDst.getrotTheta() [deg]" << (180 / M_PI * pointsDst.getRotTheta())
             << ", pointsSrc.getrotTheta() [deg] " << (180.0 / M_PI * pointsSrc.getRotTheta()) << "\n";
-    std::cout << "rotTrue[deg] \t" << (180.0 / M_PI * rotTrue) << " \t" << (180.0 / M_PI * mod180(rotTrue)) << std::endl;
-    std::cout << "rotArs[deg] \t" << (180.0 / M_PI * rotArs) << " \t" << (180.0 / M_PI * mod180(rotArs)) << std::endl;
+    std::cout << "rotTrue[deg] \t" << (180.0 / M_PI * rotTrue) << " \t" << (180.0 / M_PI * cuars::mod180(rotTrue)) << std::endl;
+    std::cout << "rotArs[deg] \t" << (180.0 / M_PI * rotArs) << " \t" << (180.0 / M_PI * cuars::mod180(rotArs)) << std::endl;
 
     //Free CPU memory
     delete coeffsArsSrc;

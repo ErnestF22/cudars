@@ -33,10 +33,6 @@
 
 
 
-
-#define PRINT_DIM(X) std::cout << #X << " rows " << X.rows() << " cols " << X.cols() << std::endl;
-#define RAD2DEG(X) (180.0/M_PI*(X))
-
 struct TestParams {
     // ArsIso (Isotropic Angular Radon Spectrum) params
     bool arsIsoEnable;
@@ -93,7 +89,6 @@ void setupParallelizationNoPad(ParlArsIsoParams& pp, int pointsSrcSz, int points
 
 void gpu_estimateRotationArsIso(const ArsImgTests::PointReaderWriter& pointsSrc, const ArsImgTests::PointReaderWriter& pointsDst, TestParams& tp, ParlArsIsoParams& paip, double& rotOut);
 
-double mod180(double angle);
 
 
 int main(int argc, char **argv) {
@@ -286,7 +281,7 @@ int main(int argc, char **argv) {
         //    else if (rotTrue > M_PI) rotTrue -= M_PI;
         std::cout << " angle dst " << (180.0 / M_PI * pointsDst.getRotTheta()) << " [deg], src " << (180.0 / M_PI * pointsSrc.getRotTheta()) << " [deg]" << std::endl;
         std::cout << std::fixed << std::setprecision(2) << std::setw(10)
-                << "  rotTrue \t\t" << (180.0 / M_PI * rotTrue) << " deg\t\t" << (180.0 / M_PI * mod180(rotTrue)) << " deg [mod 180]\n";
+                << "  rotTrue \t\t" << (180.0 / M_PI * rotTrue) << " deg\t\t" << (180.0 / M_PI * cuars::mod180(rotTrue)) << " deg [mod 180]\n";
 
         outfile
                 << std::setw(20) << getShortName(inputFilenames[comp.first]) << " "
@@ -299,21 +294,21 @@ int main(int argc, char **argv) {
                 << std::fixed << std::setprecision(1) << std::setw(6) << pointsDst.getNoiseSigma() << " "
                 << std::setw(6) << pointsDst.getNumOccl() << " "
                 << std::setw(6) << pointsDst.getNumRand() << " "
-                << "rotTrue" << std::fixed << std::setprecision(2) << std::setw(8) << (180.0 / M_PI * mod180(rotTrue)) << " ";
+                << "rotTrue" << std::fixed << std::setprecision(2) << std::setw(8) << (180.0 / M_PI * cuars::mod180(rotTrue)) << " ";
 
 
 
         if (tparams.arsIsoEnable) {
             //                    estimateRotationArsIso(pointsSrc.points(), pointsDst.points(), tparams, rotArsIso);
             std::cout << std::fixed << std::setprecision(2) << std::setw(10)
-                    << "  rotArsIso \t\t" << (180.0 / M_PI * rotArsIso) << " deg\t\t" << (180.0 / M_PI * mod180(rotArsIso)) << " deg [mod 180]\n";
-            outfile << std::setw(6) << "arsIso " << std::fixed << std::setprecision(2) << std::setw(6) << (180.0 / M_PI * mod180(rotArsIso)) << " ";
+                    << "  rotArsIso \t\t" << (180.0 / M_PI * rotArsIso) << " deg\t\t" << (180.0 / M_PI * cuars::mod180(rotArsIso)) << " deg [mod 180]\n";
+            outfile << std::setw(6) << "arsIso " << std::fixed << std::setprecision(2) << std::setw(6) << (180.0 / M_PI * cuars::mod180(rotArsIso)) << " ";
         }
         if (tparams.gpu_arsIsoEnable) {
             gpu_estimateRotationArsIso(pointsSrc.points(), pointsDst.points(), tparams, paiParams, rotArsIso_gpu);
             std::cout << std::fixed << std::setprecision(2) << std::setw(10)
-                    << "  gpu_rotArsIso \t" << (180.0 / M_PI * rotArsIso_gpu) << " deg\t\t" << (180.0 / M_PI * mod180(rotArsIso_gpu)) << " deg [mod 180]\n";
-            outfile << std::setw(6) << "gpu_arsIso " << std::fixed << std::setprecision(2) << std::setw(6) << (180.0 / M_PI * mod180(rotArsIso_gpu)) << " ";
+                    << "  gpu_rotArsIso \t" << (180.0 / M_PI * rotArsIso_gpu) << " deg\t\t" << (180.0 / M_PI * cuars::mod180(rotArsIso_gpu)) << " deg [mod 180]\n";
+            outfile << std::setw(6) << "gpu_arsIso " << std::fixed << std::setprecision(2) << std::setw(6) << (180.0 / M_PI * cuars::mod180(rotArsIso_gpu)) << " ";
         }
         if (tparams.extrainfoEnable) {
             srcNumPts = paiParams.numPts;
@@ -767,14 +762,10 @@ void gpu_estimateRotationArsIso(const ArsImgTests::PointReaderWriter& pointsSrc,
     //    double rotTrue = pointsDst.getRotTheta() - pointsSrc.getRotTheta();
     //    std::cout << "\n***\npointsDst.getrotTheta() [deg]" << (180 / M_PI * pointsDst.getRotTheta())
     //            << ", pointsSrc.getrotTheta() [deg] " << (180.0 / M_PI * pointsSrc.getRotTheta()) << "\n";
-    //    std::cout << "rotTrue[deg] \t" << (180.0 / M_PI * rotTrue) << " \t" << (180.0 / M_PI * mod180(rotTrue)) << std::endl;
-    //    std::cout << "rotArs[deg] \t" << (180.0 / M_PI * rotOut) << " \t" << (180.0 / M_PI * mod180(rotOut)) << std::endl;
+    //    std::cout << "rotTrue[deg] \t" << (180.0 / M_PI * rotTrue) << " \t" << (180.0 / M_PI * cuars::mod180(rotTrue)) << std::endl;
+    //    std::cout << "rotArs[deg] \t" << (180.0 / M_PI * rotOut) << " \t" << (180.0 / M_PI * cuars::mod180(rotOut)) << std::endl;
 
     //Free CPU memory
     delete coeffsArsSrc;
     delete coeffsArsDst;
-}
-
-double mod180(double angle) {
-    return (angle - floor(angle / M_PI) * M_PI);
 }

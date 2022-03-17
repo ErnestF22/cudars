@@ -29,11 +29,6 @@
 
 
 
-#define PRINT_DIM(X) std::cout << #X << " rows " << X.rows() << " cols " << X.cols() << std::endl;
-#define RAD2DEG(X) (180.0/M_PI*(X))
-
-
-
 void rangeToPoint(double* ranges, int num, double angleMin, double angleRes, std::vector<cuars::Vec2d>& points);
 
 int main(void) {
@@ -84,7 +79,7 @@ int main(void) {
     std::cout << "\n\nCalling kernel functions on GPU\n" << std::endl;
 
     //    timeStart = std::chrono::system_clock::now();
-    //ars1 kernel call
+    //ars1 kernel call (downward)
     cudaEvent_t start, stop;
     cudaEventCreate(&start);
     cudaEventCreate(&stop);
@@ -92,16 +87,7 @@ int main(void) {
     cuars::Vec2d * kernelInput1;
     cudaMalloc((void**) &kernelInput1, numPtsAfterPadding * sizeof (cuars::Vec2d));
     cudaMemcpy(kernelInput1, acesPointsHost.data(), numPtsAfterPadding * sizeof (cuars::Vec2d), cudaMemcpyHostToDevice);
-    //    for (int i = 0; i < numPtsAfterPadding; ++i) {
-    //        kernelInput1[i] = acesPointsSTL[i];
-    //    }
 
-    //    cudaDeviceSynchronize();
-    //    std::cout << "acesPointsHost.size() " << acesPointsHost.size() << std::endl;
-    //    for (int s = 0; s < acesPointsHost.size(); s++) {
-    //        std::cout << "s " << s << std::endl;
-    //        std::cout << kernelInput1[s].x << " " << kernelInput1[s].y << std::endl;
-    //    }
 
 
     //    ars1.initLUT(0.0001);
@@ -110,7 +96,6 @@ int main(void) {
 
 
     const int coeffsMatNumCols = 2 * fourierOrder + 2;
-    //    const int coeffsMatNumColsPadded = ceilPow2(coeffsMatNumCols);
     const int coeffsMatNumColsPadded = coeffsMatNumCols;
     const int coeffsMatTotalSz = gridTotalSizeAfterPadding * coeffsMatNumColsPadded; //sumNaturalsUpToN(numPts - 1) * coeffsMatNumColsPadded
     std::cout << "sum parallelization params: " << std::endl
@@ -127,15 +112,6 @@ int main(void) {
     double* d_coeffsArs1;
     cudaMalloc((void**) &d_coeffsArs1, coeffsMatNumColsPadded * sizeof (double));
     cudaMemset(d_coeffsArs1, 0.0, coeffsMatNumColsPadded * sizeof (double));
-
-
-    //    cuars::PnebiLUT pnebiLUT1; //LUT setup
-    //    double lutPrecision = 0.001; //LUT setup
-    //    pnebiLUT1.init(fourierOrder, lutPrecision); //LUT setup
-    //    if (pnebiLUT1.getOrderMax() < fourierOrder) { //LUT setup
-    //        ARS_ERROR("LUT not initialized to right order. Initialized now."); //LUT setup
-    //        pnebiLUT1.init(fourierOrder, 0.0001); //LUT setup
-    //    }
 
     cudaEventRecord(start);
     iigDw << <numBlocks, blockSize >> >(kernelInput1, sigma, sigma, numPts, fourierOrder, coeffsMatNumColsPadded, pnebiMode, d_coeffsMat1);
@@ -163,7 +139,7 @@ int main(void) {
     std::cout << "\n------\n" << std::endl;
 
 
-    //ARS2    
+    //ARS2 (LUT - unfinished implementation)
     ars2.setComputeMode(cuars::ArsKernelIso2dComputeMode::PNEBI_LUT);
 
     cuars::PnebiLUT pnebiLUT2; //LUT setup

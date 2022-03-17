@@ -18,7 +18,12 @@
 #include <ars/utils.h>
 #include <ars/definitions.h>
 
+
 namespace cuars {
+
+    double mod180(double angle) {
+        return (angle - floor(angle / M_PI) * M_PI);
+    }
 
     void diagonalize(const Mat2d& m, double& lmin, double& lmax, double& theta) {
         double a, b, c, s;
