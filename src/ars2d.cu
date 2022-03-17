@@ -25,7 +25,10 @@
 
 __host__
 int numChunks(int totNumPts, int chunkSz) {
-    return (totNumPts / chunkSz) + 1;
+    if (totNumPts%chunkSz > 1024)
+        return (totNumPts / chunkSz) + 1;
+    else
+        return max(1, totNumPts/chunkSz);
 }
 
 __host__
@@ -41,6 +44,9 @@ thrust::pair<int, int> chunkStartEndIndices(int round, int totNumPts, int chunkS
     }
     pr.first = chunkSz * round;
     pr.second = min(totNumPts - 1, chunkSz * (round + 1) - 1);
+    
+    if (totNumPts - pr.second < 1025)
+        pr.second = totNumPts-1;
 
     return pr;
 }
