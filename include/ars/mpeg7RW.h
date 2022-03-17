@@ -30,8 +30,6 @@ namespace ArsImgTests {
      */
     class PointReaderWriter {
     public:
-
-
         /** Constructor.
          */
         PointReaderWriter();
@@ -75,6 +73,7 @@ namespace ArsImgTests {
         void save(std::string filename);
 
         /**
+         * Basic reference getter to points vector
          */
         const cuars::VecVec2d& points() const;
 

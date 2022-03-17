@@ -16,9 +16,35 @@
 // * along with ARS.  If not, see <http://www.gnu.org/licenses/>.
 // */
 
-#include <device_launch_parameters.h>
 
 #include "ars/ars2d.cuh"
+
+// --------------------------------------------------------
+// DIVISION IN CHUNKS (FOR BIG IMAGES)
+// --------------------------------------------------------
+
+__host__
+int numChunks(int totNumPts, int chunkSz) {
+    return (totNumPts / chunkSz) + 1;
+}
+
+__host__
+thrust::pair<int, int> chunkStartEndIndices(int round, int totNumPts, int chunkSz) {
+    thrust::pair<int, int> pr;
+
+    //TODO: adaptation for cases when last chunk is small (< ~1000 pts)    
+    if (totNumPts <= chunkSz) {
+        pr.first = 0;
+        pr.second = totNumPts - 1;
+
+        return pr;
+    }
+    pr.first = chunkSz * round;
+    pr.second = min(totNumPts - 1, chunkSz * (round + 1) - 1);
+
+    return pr;
+}
+
 
 // --------------------------------------------------------
 // 2D->1D INDICIZATION IN FOURIER COEFFICIENT MATRIX

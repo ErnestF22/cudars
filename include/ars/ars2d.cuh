@@ -1,6 +1,22 @@
+#include <device_launch_parameters.h> //blockIdx.x, threadIdx.x, blockDim, threadDim
+
 #include <ars/functions.h>
 
-//#include <ars/ars2d.h>
+// --------------------------------------------------------
+// DIVISION IN CHUNKS (FOR BIG IMAGES)
+// --------------------------------------------------------
+
+/**
+ * @return ceil(totNumPts / chunkSz)
+ */
+//__host__ //commented for ease in IDE
+int numChunks(int totNumPts, int chunkSz);
+
+/**
+ * Return chunk number "@param round" start and end indices
+ */
+//__host__
+thrust::pair<int, int> chunkStartEndIndices(int round, int totNumPts, int chunkSz);
 
 // --------------------------------------------------------
 // 2D->1D INDICIZATION IN FOURIER COEFFICIENT MATRIX
