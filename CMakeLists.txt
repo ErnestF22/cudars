@@ -103,7 +103,7 @@ add_library(ani_cuars STATIC
 ####################################################################################
 ### Isotropic cuArs
 
-add_executable(gpu_testIsotropicArs app/gpu_testIsotropicArs.cu )
+add_executable(gpu_testIsotropicArs test/gpu_testIsotropicArs.cu )
 target_link_libraries(gpu_testIsotropicArs ${ars_LINK_LIBS} iso_cuars)
 
 #target_compile_features(gpu_testIsotropicArs PUBLIC cxx_std_11)
@@ -112,7 +112,7 @@ set_target_properties(gpu_testIsotropicArs PROPERTIES CUDA_ARCHITECTURES "52")
 
 ####################################################################################
  
-add_executable(gpu_testArsIsoMpeg7 app/gpu_testArsIsoMpeg7.cu)
+add_executable(gpu_testArsIsoMpeg7 test/gpu_testArsIsoMpeg7.cu)
 target_link_libraries(gpu_testArsIsoMpeg7 ${ars_LINK_LIBS} iso_cuars_mpeg7 rofl_common ${PCL_LIBRARIES} -lstdc++fs)
 
 target_compile_features(gpu_testArsIsoMpeg7 PUBLIC cxx_std_11)
@@ -131,7 +131,7 @@ set_target_properties(gpu_fullArsIsoMpeg7 PROPERTIES CUDA_ARCHITECTURES "52")
 #####################################################################################
 ### Anisotropic cuArs
 
-#add_executable(gpu_testAnisotropicArs app/gpu_testAnisotropicArs.cu )
+#add_executable(gpu_testAnisotropicArs test/gpu_testAnisotropicArs.cu )
 #target_link_libraries(gpu_testAnisotropicArs ${ars_LINK_LIBS} ani_cuars rofl_common -lboost_iostreams -lboost_system -lboost_filesystem)
 #
 ##target_compile_features(gpu_testAnisotropicArs PUBLIC cxx_std_11)
