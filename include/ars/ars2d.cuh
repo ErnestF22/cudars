@@ -61,7 +61,7 @@ double evaluatePnebi0Polynom(double x);
  *  
  * Aa Vv, Numerical Recipes in C. The Art of Scientific Computing, 2nd edition, 1992. 
  * 
- * It uses down
+ * Used when ArsKernelIso2dComputeMode = PNEBI_DOWNWARD
  */
 __device__
 void evaluatePnebiVectorGPU(int n, double x, double* pnebis, int pnebisSz);
