@@ -4,10 +4,11 @@ project(ars-cuda LANGUAGES CXX CUDA)
 
 add_compile_options(-std=c++14)
 
-set(CMAKE_BUILD_TYPE Debug)
+set(CMAKE_BUILD_TYPE "Debug")
 set(CMAKE_CUDA_FLAGS_DEBUG "-g -G")
 #add_compile_options(-lineinfo)
 
+#Compute capability for NVIDIA RTX 3090 -> 86
 set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS} -gencode arch=compute_75,code=sm_75)
 
 
@@ -108,7 +109,7 @@ target_link_libraries(gpu_testIsotropicArs ${ars_LINK_LIBS} iso_cuars)
 
 #target_compile_features(gpu_testIsotropicArs PUBLIC cxx_std_11)
 set_target_properties(gpu_testIsotropicArs PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
-set_target_properties(gpu_testIsotropicArs PROPERTIES CUDA_ARCHITECTURES "52")
+set_target_properties(gpu_testIsotropicArs PROPERTIES CUDA_ARCHITECTURES "75")
 
 ####################################################################################
  
@@ -117,7 +118,7 @@ target_link_libraries(gpu_testArsIsoMpeg7 ${ars_LINK_LIBS} iso_cuars_mpeg7 rofl_
 
 target_compile_features(gpu_testArsIsoMpeg7 PUBLIC cxx_std_11)
 set_target_properties(gpu_testArsIsoMpeg7 PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
-set_target_properties(gpu_testArsIsoMpeg7 PROPERTIES CUDA_ARCHITECTURES "52")
+set_target_properties(gpu_testArsIsoMpeg7 PROPERTIES CUDA_ARCHITECTURES "75")
 
 ####################################################################################
  
@@ -126,7 +127,7 @@ target_link_libraries(gpu_fullArsIsoMpeg7 ${ars_LINK_LIBS} iso_cuars_mpeg7 rofl_
 
 target_compile_features(gpu_fullArsIsoMpeg7 PUBLIC cxx_std_11)
 set_target_properties(gpu_fullArsIsoMpeg7 PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
-set_target_properties(gpu_fullArsIsoMpeg7 PROPERTIES CUDA_ARCHITECTURES "52")
+set_target_properties(gpu_fullArsIsoMpeg7 PROPERTIES CUDA_ARCHITECTURES "75")
 
 #####################################################################################
 ### Anisotropic cuArs
@@ -136,7 +137,7 @@ set_target_properties(gpu_fullArsIsoMpeg7 PROPERTIES CUDA_ARCHITECTURES "52")
 #
 ##target_compile_features(gpu_testAnisotropicArs PUBLIC cxx_std_11)
 #set_target_properties(gpu_testAnisotropicArs PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
-#set_target_properties(gpu_testAnisotropicArs PROPERTIES CUDA_ARCHITECTURES "52")
+#set_target_properties(gpu_testAnisotropicArs PROPERTIES CUDA_ARCHITECTURES "75")
 
 
 
