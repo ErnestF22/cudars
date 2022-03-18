@@ -62,6 +62,7 @@ struct ParlArsIsoParams { //Isotropic ARS Parallelization Params
     //Subdivision into chunks (big input data)
     int chunkMaxSz;
     int numChunks;
+    int currChunkSz;
 
     //time profiling
     double srcExecTime;
@@ -84,7 +85,7 @@ std::string getShortName(std::string filename);
 
 std::string getLeafDirectory(std::string filename);
 
-void setupParallelization(ParlArsIsoParams& pp, int pointsSrcSz, int pointsDstSz, int fourierOrder, int chunkMaxSz);
+void setupParallelization(ParlArsIsoParams& pp, int pointsSrcSz, int pointsDstSz, int fourierOrder, int chunkMaxSz, int currChunkSz);
 
 void gpu_estimateRotationArsIso(const ArsImgTests::PointReaderWriter& pointsSrc, const ArsImgTests::PointReaderWriter& pointsDst, TestParams& tp, ParlArsIsoParams& paip, double& rotOut);
 
@@ -255,7 +256,7 @@ int main(int argc, char **argv) {
         std::cout << "[" << countPairs << "/" << outPairs.size() << "]\n" << "  * \"" << inputFilenames[comp.first] << "\"\n    \"" << inputFilenames[comp.second] << "\"" << std::endl;
         rotTrue = pointsDst.getRotTheta() - pointsSrc.getRotTheta();
 
-        setupParallelization(paiParams, pointsSrc.points().size(), pointsDst.points().size(), tparams.arsIsoOrder, chunkMaxSz); //TODO: put chunkMaxSz as TestParams struct member?
+        setupParallelization(paiParams, pointsSrc.points().size(), pointsDst.points().size(), tparams.arsIsoOrder, chunkMaxSz, chunkMaxSz); //TODO: put chunkMaxSz as TestParams struct member?
 
 
         //    if (rotTrue < 0.0) rotTrue += M_PI;
@@ -286,6 +287,7 @@ int main(int argc, char **argv) {
             outfile << std::setw(6) << "arsIso " << std::fixed << std::setprecision(2) << std::setw(6) << (180.0 / M_PI * cuars::mod180(rotArsIso)) << " ";
         }
         if (tparams.gpu_arsIsoEnable) {
+            setupParallelization(paiParams, pointsSrc.points().size(), pointsDst.points().size(), tparams.arsIsoOrder, chunkMaxSz, chunkMaxSz); //TODO: put chunkMaxSz as TestParams struct member?
             gpu_estimateRotationArsIso(pointsSrc.points(), pointsDst.points(), tparams, paiParams, rotArsIso_gpu);
             std::cout << std::fixed << std::setprecision(2) << std::setw(10)
                     << "  gpu_rotArsIso \t" << (180.0 / M_PI * rotArsIso_gpu) << " deg\t\t" << (180.0 / M_PI * cuars::mod180(rotArsIso_gpu)) << " deg [mod 180]\n";
@@ -474,19 +476,20 @@ std::string getLeafDirectory(std::string filename) {
     return leafDir;
 }
 
-void setupParallelization(ParlArsIsoParams& pp, int pointsSrcSz, int pointsDstSz, int fourierOrder, int chunkMaxSz) {
+void setupParallelization(ParlArsIsoParams& pp, int pointsSrcSz, int pointsDstSz, int fourierOrder, int chunkMaxSz, int currChunkSz) {
     //Setting up parallelization
     //Parallelization parameters
     //Fourier coefficients mega-matrix computation
     int numPts = std::max<int>(pointsSrcSz, pointsDstSz); //the two should normally be equal
     pp.numPts = numPts;
-    pp.chunkMaxSz = chunkMaxSz;
-    int nc = numChunks(numPts, pp.chunkMaxSz);
-    pp.numChunks = nc;
-
     int numPtsAfterPadding = numPts;
     pp.numPtsAfterPadding = numPtsAfterPadding;
-    const int gridTotalSize = cuars::sumNaturalsUpToN(numPts - 1); //total number of threads in grid Fourier coefficients grid - BEFORE PADDING
+
+    pp.chunkMaxSz = chunkMaxSz;
+    int nc = numChunks(numPts, pp.chunkMaxSz);
+    pp.currChunkSz = currChunkSz;
+    pp.numChunks = nc;
+    const int gridTotalSize = cuars::sumNaturalsUpToN(pp.currChunkSz - 1); //total number of threads in grid Fourier coefficients grid - BEFORE PADDING
     pp.gridTotalSize = gridTotalSize;
     const int blockSize = 256;
     pp.blockSize = blockSize;
