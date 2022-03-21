@@ -75,7 +75,7 @@ namespace cuars {
     using Mat2d = double4; //w x \n y z (row-major)
     using VecMat2d = thrust::host_vector<Mat2d>;
 
-    class Affine2d {        
+    class Affine2d {
     public: //TODO: improve separation between public and private
 
         double data_[Nine];
@@ -87,7 +87,7 @@ namespace cuars {
         Affine2d();
 
         Affine2d(double rot, double tx, double ty);
-        
+
         virtual ~Affine2d();
 
         void initdata(double r, double tx, double ty);
@@ -104,12 +104,12 @@ namespace cuars {
                     m.data_[1 * cuars::Three + 0] << " \t" << m.data_[1 * cuars::Three + 1] << " \t" << m.data_[1 * cuars::Three + 2] << " \n" <<
                     m.data_[2 * cuars::Three + 0] << " \t" << m.data_[2 * cuars::Three + 1] << " \t" << m.data_[2 * cuars::Three + 2] << " \n";
         }
-        
+
     };
-    
+
     enum class ArsKernelIso2dComputeMode : unsigned int {
-            PNEBI_DOWNWARD = 0, PNEBI_LUT = 1
-        };
+        PNEBI_DOWNWARD = 0, PNEBI_LUT = 1
+    };
 
 
 

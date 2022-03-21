@@ -125,7 +125,7 @@ int main(int argc, char **argv) {
         thrust::pair<int, int> indicesStartEnd = chunkStartEndIndices(i, numPts, chunkMaxSz);
         int chunkSz = (indicesStartEnd.second - indicesStartEnd.first) + 1;
 
-        cuars::Vec2d * kernelInputSrc;
+        cuars::Vec2d* kernelInputSrc;
         cudaMalloc((void**) &kernelInputSrc, chunkSz * sizeof (cuars::Vec2d));
         //        cudaMemcpy(kernelInputSrc, pointsSrc.points().data(), numPtsAfterPadding * sizeof (cuars::Vec2d), cudaMemcpyHostToDevice);
         std::cout << "round " << i << "/" << nc << " -> "
@@ -291,12 +291,12 @@ int main(int argc, char **argv) {
 
     cudaMemcpy(coeffsArsDst, d_coeffsArsDst, coeffsMatNumColsPadded * sizeof (double), cudaMemcpyDeviceToHost);
     cudaFree(d_coeffsArsDst);
-    
+
     cudaEventSynchronize(stopDst);
     float millisecondsDst = 0.0f;
     cudaEventElapsedTime(&millisecondsDst, startDst, stopDst);
     std::cout << "DST -> insertIsotropicGaussians() " << millisecondsDst << " ms" << std::endl;
-    
+
     cudaEventDestroy(startDst);
     cudaEventDestroy(stopDst);
     //END OF ARS DST

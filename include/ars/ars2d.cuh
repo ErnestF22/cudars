@@ -1,6 +1,54 @@
 #include <device_launch_parameters.h> //blockIdx.x, threadIdx.x, blockDim, threadDim
 
 #include <ars/functions.h>
+#include <ars/utils.h>
+
+struct ParlArsIsoParams { //Isotropic ARS Parallelization Params
+    int numPts;
+    int numPtsAfterPadding;
+    int blockSz;
+    int numBlocks;
+    int gridTotalSize;
+    int gridTotalSizeAfterPadding;
+    //depth of mega-matrix
+    int coeffsMatNumCols;
+    int coeffsMatNumColsPadded;
+    int coeffsMatTotalSz;
+    //Fourier matrix sum -> parallelization parameters
+    int sumBlockSz;
+    int sumGridSz;
+
+    //Subdivision into chunks (big input data)
+    int chunkMaxSz;
+    int numChunks;
+    int currChunkSz;
+
+    //time profiling
+    double srcExecTime;
+    double gpu_srcExecTime;
+    double dstExecTime;
+    double gpu_dstExecTime;
+};
+
+struct ArsIsoParams {
+    int arsIsoOrder;
+    double arsIsoSigma;
+    double arsIsoThetaToll;
+    cuars::ArsKernelIso2dComputeMode arsIsoPnebiMode;
+};
+
+struct TestParams {
+    // ArsIso (Isotropic Angular Radon Spectrum) params
+    bool arsIsoEnable;
+    bool gpu_arsIsoEnable;
+
+    ArsIsoParams aiPms;
+
+    bool extrainfoEnable;
+    int fileSkipper;
+};
+
+
 
 // --------------------------------------------------------
 // DIVISION IN CHUNKS (FOR BIG IMAGES)
@@ -106,3 +154,11 @@ void makePartialSums(double* matIn, int nrowsIn, int ncols, double *matOut);
 
 __global__
 void sumColumnsPartialSums(double* matIn, int nrows, int ncols, double* vecOut);
+
+void initParallelizationParams(ParlArsIsoParams& pp, int fourierOrder, int numPts, int blockSz, int chunkMaxSz);
+
+void initParallelizationParams(ParlArsIsoParams& pp, int fourierOrder, int numPtsSrc, int numPtsDst, int blockSz, int chunkMaxSz);
+
+void updateParallelizationParams(ParlArsIsoParams& pp, int currChunkSz);
+
+void computeArsIsoGpu(ParlArsIsoParams& paip, ArsIsoParams& arsPms, const cuars::VecVec2d& points, double* d_coeffsArs, cudaEvent_t startSrc, cudaEvent_t stopSrc);

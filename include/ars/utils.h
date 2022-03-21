@@ -38,7 +38,7 @@ namespace cuars {
         double y0;
         double y1;
     };
-    
+
     /**
      * Returns angle (radians) corresponding to equivalent of @param angle in range [0, M_PI] 
      * from original ARS output range [-M_PI/2, M_PI/2]
