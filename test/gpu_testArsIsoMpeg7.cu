@@ -17,7 +17,6 @@
  * along with ARS.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 #include <iostream>
 #include <chrono>
 

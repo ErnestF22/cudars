@@ -30,7 +30,6 @@
 #include <ars/ars2d.h>
 
 
-
 void findComparisonPair(const std::vector<std::string>& inputFilenames, std::vector<std::pair<int, int> >& comPairs);
 
 void filterComparisonPair(std::string resumeFilename, std::ostream& outputfile,
@@ -74,8 +73,6 @@ int main(int argc, char **argv) {
     int srcNumPts, dstNumPts;
 
 
-
-
     params.read(argc, argv);
     params.getParam<std::string>("cfg", filenameCfg, "");
     std::cout << "config filename: " << filenameCfg << std::endl;
@@ -112,16 +109,11 @@ int main(int argc, char **argv) {
     params.getParam<int>("blockSz", paiParams.blockSz, 256);
     params.getParam<int>("chunkMaxSz", paiParams.chunkMaxSz, 4096);
 
-
-
     params.getParam<int>("fileSkipper", tparams.fileSkipper, int(1));
-
 
     std::cout << "\nParameter values:\n";
     params.write(std::cout);
     std::cout << std::endl;
-
-
 
 
     /* Reading files from folder */
@@ -144,7 +136,6 @@ int main(int argc, char **argv) {
 
 
 
-
     if (!inputFilenames.empty()) {
         std::string leafDir = getLeafDirectory(inputFilenames[0]);
         std::cout << "leafDir: \"" << leafDir << "\"" << std::endl;
@@ -163,14 +154,12 @@ int main(int argc, char **argv) {
 
     }
 
-
     // Open output results file
     std::ofstream outfile(filenameOut.c_str());
     if (!outfile) {
         std::cerr << "Cannot open file \"" << filenameOut << "\"" << std::endl;
         return -1;
     }
-
 
     findComparisonPair(inputFilenames, allPairs);
     std::cout << "Processing " << inputFilenames.size() << " files, " << allPairs.size() << " comparisons\n" << std::endl;
@@ -193,8 +182,6 @@ int main(int argc, char **argv) {
 
     outfile << "\n";
     //End of outfile header setup
-
-
 
 
     //execution couple-by-couple (of files) of ARS
@@ -435,7 +422,8 @@ void gpu_estimateRotationArsIso(const ArsImgTests::PointReaderWriter& pointsSrc,
 
     const cuars::VecVec2d& inputSrc = pointsSrc.points();
     double* coeffsArsSrc = new double [paip.coeffsMatNumColsPadded];
-    computeArsIsoGpu(paip, tp.aiPms, inputSrc, coeffsArsSrc, startSrc, stopSrc);
+    initParallelizationParams(paip, tp.aiPms.arsIsoOrder, inputSrc.size(), paip.blockSz, paip.chunkMaxSz); //cudarsIso.init()
+    computeArsIsoGpu(paip, tp.aiPms, inputSrc, coeffsArsSrc, startSrc, stopSrc); //cudarsIso.compute()
 
     cudaEventDestroy(startSrc);
     cudaEventDestroy(stopSrc);
@@ -450,7 +438,8 @@ void gpu_estimateRotationArsIso(const ArsImgTests::PointReaderWriter& pointsSrc,
 
     const cuars::VecVec2d& inputDst = pointsDst.points();
     double* coeffsArsDst = new double [paip.coeffsMatNumColsPadded];
-    computeArsIsoGpu(paip, tp.aiPms, inputDst, coeffsArsDst, startDst, stopDst);
+    initParallelizationParams(paip, tp.aiPms.arsIsoOrder, inputDst.size(), paip.blockSz, paip.chunkMaxSz); //cudarsIso.init()
+    computeArsIsoGpu(paip, tp.aiPms, inputDst, coeffsArsDst, startDst, stopDst); //cudarsIso.compute()
 
     cudaEventDestroy(startDst);
     cudaEventDestroy(stopDst);

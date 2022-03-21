@@ -502,7 +502,6 @@ void updateParallelizationParams(ParlArsIsoParams& pp, int currChunkSz) {
 }
 
 void computeArsIsoGpu(ParlArsIsoParams& paip, ArsIsoParams& arsPms, const cuars::VecVec2d& points, double* coeffsArs, cudaEvent_t startSrc, cudaEvent_t stopSrc) {
-    initParallelizationParams(paip, arsPms.arsIsoOrder, points.size(), paip.blockSz, paip.chunkMaxSz);
 
     std::cout << "\n---Estimating Ars Iso on SRC---\n" << std::endl;
 
@@ -581,3 +580,4 @@ void computeArsIsoGpu(ParlArsIsoParams& paip, ArsIsoParams& arsPms, const cuars:
     std::cout << "\nSRC -> insertIsotropicGaussians() " << millisecondsSrc << " ms" << std::endl;
     paip.gpu_srcExecTime = millisecondsSrc;
 }
+
