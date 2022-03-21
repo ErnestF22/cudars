@@ -62,6 +62,13 @@ namespace cuars {
 
     using Scalar = double;
 
+    using Quaterniond = double4;
+    using Quaternionf = float4;
+
+    struct EulerAngles {
+        double roll, pitch, yaw;
+    };
+    
     //    using Vector2 = Eigen::Vector2d;
 
     using Vec2i = int2;

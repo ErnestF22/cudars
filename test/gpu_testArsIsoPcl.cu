@@ -64,8 +64,8 @@ int main(int argc, char **argv) {
     }
 
     params.read(argc, argv);
-    params.getParam<std::string>("src", filenameSrc, "/home/rimlab/Downloads/mpeg7_point_tests/noise000_occl00_rand000/apple-1_xp0686_yp0967_t059_sigma0001_occl000.txt");
-    params.getParam<std::string>("dst", filenameDst, "/home/rimlab/Downloads/mpeg7_point_tests/noise000_occl00_rand000/apple-1_xp0749_yn0521_t090_sigma0001_occl000.txt");
+    params.getParam<std::string>("src", filenameSrc, "/home/rimlab/Downloads/acld0000_global.pcd");
+    params.getParam<std::string>("dst", filenameDst, "/home/rimlab/Downloads/acld0001_global.pcd");
     params.getParam<int>("arsOrder", arsOrder, 20);
     params.getParam<double>("arsSigma", arsSigma, 1.0);
     params.getParam<double>("arsTollDeg", arsThetaToll, 1.0);
@@ -82,9 +82,9 @@ int main(int argc, char **argv) {
 
     // Loads files and computes the rotation
     std::cout << "\n*****\nLoading file \"" << filenameSrc << "\"" << std::endl;
-    pointsSrc.load(filenameSrc);
+    pointsSrc.loadPcdAscii(filenameSrc);
     std::cout << "\n*****\nLoading file \"" << filenameDst << "\"" << std::endl;
-    pointsDst.load(filenameDst);
+    pointsDst.loadPcdAscii(filenameDst);
     std::cout << "  points src " << pointsSrc.points().size() << ", points dst " << pointsDst.points().size() << std::endl;
 
     int numPts = std::min<int>(pointsSrc.points().size(), pointsDst.points().size()); //the two should normally be equals

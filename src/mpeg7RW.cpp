@@ -142,7 +142,7 @@ namespace ArsImgTests {
                 comment = line.substr(pos + 1, line.size());
                 line = line.substr(0, pos);
             }
-            // Parse comment, if there are information
+            // Parse comment, if there is information
             std::stringstream sscomment(comment);
             params.read(sscomment);
             // Parse the line (after comment removal
@@ -193,32 +193,117 @@ namespace ArsImgTests {
         return count;
     }
 
-//    void PointReaderWriter::loadCloudPoints(std::string cloudFilename) {
-//        // Loads the input point cloud
-//        points_.clear();
-//        pcl::PointCloud<pcl::PointXYZ>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZ>);
-//
-//        std::cout << "Loading point cloud from \"" << cloudFilename << "\"" << std::endl;
-//        if (pcl::io::loadPCDFile(cloudFilename, *cloud) < 0) {
-//            std::cerr << "Cannot load point cloud from \"" << cloudFilename << "\"" << std::endl;
-//            return;
-//        }
-//
-//        size_t cloudSz = cloud->size();
-//        for (size_t i = 0; i < cloudSz; ++i) {
-//            cuars::Vec2d ptEig;
-//            //            ptEig(0) = cloud->points.at(i).x;
-//            ptEig.x = cloud->at(i).x;
-//            //            ptEig(1) = cloud->points.at(i).y;
-//            ptEig.y = cloud->at(i).y;
-//
-//            points_.push_back(ptEig);
-//
-//        }
-//        //computing rotation on z-axis and assigning it to rot_theta
-//        Eigen::Rotation2D<float> rotMat(cloud->sensor_orientation_.toRotationMatrix().block<2, 2>(0, 0));
-//        rot_theta = rotMat.angle(); //using it in radians during the algorithm
-//    }
+    int PointReaderWriter::loadPcdAscii(std::string cloudFilename) {
+        // Loads the input point cloud
+        rofl::ParamMap params;
+
+        std::string line, comment;
+        size_t pos;
+        cuars::Vec2d pt;
+
+        std::ifstream file(cloudFilename);
+        if (!file) {
+            std::cerr << "Cannot open file \"" << cloudFilename << "\"" << std::endl;
+            return 0;
+        }
+
+        points_.clear();
+
+
+        int count = 0;
+        while (!file.eof()) {
+            std::getline(file, line);
+
+            //            std::cout << "line " << count + 1 << " " << line << std::endl;
+
+
+            // Remove comments starting with '#'
+            comment = "";
+            pos = line.find_first_of('#');
+            if (pos != std::string::npos) {
+                comment = line.substr(pos + 1, line.size());
+                line = line.substr(0, pos);
+
+                pcdHeader.firstLine = comment; //only the first line should start with #
+            }
+            // Parse comment, if there is information
+            std::stringstream sscomment(comment);
+            params.read(sscomment);
+            // Parse the line (after comment removal)
+            std::stringstream ssline(line);
+
+
+
+
+            if (line.rfind("VERSION", 0) == 0) {
+                std::string dummy;
+                ssline >> dummy >> pcdHeader.version;
+                std::cout << "Found version: " << pcdHeader.version << std::endl;
+            } else if (line.rfind("FIELDS", 0) == 0) {
+                substrEoL(pcdHeader.fields, line, "FIELDS");
+                std::cout << "Found fields info: " << pcdHeader.fields << std::endl;
+            } else if (line.rfind("SIZE", 0) == 0) {
+                substrEoL(pcdHeader.size, line, "SIZE");
+                std::cout << "Found size info: " << pcdHeader.size << std::endl;
+            } else if (line.rfind("TYPE", 0) == 0) {
+                substrEoL(pcdHeader.type, line, "TYPE");
+                std::cout << "Found type info: " << pcdHeader.type << std::endl;
+            } else if (line.rfind("COUNT", 0) == 0) {
+                substrEoL(pcdHeader.count, line, "COUNT");
+                std::cout << "Found count info: " << pcdHeader.count << std::endl;
+            } else if (line.rfind("WIDTH", 0) == 0) {
+                std::string dummy;
+                ssline >> dummy >> pcdHeader.width;
+                std::cout << "Found width: " << pcdHeader.width << std::endl;
+            } else if (line.rfind("HEIGHT", 0) == 0) {
+                std::string dummy;
+                ssline >> dummy >> pcdHeader.height;
+                std::cout << "Found height: " << pcdHeader.height << std::endl;
+            } else if (line.rfind("VIEWPOINT", 0) == 0) {
+                substrEoL(pcdHeader.viewpoint, line, "VIEWPOINT");
+                std::cout << "Found viewpoint info: " << pcdHeader.viewpoint << std::endl;
+            } else if (line.rfind("POINTS", 0) == 0) {
+                std::string dummy;
+                ssline >> dummy >> pcdHeader.points;
+                std::cout << "Found number of points: " << pcdHeader.points << std::endl;
+            } else if (line.rfind("DATA", 0) == 0) {
+                std::string dummy;
+                ssline >> dummy >> pcdHeader.data;
+                std::string::iterator end_pos = std::remove(pcdHeader.data.begin(), pcdHeader.data.end(), ' ');
+                pcdHeader.data.erase(end_pos, pcdHeader.data.end());
+                std::cout << "Found data type: " << pcdHeader.data << std::endl;
+                if (pcdHeader.data != "ascii") {
+                    ARS_ERROR("Reading data type != ascii");
+                    return 0;
+                }
+            } else if (ssline >> pt.x >> pt.y) {
+                //                std::cout << "point [" << count << "]: " << pt.x << " " << pt.y << std::endl;
+                //                std::cout << "found point " << count << std::endl;
+                points_.push_back(pt);
+
+                count++;
+            }
+        }
+        file.close();
+
+
+        // num_in is 0 at the beginning of the process
+        num_in = count;
+        if (num_in == 0) {
+            std::cout << "**** EMPTY POINT SET ****" << std::endl;
+            //            ARS_ERROR("Error reading number of points in pcd file");
+        }
+
+        if (pcdHeader.points != pcdHeader.width * pcdHeader.height || pcdHeader.points != count)
+            ARS_ERROR("Error reading number of points in pcd file");
+
+        //computing rotation on z-axis and assigning it to rot_theta
+        //        Eigen::Rotation2D<float> rotMat(cloud->sensor_orientation_.toRotationMatrix().block<2, 2>(0, 0));
+        //        rot_theta = rotMat.angle(); //using it in radians during the algorithm
+        updateTransformInfoViewpoint();
+
+        return count;
+    }
 
     void PointReaderWriter::save(std::string filename) {
         std::ofstream file(filename);
@@ -315,6 +400,10 @@ namespace ArsImgTests {
 
     int PointReaderWriter::getNumRand() const {
         return num_rand;
+    }
+
+    PcdHeader PointReaderWriter::getPcdHeader() const {
+        return pcdHeader;
     }
 
     void PointReaderWriter::findKNearest(const cuars::Vec2d& query, int k, std::vector<int>& indices, std::vector<double>& distances) const {
@@ -560,9 +649,6 @@ namespace ArsImgTests {
             cov.x /= count;
             cov.y /= count;
             cov.z /= count;
-
-
-
         }
         return cov;
     }
@@ -601,6 +687,29 @@ namespace ArsImgTests {
     // --------------------------------------------------------
     // PRIVATE METHODS
     // --------------------------------------------------------
+
+    void PointReaderWriter::substrEoL(std::string& out, const std::string& line, const std::string& substrTBR) {
+        size_t sz = substrTBR.size();
+        sz++; //space between key and value
+
+        out = line.substr(sz);
+    }
+
+    void PointReaderWriter::updateTransformInfoViewpoint() {
+        std::stringstream ss(pcdHeader.viewpoint);
+
+        std::string dummyZ;
+
+        double4 quat;
+
+        ss >> transl_x >> transl_y >> dummyZ >> quat.w >> quat.x >> quat.y >> quat.z;
+
+        rot_theta = cuars::quatTo2dAngle(quat).yaw;
+        std::cout << "transl_x " << transl_x << " transl_y " << transl_y << " rot_theta " << rot_theta << std::endl;
+        
+        cuars::Affine2d transf (rot_theta, transl_x, transl_y);
+        updateTransformInfo(transf);
+    }
 
     void PointReaderWriter::updateTransformInfo(const cuars::Affine2d& transform) {
         cuars::Affine2d prevTorig = coordToTransform(transl_x, transl_y, rot_theta);
