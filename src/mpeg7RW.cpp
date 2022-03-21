@@ -193,30 +193,32 @@ namespace ArsImgTests {
         return count;
     }
 
-    //    void PointReaderWriter::loadCloudPoints(std::string cloudFilename) {
-    //        // Loads the input point cloud
-    //        points_.clear();
-    //        pcl::PointCloud<pcl::PointXYZ>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZ>);
-    //
-    //        std::cout << "Loading point cloud from \"" << cloudFilename << "\"" << std::endl;
-    //        if (pcl::io::loadPCDFile(cloudFilename, *cloud) < 0) {
-    //            std::cerr << "Cannot load point cloud from \"" << cloudFilename << "\"" << std::endl;
-    //            return;
-    //        }
-    //
-    //        size_t cloudSz = cloud->size();
-    //        for (size_t i = 0; i < cloudSz; ++i) {
-    //            cuars::Vec2d ptEig;
-    //            ptEig(0) = cloud->points.at(i).x;
-    //            ptEig(1) = cloud->points.at(i).y;
-    //
-    //            points_.push_back(ptEig);
-    //
-    //        }
-    //        //computing rotation on z-axis and assigning it to rot_theta
-    //        Eigen::Rotation2D<float> rotMat(cloud->sensor_orientation_.toRotationMatrix().block<2, 2>(0, 0));
-    //        rot_theta = rotMat.angle(); //using it in radians during the algorithm
-    //    }
+//    void PointReaderWriter::loadCloudPoints(std::string cloudFilename) {
+//        // Loads the input point cloud
+//        points_.clear();
+//        pcl::PointCloud<pcl::PointXYZ>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZ>);
+//
+//        std::cout << "Loading point cloud from \"" << cloudFilename << "\"" << std::endl;
+//        if (pcl::io::loadPCDFile(cloudFilename, *cloud) < 0) {
+//            std::cerr << "Cannot load point cloud from \"" << cloudFilename << "\"" << std::endl;
+//            return;
+//        }
+//
+//        size_t cloudSz = cloud->size();
+//        for (size_t i = 0; i < cloudSz; ++i) {
+//            cuars::Vec2d ptEig;
+//            //            ptEig(0) = cloud->points.at(i).x;
+//            ptEig.x = cloud->at(i).x;
+//            //            ptEig(1) = cloud->points.at(i).y;
+//            ptEig.y = cloud->at(i).y;
+//
+//            points_.push_back(ptEig);
+//
+//        }
+//        //computing rotation on z-axis and assigning it to rot_theta
+//        Eigen::Rotation2D<float> rotMat(cloud->sensor_orientation_.toRotationMatrix().block<2, 2>(0, 0));
+//        rot_theta = rotMat.angle(); //using it in radians during the algorithm
+//    }
 
     void PointReaderWriter::save(std::string filename) {
         std::ofstream file(filename);

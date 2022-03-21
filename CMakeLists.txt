@@ -114,11 +114,20 @@ set_target_properties(gpu_testIsotropicArs PROPERTIES CUDA_ARCHITECTURES "75")
 ####################################################################################
  
 add_executable(gpu_testArsIsoMpeg7 test/gpu_testArsIsoMpeg7.cu)
-target_link_libraries(gpu_testArsIsoMpeg7 ${ars_LINK_LIBS} iso_cuars_mpeg7 rofl_common ${PCL_LIBRARIES} -lstdc++fs)
+target_link_libraries(gpu_testArsIsoMpeg7 ${ars_LINK_LIBS} iso_cuars_mpeg7 ${PCL_LIBRARIES} rofl_common -lstdc++fs -lboost_filesystem)
 
 target_compile_features(gpu_testArsIsoMpeg7 PUBLIC cxx_std_11)
 set_target_properties(gpu_testArsIsoMpeg7 PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
 set_target_properties(gpu_testArsIsoMpeg7 PROPERTIES CUDA_ARCHITECTURES "75")
+
+####################################################################################
+
+add_executable(gpu_testArsIsoPcl test/gpu_testArsIsoPcl.cu)
+target_link_libraries(gpu_testArsIsoPcl ${ars_LINK_LIBS} iso_cuars_mpeg7 rofl_common ${PCL_LIBRARIES} -lstdc++fs)
+
+target_compile_features(gpu_testArsIsoPcl PUBLIC cxx_std_11)
+set_target_properties(gpu_testArsIsoPcl PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
+set_target_properties(gpu_testArsIsoPcl PROPERTIES CUDA_ARCHITECTURES "75")
 
 ####################################################################################
  
