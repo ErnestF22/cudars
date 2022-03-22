@@ -493,18 +493,18 @@ void updateParallelizationParams(ParlArsIsoParams& pp, int currChunkSz) {
     //    std::cout << "Parallelization params:" << std::endl;
     //    std::cout << "numPts " << pp.numPts << " blockSize " << pp.blockSz << " numBlocks " << numBlocks
     //            << " gridTotalSize " << gridTotalSize << " gridTotalSizeAP " << gridTotalSizeAfterPadding << std::endl;
-    //    std::cout << "sumSrcBlockSz " << sumBlockSz << " sumGridSz " << sumGridSz << std::endl;
+    //    std::cout << "sumBlockSz " << sumBlockSz << " sumGridSz " << sumGridSz << std::endl;
     //        std::cout << "sum parallelization params: " << std::endl
     //            << "coeffMatNumCols " << pp.coeffsMatNumCols << " coeffsMatTotalSz " << coeffsMatTotalSz << std::endl;
 
     std::cout << "\nCalling kernel functions on GPU...\n" << std::endl;
 }
 
-void computeArsIsoGpu(ParlArsIsoParams& paip, ArsIsoParams& arsPms, const cuars::VecVec2d& points, double* coeffsArs, cudaEvent_t startSrc, cudaEvent_t stopSrc) {
+void computeArsIsoGpu(ParlArsIsoParams& paip, ArsIsoParams& arsPms, const cuars::VecVec2d& points, double* coeffsArs, cudaEvent_t start, cudaEvent_t stop, double& execTime) {
 
-    std::cout << "\n---Estimating Ars Iso on SRC---\n" << std::endl;
+    std::cout << "\n---Estimating Ars Iso---\n" << std::endl;
 
-    //    double* coeffsArsSrc = new double [paip.coeffsMatNumColsPadded];
+    //    double* coeffsArs = new double [paip.coeffsMatNumColsPadded];
     double* d_coeffsArs;
     cudaMalloc((void**) &d_coeffsArs, paip.coeffsMatNumColsPadded * sizeof (double));
     cudaMemset(d_coeffsArs, 0.0, paip.coeffsMatNumColsPadded * sizeof (double));
@@ -517,43 +517,41 @@ void computeArsIsoGpu(ParlArsIsoParams& paip, ArsIsoParams& arsPms, const cuars:
         updateParallelizationParams(paip, currChunkSz); //TODO: put chunkMaxSz as TestParams struct member?
 
 
-        cuars::Vec2d* kernelInputSrc;
-        cudaMalloc((void**) &kernelInputSrc, currChunkSz * sizeof (cuars::Vec2d));
-        //        cudaMemcpy(kernelInputSrc, points.data(), numPtsAfterPadding * sizeof (cuars::Vec2d), cudaMemcpyHostToDevice);
+        cuars::Vec2d* kernelInput;
+        cudaMalloc((void**) &kernelInput, currChunkSz * sizeof (cuars::Vec2d));
+        //        cudaMemcpy(kernelInput, points.data(), numPtsAfterPadding * sizeof (cuars::Vec2d), cudaMemcpyHostToDevice);
         std::cout << "round " << i + 1 << "/" << paip.numChunks << " -> "
                 << "chunk-beg " << indicesStartEnd.first << " chunk-end " << indicesStartEnd.second << " --- chunk-size " << currChunkSz << std::endl;
         cuars::VecVec2d dataChunk(points.begin() + indicesStartEnd.first, points.begin() + (indicesStartEnd.first + currChunkSz));
-        cudaMemcpy(kernelInputSrc, dataChunk.data(), (dataChunk.size()) * sizeof (cuars::Vec2d), cudaMemcpyHostToDevice);
+        cudaMemcpy(kernelInput, dataChunk.data(), (dataChunk.size()) * sizeof (cuars::Vec2d), cudaMemcpyHostToDevice);
 
 
         //Fourier matrix sum -> parallelization parameters
         std::cout << "Parallelization params:" << std::endl;
         std::cout << "numPts " << paip.numPts << " blockSize " << paip.blockSz << " numBlocks " << paip.numBlocks
                 << " gridTotalSize " << paip.gridTotalSize << " gridTotalSizeAP " << paip.gridTotalSizeAfterPadding << std::endl;
-        std::cout << "sumSrcBlockSz " << paip.sumBlockSz << " sumGridSz " << paip.sumGridSz << std::endl;
+        std::cout << "sumBlockSz " << paip.sumBlockSz << " sumGridSz " << paip.sumGridSz << std::endl;
 
         std::cout << "sum parallelization params: " << std::endl
                 << "coeffMatNumCols " << paip.coeffsMatNumCols << " coeffsMatTotalSz " << paip.coeffsMatTotalSz << std::endl;
 
-        double* d_coeffsMatSrc;
-        cudaMalloc((void**) &d_coeffsMatSrc, paip.coeffsMatTotalSz * sizeof (double));
-        cudaMemset(d_coeffsMatSrc, 0.0, paip.coeffsMatTotalSz * sizeof (double));
-        //    for (int i = 0; i < coeffsMatTotalSz; ++i) {
-        //        coeffsMaSrc1[i] = 0.0;
-        //    }
+        double* d_coeffsMat;
+        cudaMalloc((void**) &d_coeffsMat, paip.coeffsMatTotalSz * sizeof (double));
+        cudaMemset(d_coeffsMat, 0.0, paip.coeffsMatTotalSz * sizeof (double));
 
-        double* d_partsumsSrc;
-        cudaMalloc((void**) &d_partsumsSrc, paip.blockSz * paip.coeffsMatNumColsPadded * sizeof (double));
-        cudaMemset(d_partsumsSrc, 0.0, paip.blockSz * paip.coeffsMatNumColsPadded * sizeof (double));
+        
+        double* d_partsums;
+        cudaMalloc((void**) &d_partsums, paip.blockSz * paip.coeffsMatNumColsPadded * sizeof (double));
+        cudaMemset(d_partsums, 0.0, paip.blockSz * paip.coeffsMatNumColsPadded * sizeof (double));
 
 
 
-        cudaEventRecord(startSrc);
-        iigDw << <paip.numBlocks, paip.blockSz >> >(kernelInputSrc, arsPms.arsIsoSigma, arsPms.arsIsoSigma, currChunkSz, arsPms.arsIsoOrder, paip.coeffsMatNumColsPadded, arsPms.arsIsoPnebiMode, d_coeffsMatSrc);
-        //    sumColumnsNoPadding << <1, sumBlockSz>> >(coeffsMatSrc, gridTotalSizeAfterPadding, coeffsMatNumColsPadded, d_coeffsArsSrc);
-        makePartialSums << < paip.coeffsMatNumColsPadded, paip.blockSz >>> (d_coeffsMatSrc, paip.gridTotalSizeAfterPadding, paip.coeffsMatNumColsPadded, d_partsumsSrc);
-        sumColumnsPartialSums << <paip.coeffsMatNumColsPadded, 1 >> >(d_partsumsSrc, paip.blockSz, paip.coeffsMatNumColsPadded, d_coeffsArs);
-        cudaEventRecord(stopSrc);
+        cudaEventRecord(start);
+        iigDw << <paip.numBlocks, paip.blockSz >> >(kernelInput, arsPms.arsIsoSigma, arsPms.arsIsoSigma, currChunkSz, arsPms.arsIsoOrder, paip.coeffsMatNumColsPadded, arsPms.arsIsoPnebiMode, d_coeffsMat);
+        //    sumColumnsNoPadding << <1, sumBlockSz>> >(coeffsMat, gridTotalSizeAfterPadding, coeffsMatNumColsPadded, d_coeffsArs);
+        makePartialSums << < paip.coeffsMatNumColsPadded, paip.blockSz >>> (d_coeffsMat, paip.gridTotalSizeAfterPadding, paip.coeffsMatNumColsPadded, d_partsums);
+        sumColumnsPartialSums << <paip.coeffsMatNumColsPadded, 1 >> >(d_partsums, paip.blockSz, paip.coeffsMatNumColsPadded, d_coeffsArs);
+        cudaEventRecord(stop);
 
 
 
@@ -562,21 +560,23 @@ void computeArsIsoGpu(ParlArsIsoParams& paip, ArsIsoParams& arsPms, const cuars:
             printf("kernel launch failed with error \"%s\".\n", cudaGetErrorString(cudaerr));
 
         //    for (int i = 0; i < coeffsMatNumColsPadded; ++i) {
-        //        std::cout << "coeffsArsSrc[" << i << "] " << coeffsArsSrc[i] << std::endl;
+        //        std::cout << "coeffsArs[" << i << "] " << coeffsArs[i] << std::endl;
         //    }
 
-        cudaFree(d_partsumsSrc);
-        cudaFree(d_coeffsMatSrc);
-        cudaFree(kernelInputSrc);
+        cudaFree(d_partsums);
+        cudaFree(d_coeffsMat);
+        cudaFree(kernelInput);
     }
 
     cudaMemcpy(coeffsArs, d_coeffsArs, paip.coeffsMatNumColsPadded * sizeof (double), cudaMemcpyDeviceToHost);
     cudaFree(d_coeffsArs);
 
-    cudaEventSynchronize(stopSrc);
-    float millisecondsSrc = 0.0f;
-    cudaEventElapsedTime(&millisecondsSrc, startSrc, stopSrc);
-    std::cout << "\nSRC -> insertIsotropicGaussians() " << millisecondsSrc << " ms" << std::endl;
-    paip.gpu_srcExecTime = millisecondsSrc;
+    cudaEventSynchronize(stop);
+    float millisecondsExecTime = 0.0f;
+    cudaEventElapsedTime(&millisecondsExecTime, start, stop);
+    
+    std::cout << "\ninsertIsotropicGaussians() -> exec time: " << millisecondsExecTime << " ms" << std::endl; //!!!!
+    
+    execTime = millisecondsExecTime;
 }
 

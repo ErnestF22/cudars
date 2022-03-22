@@ -164,7 +164,8 @@ int main(int argc, char **argv) {
         outfile << "gpu_arsIso rotGpuArsIso[deg] ";
     }
     if (tparams.extrainfoEnable)
-        outfile << "srcNumPts srcNumKers srcExecTime dstNumPts dstNumKers dstExecTime "; //Kers stands for kernels
+        outfile << "srcNumPts srcExecTime gpu_srcExecTime dstNumPts dstExecTime gpu_dstExecTime";
+
 
     outfile << "\n";
     //End of outfile header setup
@@ -256,7 +257,7 @@ void gpu_estimateRotationArsIso(const ArsImgTests::PointReaderWriter& pointsSrc,
     const cuars::VecVec2d& inputSrc = pointsSrc.points();
     initParallelizationParams(paip, tp.aiPms.arsIsoOrder, inputSrc.size(), paip.blockSz, paip.chunkMaxSz); //cudarsIso.init()
     double* coeffsArsSrc = new double [paip.coeffsMatNumColsPadded];
-    computeArsIsoGpu(paip, tp.aiPms, inputSrc, coeffsArsSrc, startSrc, stopSrc); //cudarsIso.compute()
+    computeArsIsoGpu(paip, tp.aiPms, inputSrc, coeffsArsSrc, startSrc, stopSrc, paip.gpu_srcExecTime); //cudarsIso.compute()
 
     cudaEventDestroy(startSrc);
     cudaEventDestroy(stopSrc);
@@ -272,7 +273,7 @@ void gpu_estimateRotationArsIso(const ArsImgTests::PointReaderWriter& pointsSrc,
     const cuars::VecVec2d& inputDst = pointsDst.points();
     initParallelizationParams(paip, tp.aiPms.arsIsoOrder, inputDst.size(), paip.blockSz, paip.chunkMaxSz); //cudarsIso.init()
     double* coeffsArsDst = new double [paip.coeffsMatNumColsPadded];
-    computeArsIsoGpu(paip, tp.aiPms, inputDst, coeffsArsDst, startDst, stopDst); //cudarsIso.compute()
+    computeArsIsoGpu(paip, tp.aiPms, inputDst, coeffsArsDst, startDst, stopDst, paip.gpu_dstExecTime); //cudarsIso.compute()
 
     cudaEventDestroy(startDst);
     cudaEventDestroy(stopDst);

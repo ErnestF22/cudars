@@ -80,7 +80,7 @@ int main(int argc, char** argv) {
     TestParams tp;
 
     params.getParam<int>("fileSkipper", tp.fileSkipper, 1);
-    params.getParam<bool>("extrainfoEnable", tp.extrainfoEnable, false);
+    params.getParam<bool>("extrainfoEnable", tp.extrainfoEnable, true);
 
 
     // ArsIso params
@@ -177,7 +177,7 @@ int main(int argc, char** argv) {
         outfile << "gpu_arsIso rotGpuArsIso[deg] ";
     }
     if (tp.extrainfoEnable)
-        outfile << "srcNumPts srcNumKers srcExecTime dstNumPts dstNumKers dstExecTime "; //Kers stands for kernels
+        outfile << "srcNumPts srcExecTime gpu_srcExecTime dstNumPts dstExecTime gpu_dstExecTime";
 
 
     outfile << "\n";
@@ -233,7 +233,7 @@ int main(int argc, char** argv) {
         }
         if (tp.gpu_arsIsoEnable) {
             gpu_estimateRotationArsIso(pointsSrc.points(), pointsDst.points(), tp, paip, gpu_rotArsIso);
-            std::cout << std::fixed << std::setprecision(2) << std::setw(10)
+            std::cout << std::endl << std::fixed << std::setprecision(2) << std::setw(10)
                     << "  gpu_rotArsIso \t" << (180.0 / M_PI * gpu_rotArsIso) << " deg\t\t" << (180.0 / M_PI * cuars::mod180(gpu_rotArsIso)) << " deg [mod 180]\n";
             outfile << std::setw(6) << "gpu_arsIso " << std::fixed << std::setprecision(2) << std::setw(6) << (180.0 / M_PI * cuars::mod180(gpu_rotArsIso)) << " ";
         }
@@ -379,7 +379,7 @@ void gpu_estimateRotationArsIso(const ArsImgTests::PointReaderWriter& pointsSrc,
     const cuars::VecVec2d& inputSrc = pointsSrc.points();
     initParallelizationParams(paip, tp.aiPms.arsIsoOrder, inputSrc.size(), paip.blockSz, paip.chunkMaxSz); //cudarsIso.init()
     double* coeffsArsSrc = new double [paip.coeffsMatNumColsPadded];
-    computeArsIsoGpu(paip, tp.aiPms, inputSrc, coeffsArsSrc, startSrc, stopSrc); //cudarsIso.compute()
+    computeArsIsoGpu(paip, tp.aiPms, inputSrc, coeffsArsSrc, startSrc, stopSrc, paip.gpu_srcExecTime); //cudarsIso.compute()
 
     cudaEventDestroy(startSrc);
     cudaEventDestroy(stopSrc);
@@ -395,13 +395,14 @@ void gpu_estimateRotationArsIso(const ArsImgTests::PointReaderWriter& pointsSrc,
     const cuars::VecVec2d& inputDst = pointsDst.points();
     initParallelizationParams(paip, tp.aiPms.arsIsoOrder, inputDst.size(), paip.blockSz, paip.chunkMaxSz); //cudarsIso.init()
     double* coeffsArsDst = new double [paip.coeffsMatNumColsPadded];
-    computeArsIsoGpu(paip, tp.aiPms, inputDst, coeffsArsDst, startDst, stopDst); //cudarsIso.compute()
+    computeArsIsoGpu(paip, tp.aiPms, inputDst, coeffsArsDst, startDst, stopDst, paip.gpu_dstExecTime); //cudarsIso.compute()
 
     cudaEventDestroy(startDst);
     cudaEventDestroy(stopDst);
     //END OF ARS DST
 
-
+    std::cout << std::endl << "---Computing corelation---" << std::endl;
+    
     //Final computations (correlation, ...) on CPU
     //    std::cout << "\nARS Coefficients:\n";
     //    std::cout << "Coefficients: Src, Dst, Cor" << std::endl;

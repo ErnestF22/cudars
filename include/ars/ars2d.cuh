@@ -161,4 +161,4 @@ void initParallelizationParams(ParlArsIsoParams& pp, int fourierOrder, int numPt
 
 void updateParallelizationParams(ParlArsIsoParams& pp, int currChunkSz);
 
-void computeArsIsoGpu(ParlArsIsoParams& paip, ArsIsoParams& arsPms, const cuars::VecVec2d& points, double* d_coeffsArs, cudaEvent_t startSrc, cudaEvent_t stopSrc);
+void computeArsIsoGpu(ParlArsIsoParams& paip, ArsIsoParams& arsPms, const cuars::VecVec2d& points, double* d_coeffsArs, cudaEvent_t startSrc, cudaEvent_t stopSrc, double& execTime);

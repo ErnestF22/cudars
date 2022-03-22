@@ -119,7 +119,7 @@ int main(int argc, char **argv) {
     const cuars::VecVec2d& inputSrc = pointsSrc.points();
     initParallelizationParams(paip, aiPms.arsIsoOrder, inputSrc.size(), paip.blockSz, paip.chunkMaxSz); //cudarsIso.init()
     double* coeffsArsSrc = new double [paip.coeffsMatNumColsPadded];
-    computeArsIsoGpu(paip, aiPms, inputSrc, coeffsArsSrc, startSrc, stopSrc); //cudarsIso.compute()
+    computeArsIsoGpu(paip, aiPms, inputSrc, coeffsArsSrc, startSrc, stopSrc, paip.gpu_srcExecTime); //cudarsIso.compute()
 
     cudaEventDestroy(startSrc);
     cudaEventDestroy(stopSrc);
@@ -137,7 +137,7 @@ int main(int argc, char **argv) {
     const cuars::VecVec2d& inputDst = pointsDst.points();
     initParallelizationParams(paip, aiPms.arsIsoOrder, inputDst.size(), paip.blockSz, paip.chunkMaxSz); //cudarsIso.init()
     double* coeffsArsDst = new double [paip.coeffsMatNumColsPadded];
-    computeArsIsoGpu(paip, aiPms, inputDst, coeffsArsDst, startDst, stopDst); //cudarsIso.compute()
+    computeArsIsoGpu(paip, aiPms, inputDst, coeffsArsDst, startDst, stopDst, paip.gpu_srcExecTime); //cudarsIso.compute()
 
     cudaEventDestroy(startDst);
     cudaEventDestroy(stopDst);
