@@ -27,6 +27,8 @@
 #include "ars/ars2d.cuh"
 #include "ars/mpeg7RW.h"
 
+
+
 int main(int argc, char **argv) {
     cuars::AngularRadonSpectrum2d arsSrc;
     cuars::AngularRadonSpectrum2d arsDst;

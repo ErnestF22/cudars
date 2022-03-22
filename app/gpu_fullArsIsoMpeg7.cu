@@ -161,7 +161,7 @@ int main(int argc, char **argv) {
         outfile << "arsIso rotArsIso[deg] ";
     }
     if (tparams.gpu_arsIsoEnable) {
-        outfile << "gpuarsIso rotGpuArsIso[deg] ";
+        outfile << "gpu_arsIso rotGpuArsIso[deg] ";
     }
     if (tparams.extrainfoEnable)
         outfile << "srcNumPts srcNumKers srcExecTime dstNumPts dstNumKers dstExecTime "; //Kers stands for kernels
