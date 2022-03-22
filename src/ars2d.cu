@@ -497,7 +497,6 @@ void updateParallelizationParams(ParlArsIsoParams& pp, int currChunkSz) {
     //        std::cout << "sum parallelization params: " << std::endl
     //            << "coeffMatNumCols " << pp.coeffsMatNumCols << " coeffsMatTotalSz " << coeffsMatTotalSz << std::endl;
 
-
     std::cout << "\nCalling kernel functions on GPU...\n" << std::endl;
 }
 
