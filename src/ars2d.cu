@@ -23,7 +23,8 @@
 // DIVISION IN CHUNKS (FOR BIG IMAGES)
 // --------------------------------------------------------
 
-__host__
+//__host__
+
 int numChunks(int totNumPts, int chunkSz) {
     if (totNumPts % chunkSz > 1024)
         return (totNumPts / chunkSz) + 1;
@@ -31,7 +32,8 @@ int numChunks(int totNumPts, int chunkSz) {
         return max(1, totNumPts / chunkSz);
 }
 
-__host__
+//__host__
+
 thrust::pair<int, int> chunkStartEndIndices(int round, int totNumPts, int chunkSz) {
     thrust::pair<int, int> pr;
 
@@ -290,7 +292,6 @@ void iigDw(cuars::Vec2d* means, double sigma1, double sigma2, int numPts, int fo
             //            delete pnebis;
         } else
             printf("ERROR: pnebi mode is NOT Downward!\n");
-
     }
 }
 
@@ -358,6 +359,8 @@ void iigLut(cuars::Vec2d* means, double sigma1, double sigma2, int numPts, int n
 
             int pnebisSz = fourierOrder + 1;
             double *pnebis = new double[pnebisSz];
+            if (pnebis == nullptr)
+                printf("ERROR ALLOCATING WITH NEW[]!\n");
             double sgn, cth, sth, ctmp, stmp;
 
 
@@ -377,10 +380,9 @@ void iigLut(cuars::Vec2d* means, double sigma1, double sigma2, int numPts, int n
                 sth = stmp;
             }
 
-            delete pnebis;
+            //            delete pnebis;
         } else
             printf("ERROR: pnebi mode is not LUT!\n");
-
     }
 }
 
@@ -424,6 +426,8 @@ void sumColumnsPartialSums(double* matPartialSums, int nrows, int ncols, double*
     }
 }
 
+//__host__
+
 void initParallelizationParams(ParlArsIsoParams& pp, int fourierOrder, int numPts, int blockSz, int chunkMaxSz) {
 
     pp.numPts = numPts;
@@ -441,6 +445,8 @@ void initParallelizationParams(ParlArsIsoParams& pp, int fourierOrder, int numPt
     const int coeffsMatNumColsPadded = coeffsMatNumCols;
     pp.coeffsMatNumColsPadded = coeffsMatNumColsPadded;
 }
+
+//__host__
 
 void initParallelizationParams(ParlArsIsoParams& pp, int fourierOrder, int numPtsSrc, int numPtsDst, int blockSz, int chunkMaxSz) {
 
@@ -460,6 +466,8 @@ void initParallelizationParams(ParlArsIsoParams& pp, int fourierOrder, int numPt
     const int coeffsMatNumColsPadded = coeffsMatNumCols;
     pp.coeffsMatNumColsPadded = coeffsMatNumColsPadded;
 }
+
+//__host__
 
 void updateParallelizationParams(ParlArsIsoParams& pp, int currChunkSz) {
     //Setting up parallelization
@@ -493,6 +501,8 @@ void updateParallelizationParams(ParlArsIsoParams& pp, int currChunkSz) {
 
     std::cout << "\nCalling kernel functions on GPU...\n" << std::endl;
 }
+
+//__host__
 
 void computeArsIsoGpu(ParlArsIsoParams& paip, ArsIsoParams& arsPms, const cuars::VecVec2d& points, double* coeffsArs, cudaEvent_t start, cudaEvent_t stop, double& execTime) {
 
@@ -533,7 +543,7 @@ void computeArsIsoGpu(ParlArsIsoParams& paip, ArsIsoParams& arsPms, const cuars:
         cudaMalloc((void**) &d_coeffsMat, paip.coeffsMatTotalSz * sizeof (double));
         cudaMemset(d_coeffsMat, 0.0, paip.coeffsMatTotalSz * sizeof (double));
 
-        
+
         double* d_partsums;
         cudaMalloc((void**) &d_partsums, paip.blockSz * paip.coeffsMatNumColsPadded * sizeof (double));
         cudaMemset(d_partsums, 0.0, paip.blockSz * paip.coeffsMatNumColsPadded * sizeof (double));
@@ -568,9 +578,7 @@ void computeArsIsoGpu(ParlArsIsoParams& paip, ArsIsoParams& arsPms, const cuars:
     cudaEventSynchronize(stop);
     float millisecondsExecTime = 0.0f;
     cudaEventElapsedTime(&millisecondsExecTime, start, stop);
-    
-    std::cout << "\ninsertIsotropicGaussians() -> exec time: " << millisecondsExecTime << " ms" << std::endl; //!!!!
-    
+    std::cout << "\ninsertIsotropicGaussians() -> exec time: " << millisecondsExecTime << " ms" << std::endl;
     execTime = millisecondsExecTime;
 }
 
