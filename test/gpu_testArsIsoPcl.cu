@@ -66,9 +66,9 @@ int main(int argc, char **argv) {
     params.read(argc, argv);
     params.getParam<std::string>("src", filenameSrc, "/home/rimlab/Downloads/acld0000_global.pcd");
     params.getParam<std::string>("dst", filenameDst, "/home/rimlab/Downloads/acld0001_global.pcd");
-    params.getParam<int>("arsOrder", arsOrder, 20);
-    params.getParam<double>("arsSigma", arsSigma, 1.0);
-    params.getParam<double>("arsTollDeg", arsThetaToll, 1.0);
+    params.getParam<int>("arsOrder", arsOrder, 32);
+    params.getParam<double>("arsSigma", arsSigma, 0.05);
+    params.getParam<double>("arsTollDeg", arsThetaToll, 0.5);
     arsThetaToll *= M_PI / 180.0;
     //    params.getParam<double>("sampleResDeg", sampleRes, 0.5);
     //    sampleRes *= M_PI / 180.0;
@@ -299,8 +299,6 @@ int main(int argc, char **argv) {
     cudaEventDestroy(startDst);
     cudaEventDestroy(stopDst);
     //END OF ARS DST
-
-
 
 
 
