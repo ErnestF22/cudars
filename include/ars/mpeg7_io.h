@@ -22,6 +22,7 @@
 
 
 namespace mpeg7io {
+    namespace expfs = std::experimental::filesystem;
 
     // ----------------------------------------------
     // I/O OPERATIONS

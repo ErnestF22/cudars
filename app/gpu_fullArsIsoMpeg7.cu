@@ -27,6 +27,7 @@
 #include "ars/ars2d.cuh"
 #include <ars/ars2d.h>
 
+namespace expfs = std::experimental::filesystem;
 
 void gpu_estimateRotationArsIso(const ArsImgTests::PointReaderWriter& pointsSrc, const ArsImgTests::PointReaderWriter& pointsDst, TestParams& tp, ParlArsIsoParams& paip, double& rotOut);
 
@@ -67,7 +68,7 @@ int main(int argc, char **argv) {
     }
 
     params.read(argc, argv);
-    params.getParam<std::string>("in", inputGlob, std::experimental::filesystem::current_path().string() + "/*");
+    params.getParam<std::string>("in", inputGlob, expfs::current_path().string() + "/*");
     params.getParam<std::string>("out", filenameOut, mpeg7io::generateStampedString("results_", ".txt"));
     params.getParam<std::string>("resume", resumeFilename, "");
     params.getParam<bool>("extrainfoEnable", tparams.extrainfoEnable, bool(true));
@@ -95,7 +96,7 @@ int main(int argc, char **argv) {
     params.getParam<int>("blockSz", paiParams.blockSz, 256);
     params.getParam<int>("chunkMaxSz", paiParams.chunkMaxSz, 4096);
 
-    params.getParam<int>("fileSkipper", tparams.fileSkipper, int(1));
+    params.getParam<int>("fileSkipper", tparams.fileSkipper, 1);
 
     std::cout << "\nParameter values:\n";
     params.write(std::cout);

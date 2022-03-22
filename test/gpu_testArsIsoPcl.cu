@@ -67,7 +67,7 @@ int main(int argc, char **argv) {
     params.read(argc, argv);
     params.getParam<std::string>("src", filenameSrc, "/home/rimlab/Downloads/acld0000_global.pcd");
     params.getParam<std::string>("dst", filenameDst, "/home/rimlab/Downloads/acld0001_global.pcd");
-    params.getParam<int>("arsOrder", aiPms.arsIsoOrder, 32);
+    params.getParam<int>("arsOrder", aiPms.arsIsoOrder, 20);
     params.getParam<double>("arsSigma", aiPms.arsIsoSigma, 0.05);
     params.getParam<double>("arsTollDeg", aiPms.arsIsoThetaToll, 0.5);
     aiPms.arsIsoThetaToll *= M_PI / 180.0;

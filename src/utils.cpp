@@ -418,8 +418,10 @@ namespace cuars {
 
     void preTransfVec2(Vec2d& p, const Affine2d& t) {
         if (t.isLastRowOK()) {
-            p.x = (p.x * t.data_[0 * Three + 0]) + (p.y * t.data_[0 * Three + 1]) + (t.data_[0 * Three + 2]);
-            p.y = (p.x * t.data_[1 * Three + 0]) + (p.y * t.data_[1 * Three + 1]) + (t.data_[1 * Three + 2]);
+            double px = p.x;
+            double py = p.y;
+            p.x = (px * t.data_[0 * Three + 0]) + (py * t.data_[0 * Three + 1]) + (t.data_[0 * Three + 2]);
+            p.y = (px * t.data_[1 * Three + 0]) + (py * t.data_[1 * Three + 1]) + (t.data_[1 * Three + 2]);
             //p.z = 1.0;
         } else {
             printf("ERROR: Transf Matrix affine scale != 1\n");

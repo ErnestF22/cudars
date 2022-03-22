@@ -51,7 +51,6 @@ thrust::pair<int, int> chunkStartEndIndices(int round, int totNumPts, int chunkS
     return pr;
 }
 
-
 // --------------------------------------------------------
 // 2D->1D INDICIZATION IN FOURIER COEFFICIENT MATRIX
 // --------------------------------------------------------
@@ -236,7 +235,6 @@ void iigDw(cuars::Vec2d* means, double sigma1, double sigma2, int numPts, int fo
         double weight = wNorm / sqrt(2.0 * M_PI * sigmaValSq);
 
 
-
         //updating Fourier coefficients (2 modes)
         if (pnebiMode == cuars::ArsKernelIso2dComputeMode::PNEBI_DOWNWARD) {
             //                updateARSF2CoeffRecursDown(lambdaSqNorm, phi, w2, nFourier, coeffs);
@@ -245,8 +243,6 @@ void iigDw(cuars::Vec2d* means, double sigma1, double sigma2, int numPts, int fo
             cth2 = cos(2.0 * phi);
             sth2 = sin(2.0 * phi);
             //                updateARSF2CoeffRecursDown(lambda, cth2, sth2, factor, n, coeffs);
-
-
 
 
             int pnebisSz = fourierOrder + 1;
@@ -438,8 +434,7 @@ void initParallelizationParams(ParlArsIsoParams& pp, int fourierOrder, int numPt
     int nc = numChunks(numPts, chunkMaxSz);
     pp.numChunks = nc;
 
-    const int blockSize = blockSz;
-    pp.blockSz = blockSize;
+    pp.blockSz = blockSz;
 
     const int coeffsMatNumCols = 2 * fourierOrder + 2;
     pp.coeffsMatNumCols = coeffsMatNumCols;
@@ -458,8 +453,7 @@ void initParallelizationParams(ParlArsIsoParams& pp, int fourierOrder, int numPt
     int nc = numChunks(numPts, chunkMaxSz);
     pp.numChunks = nc;
 
-    const int blockSize = blockSz;
-    pp.blockSz = blockSize;
+    pp.blockSz = blockSz;
 
     const int coeffsMatNumCols = 2 * fourierOrder + 2;
     pp.coeffsMatNumCols = coeffsMatNumCols;

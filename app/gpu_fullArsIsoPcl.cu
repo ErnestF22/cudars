@@ -21,6 +21,8 @@
 #include <ars/mpeg7_io.h>
 #include <ars/mpeg7RW.h>
 
+namespace expfs = std::experimental::filesystem;
+
 
 // Functions
 void parseResAsSigmaMin(std::string infoFilename, double& sigmaMin);
@@ -50,6 +52,7 @@ int main(int argc, char** argv) {
     std::vector<std::pair<int, int> > outPairs;
     std::string outputFilename;
 
+    TestParams tp;
 
     double rotTrue, rotArsIso, gpu_rotArsIso;
     int srcNumPts, dstNumPts;
@@ -73,11 +76,10 @@ int main(int argc, char** argv) {
     params.read(argc, argv);
 
     // Parameters value
-    params.getParam<std::string>("in", inputGlob, std::experimental::filesystem::current_path().string() + "/*");
+    params.getParam<std::string>("in", inputGlob, expfs::current_path().string() + "/*");
     params.getParam<std::string>("out", outputFilename, mpeg7io::generateStampedString("results_", ".txt"));
     params.getParam<std::string>("rots", rotsFilename, "");
 
-    TestParams tp;
 
     params.getParam<int>("fileSkipper", tp.fileSkipper, 1);
     params.getParam<bool>("extrainfoEnable", tp.extrainfoEnable, true);
@@ -87,11 +89,10 @@ int main(int argc, char** argv) {
     params.getParam<bool>("arsisoEnable", tp.arsIsoEnable, false);
     params.getParam<bool>("gpu_arsisoEnable", tp.gpu_arsIsoEnable, true);
 
-    ArsIsoParams aiPms;
-    params.getParam<int>("arsOrder", aiPms.arsIsoOrder, 32);
-    params.getParam<double>("arsSigma", aiPms.arsIsoSigma, 0.05);
-    params.getParam<double>("arsTollDeg", aiPms.arsIsoThetaToll, 0.5);
-    aiPms.arsIsoThetaToll *= M_PI / 180.0;
+    params.getParam<int>("arsOrder", tp.aiPms.arsIsoOrder, 20);
+    params.getParam<double>("arsSigma", tp.aiPms.arsIsoSigma, 0.05);
+    params.getParam<double>("arsTollDeg", tp.aiPms.arsIsoThetaToll, 0.5);
+    tp.aiPms.arsIsoThetaToll *= M_PI / 180.0;
 
 
     ParlArsIsoParams paip;
@@ -125,7 +126,7 @@ int main(int argc, char** argv) {
 
 
     if (rotsFilename.empty())
-        rotsFilename = std::experimental::filesystem::path(inputGlob).parent_path().parent_path().string() + "/rand_rotations.txt";
+        rotsFilename = expfs::path(inputGlob).parent_path().parent_path().string() + "/rand_rotations.txt";
 
     readRotsFile(rotsFilename, rots);
 
@@ -145,7 +146,7 @@ int main(int argc, char** argv) {
         if (tp.extrainfoEnable) {
             methodSuffix = methodSuffix + "_extrainfo";
         }
-        std::string datafolder = std::experimental::filesystem::path(inputGlob).parent_path().parent_path().filename().string();
+        std::string datafolder = expfs::path(inputGlob).parent_path().parent_path().filename().string();
         outputFilename = mpeg7io::generateStampedString("results_" + datafolder.replace(datafolder.begin(), datafolder.begin() + 5, "") + methodSuffix + "_", ".txt"); //replace() is used in order to remove "data_" from the string
         std::cout << "outputFilename: \"" << outputFilename << "\"" << std::endl;
 
@@ -328,7 +329,7 @@ void findComparisonPair(const std::vector<std::string>& inputFilenames, std::vec
 
 std::string getPrefix(std::string filename) {
     // Strips filename of the path 
-    std::experimental::filesystem::path filepath(filename);
+    expfs::path filepath(filename);
     std::string name = filepath.filename().string();
     std::string prefix;
     //  std::cout << "  name: \"" << name << "\"\n";
@@ -344,23 +345,8 @@ std::string getPrefix(std::string filename) {
     return prefix;
 }
 
-//std::string getShortName(std::string filename) {
-//    std::stringstream ss;
-//    std::string prefix = getPrefix(filename);
-//    boost::filesystem::path filenamePath = filename;
-//    filename = filenamePath.filename().string();
-//    // Computes a digest on the string
-//    unsigned int h = 19;
-//    for (int i = 0; i < filename.length(); ++i) {
-//        h = ((h * 31) + (unsigned int) filename[i]) % 97;
-//    }
-//    //  std::cout << "\nglob \"" << filenamePath.string() << "\" filename \"" << filename << "\" hash " << h << std::endl;
-//    ss << prefix << "_" << std::setw(2) << std::setfill('0') << h;
-//    return ss.str();
-//}
-
 std::string getLeafDirectory(std::string filename) {
-    std::experimental::filesystem::path filenamePath = filename;
+    expfs::path filenamePath = filename;
     std::string parent = filenamePath.parent_path().string();
     size_t pos = parent.find_last_of('/');
     std::string leafDir = "";
@@ -402,7 +388,7 @@ void gpu_estimateRotationArsIso(const ArsImgTests::PointReaderWriter& pointsSrc,
     //END OF ARS DST
 
     std::cout << std::endl << "---Computing corelation---" << std::endl;
-    
+
     //Final computations (correlation, ...) on CPU
     //    std::cout << "\nARS Coefficients:\n";
     //    std::cout << "Coefficients: Src, Dst, Cor" << std::endl;
@@ -439,6 +425,7 @@ void gpu_estimateRotationArsIso(const ArsImgTests::PointReaderWriter& pointsSrc,
     //    }
     //    std::cout << std::endl;
 
+    std::cout << std::endl << "ROT OUT " << rotOut << std::endl;
 
     // Computes the rotated points,centroid, affine transf matrix between src and dst
     ArsImgTests::PointReaderWriter pointsRot(pointsSrc.points());

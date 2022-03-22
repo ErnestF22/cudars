@@ -21,10 +21,10 @@ namespace mpeg7io {
 
     void getDirectoryFiles(const std::string& dirPath, std::vector<std::string>& matchingFiles) {
         std::cout << "Looking in directory \"" << dirPath << "\"" << std::endl;
-        std::experimental::filesystem::directory_iterator end_itr; // Default ctor yields past-the-end
-        for (std::experimental::filesystem::directory_iterator i(dirPath); i != end_itr; ++i) {
+        expfs::directory_iterator end_itr; // Default ctor yields past-the-end
+        for (expfs::directory_iterator i(dirPath); i != end_itr; ++i) {
             // Skip if not a file
-            if (std::experimental::filesystem::is_regular_file(i->status())) {
+            if (expfs::is_regular_file(i->status())) {
                 matchingFiles.push_back(i->path().string());
             }
         }
@@ -152,7 +152,7 @@ namespace mpeg7io {
 
     std::string getPrefix(std::string filename) {
         // Strips filename of the path 
-        std::experimental::filesystem::path filepath(filename);
+        expfs::path filepath(filename);
         std::string name = filepath.filename().string();
         std::string prefix;
         //  std::cout << "  name: \"" << name << "\"\n";
@@ -170,7 +170,7 @@ namespace mpeg7io {
     std::string getShortName(std::string filename) {
         std::stringstream ss;
         std::string prefix = getPrefix(filename);
-        std::experimental::filesystem::path filenamePath = filename;
+        expfs::path filenamePath = filename;
         filename = filenamePath.filename().string();
         // Computes a digest on the string
         unsigned int h = 19;
@@ -183,7 +183,7 @@ namespace mpeg7io {
     }
 
     std::string getLeafDirectory(std::string filename) {
-        std::experimental::filesystem::path filenamePath = filename;
+        expfs::path filenamePath = filename;
         std::string parent = filenamePath.parent_path().string();
         size_t pos = parent.find_last_of('/');
         std::string leafDir = "";
