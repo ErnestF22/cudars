@@ -141,7 +141,7 @@ namespace ArsImgTests {
         int getNumOccl() const;
 
         int getNumRand() const;
-        
+
         PcdHeader getPcdHeader() const;
 
 
@@ -239,7 +239,7 @@ namespace ArsImgTests {
          * Made to be used when reading/parsing header of PCD file
          */
         void substrEoL(std::string& out, const std::string& line, const std::string& substrTBR);
-        
+
         /**
          * Update transl_x, transl_y, rot_theta private members according to what the PCD header file "viewpoint" line says
          */

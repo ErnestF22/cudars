@@ -706,8 +706,8 @@ namespace ArsImgTests {
 
         rot_theta = cuars::quatTo2dAngle(quat).yaw;
         std::cout << "transl_x " << transl_x << " transl_y " << transl_y << " rot_theta " << rot_theta << std::endl;
-        
-        cuars::Affine2d transf (rot_theta, transl_x, transl_y);
+
+        cuars::Affine2d transf(rot_theta, transl_x, transl_y);
         updateTransformInfo(transf);
     }
 

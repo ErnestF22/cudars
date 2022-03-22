@@ -68,7 +68,7 @@ namespace cuars {
     struct EulerAngles {
         double roll, pitch, yaw;
     };
-    
+
     //    using Vector2 = Eigen::Vector2d;
 
     using Vec2i = int2;

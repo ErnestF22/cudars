@@ -183,7 +183,7 @@ namespace cuars {
     Vec2d aff2TimesVec2WRV(const Affine2d& mAff, const Vec2d & p);
 
     //Quaternions, Euler angles related
-    
+
     /**
      * Credit to: https://en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles
      */
