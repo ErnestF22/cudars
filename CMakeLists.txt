@@ -4,8 +4,8 @@ project(ars-cuda LANGUAGES CXX CUDA)
 
 add_compile_options(-std=c++14)
 
-set(CMAKE_BUILD_TYPE "Debug")
-set(CMAKE_CUDA_FLAGS_DEBUG "-g -G")
+set(CMAKE_BUILD_TYPE Release)
+#set(CMAKE_CUDA_FLAGS_DEBUG "-g -G")
 #add_compile_options(-lineinfo)
 
 #Compute capability for NVIDIA RTX 3090 -> 86
