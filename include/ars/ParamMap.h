@@ -122,6 +122,28 @@ namespace cuars {
         table_type table_;
 
         static bool isOption(std::string str);
+
+        template <typename Value, typename Iterator>
+        static void fillWithTokens(const std::string& valueString, Iterator beg, Iterator end, const Value& valueDefault, const std::string& delim) {
+            try {
+                // Splits the value into tokens, e.g. "[1,2,3]" with delim "[,]" should become tokens "1", "2" and "3"
+                boost::char_separator<char> sep(delim.c_str());
+                boost::tokenizer<boost::char_separator<char> > tokens(valueString, sep);
+                // Casts each token into a value
+                auto sit = tokens.begin();
+                for (Iterator vit = beg; vit != end; ++vit) {
+                    if (sit != tokens.end()) {
+                        *vit = boost::lexical_cast<Value>(*sit);
+                        ++sit;
+                    } else {
+                        *vit = valueDefault;
+                    }
+                }
+            } catch (boost::bad_lexical_cast const&) {
+                ARS_ERROR("Error: cannot cast \"" << valueString << "\" to container values");
+                return;
+            }
+        }
     };
 
 } // end of namespace 

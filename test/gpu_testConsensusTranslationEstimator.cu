@@ -22,11 +22,15 @@ int main(int argc, char **argv)
     params.getParam("cfg", filenameCfg, std::string(""));
     params.read(filenameCfg);
     params.read(argc, argv);
+    params.getParam<double>("translRes", translRes, 1.0);
     // params.getParamContainer("translMin", translMin.data(), translMin.data() + translMin.size(), "[-10.0,-10.0]", double(0.0), "[,]"); //TODO: adapt ParamContainer to Cuda types
+    params.getParam<double>("translMin-x", translMin.x, -10.0);
+    params.getParam<double>("translMin-y", translMin.y, -10.0);  
     // params.getParamContainer("translGt", translGt.data(), translGt.data() + translGt.size(), "[-4.2,5.0]", double(1.0), "[,]");
-    params.getParam<double>("translRes", translRes, double(1.0));
-    // params.getParamContainer("gridSize", gridSize.data(), gridSize.data() + gridSize.size(), "[21,21]", int(0), "[,]");
-    // params.getParamContainer("gridWin", gridWin.data(), gridWin.data() + gridWin.size(), "[1,1]", int(1), "[,]");
+    params.getParam<double>("translGt-x", translGt.x, -4.2);
+    params.getParam<double>("translGt-y", translGt.y, 5.0);  
+    params.getParamContainer("gridSize", gridSize.data(), gridSize.data() + gridSize.size(), "[21,21]", int(0), "[,]");
+    params.getParamContainer("gridWin", gridWin.data(), gridWin.data() + gridWin.size(), "[1,1]", int(1), "[,]");
 
     std::cout << "\nParams:" << std::endl;
     params.write(std::cout);
