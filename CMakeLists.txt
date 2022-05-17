@@ -158,6 +158,11 @@ set_target_properties(gpu_fullArsIsoPcl PROPERTIES CUDA_ARCHITECTURES "75")
 #set_target_properties(gpu_testAnisotropicArs PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
 #set_target_properties(gpu_testAnisotropicArs PROPERTIES CUDA_ARCHITECTURES "75")
 
+#####################################################################################
 
+### translation
+
+add_executable(gpu_testConsensusTranslationEstimator test/gpu_testConsensusTranslationEstimator.cu)
+target_link_libraries(gpu_testConsensusTranslationEstimator ${ars_LINK_LIBS} iso_cuars_mpeg7 rofl_common ${PCL_LIBRARIES} -lstdc++fs)
 
 

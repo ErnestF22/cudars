@@ -142,6 +142,11 @@ namespace cuars {
         mtx.z = cth;
     }
 
+    void fillVec2d(Vec2d& vec, double x, double y) {
+        vec.x = x;
+        vec.y = y;
+    }
+
     void fillRowMajor(Mat2d& mtx, double a, double b, double c, double d) {
         mtx.w = a;
         mtx.x = b;

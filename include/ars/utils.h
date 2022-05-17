@@ -100,6 +100,8 @@ namespace cuars {
 
     void make2dRotMat(Mat2d& mtx, double theta);
 
+    void fillVec2d(Vec2d& vec, double x, double y);
+
     void fillRowMajor(Mat2d& mtx, double a, double b, double c, double d);
 
     void scalarMul(Vec2d& vec, double d);
