@@ -30,3 +30,9 @@
 *.exe
 *.out
 *.app
+
+.gitignore
+.vscode/
+build/
+cfg/
+nbproject/
