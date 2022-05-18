@@ -2,6 +2,7 @@
 #include "ars/utils.h"
 #include <ars/ars2d.h>
 #include <ars/ConsensusTranslationEstimator.cuh>
+#include <ars/ConsensusTranslationEstimator.h>
 #include <rofl/common/param_map.h>
 
 void plotGrid(const cuars::ConsensusTranslationEstimator2d::Grid &grid, const cuars::Vec2d &translMin, double translRes, const std::string &filename, double factor);
@@ -76,7 +77,7 @@ int main(int argc, char **argv)
         plotGrid(translEstim.getGrid(), translMin, translRes, "consensus_transl_grid.plot", 1.0);
 
     std::cout << "Computing maxima:\n";
-    translEstim.computeMaxima(translCandidates);
+    translEstim.computeMaxima(translCandidates); //TODO: adapt computeMaxima() for CUDA GPU parallelization
 
     std::cout << "Estimated translation values:\n";
     for (auto &pt : translCandidates)
