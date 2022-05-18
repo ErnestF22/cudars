@@ -60,7 +60,7 @@ namespace cuars
         //                std::cout << "  indices [" << idx[0] << "," << idx[1] << "] value " << histoMap(idx)
         //                        << " grid2.value() " << grid.value(idx) << std::endl;
         //            }
-    } // TODO: declare the real function
+    }
 
     template <typename Grid, typename Indices, typename PeakFinder, size_t Dim, typename Scalar = double>
     void computeMaxima(VectorPoint &translMax, Grid &grid, PeakFinder &peakFinder, Point &translMin, Scalar &translRes)
@@ -70,10 +70,10 @@ namespace cuars
 
         translMax.clear();
         translMax.reserve(indicesMax.size());
-        // for (auto idx : indicesMax) //cannot really use foreach here...
-        for (Counter i = 0; i < indicesMax.size(); ++i)
+        for (auto idx : indicesMax) 
+        // for (Counter i = 0; i < indicesMax.size(); ++i) //instead of using foreach, this standard for could be used...
         {
-            Indices idx = indicesMax.at(i);
+            // Indices idx = indicesMax.at(i); //... together with this additional variable/line
 
             Point p = getTranslation<Indices, Dim>(idx, translMin, translRes); // expanding this function below
 
