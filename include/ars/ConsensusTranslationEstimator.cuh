@@ -87,11 +87,11 @@ namespace cuars
     //     return transl;
     // } // TODO: declare the real function
 
-    template void computeMaxima<Grid2d, Indices2d, PeakFinder2d, 2>(VectorPoint &translMax, Grid2d &grid, PeakFinder2d &peakFinder, Point &translMin_, Scalar &translRes_); // explicit instantiation for computeMaxima2d
+    template void computeMaxima<Grid2d, Indices2d, PeakFinder2d, 2>(VectorPoint &translMax, Grid2d &grid, PeakFinder2d &peakFinder, Point &translMin_, Scalar &translRes_); // explicit instantiation for 2d version of computeMaxima()
     // template void computeMaximaInd<Grid2d, Indices2d, PeakFinder2d, 2>(std::vector<Indices2d> &indicesMax, Grid2d &grid_, PeakFinder2d &peakFinder_);
     // template Point getTranslation<Indices2d, 2>(const Indices2d &indices, Point &translMin_, Scalar &translRes_);
 
-    // using computeMaxima2d = ;
+    // using computeMaxima2d = ...;
 
 } // end of namespace
 
