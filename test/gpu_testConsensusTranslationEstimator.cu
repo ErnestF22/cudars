@@ -80,7 +80,8 @@ int main(int argc, char **argv)
     // translEstim.computeMaxima(translCandidates); //TODO: adapt computeMaxima() for CUDA GPU parallelization
     cuars::PeakFinder2d peakF = translEstim.getPeakFinder();
     cuars::Grid2d grid = translEstim.getGrid();
-    cuars::computeMaxima<cuars::Grid2d, cuars::Indices2d, cuars::PeakFinder2d, 2>(translCandidates, grid, peakF, translMin, translRes); // TODO: adapt computeMaxima() for CUDA GPU parallelization
+    // cuars::computeMaxima<cuars::Grid2d, cuars::Indices2d, cuars::PeakFinder2d, 2>(translCandidates, grid, peakF, translMin, translRes);
+    cuars::computeMaxima2d(translCandidates, grid, peakF, translMin, translRes); // TODO: adapt computeMaxima() for CUDA GPU parallelization
 
     std::cout << "Estimated translation values:\n";
     for (auto &pt : translCandidates)
