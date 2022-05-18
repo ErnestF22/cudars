@@ -23,6 +23,9 @@
 #include <thrust/host_vector.h>
 #include <cmath>
 
+#include <rofl/common/grid.h>
+#include <rofl/common/peak_finder_d.h>
+
 #define ARS_PRINT(MSG) std::cout << __FILE__ << "," << __LINE__ << ": " << MSG << std::endl;
 
 #define ARS_ERROR(MSG) std::cerr << __FILE__ << "," << __LINE__ << ": " << MSG << std::endl;
@@ -142,6 +145,14 @@ namespace cuars
    {
       using type = double2;
    };
+
+   // translation
+   using Index = int;
+   using Counter = size_t;
+   
+   using Grid2d = rofl::Grid<2, Counter, Index, rofl::detail::RasterIndexer<2, Index>, std::vector, std::allocator>;
+   using Indices2d = typename Grid2d::Indices;
+   using PeakFinder2d = rofl::PeakFinderD<2, Counter, Index, std::greater<Index>>;
 
 } // end of namespace
 

@@ -48,7 +48,7 @@ namespace cuars
      * classic voting grid.
      * Translation vector candidates correspond to maxima in grid.
      */
-    
+
     template <size_t Dim, typename Scalar = double>
     class ConsensusTranslationEstimator
     {
@@ -237,6 +237,11 @@ namespace cuars
         const Grid &getGrid() const
         {
             return grid_;
+        }
+
+        const PeakFinder &getPeakFinder() const
+        {
+            return peakFinder_;
         }
 
     private:

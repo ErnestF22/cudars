@@ -77,7 +77,10 @@ int main(int argc, char **argv)
         plotGrid(translEstim.getGrid(), translMin, translRes, "consensus_transl_grid.plot", 1.0);
 
     std::cout << "Computing maxima:\n";
-    translEstim.computeMaxima(translCandidates); //TODO: adapt computeMaxima() for CUDA GPU parallelization
+    // translEstim.computeMaxima(translCandidates); //TODO: adapt computeMaxima() for CUDA GPU parallelization
+    cuars::PeakFinder2d peakF = translEstim.getPeakFinder();
+    cuars::Grid2d grid = translEstim.getGrid();
+    cuars::computeMaxima<cuars::Grid2d, cuars::Indices2d, cuars::PeakFinder2d, 2>(translCandidates, grid, peakF, translMin, translRes); // TODO: adapt computeMaxima() for CUDA GPU parallelization
 
     std::cout << "Estimated translation values:\n";
     for (auto &pt : translCandidates)
