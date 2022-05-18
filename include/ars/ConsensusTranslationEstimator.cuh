@@ -66,12 +66,12 @@ namespace cuars
     void computeMaxima(VectorPoint &translMax, Grid &grid, PeakFinder &peakFinder, Point &translMin, Scalar &translRes)
     {
         std::vector<Indices> indicesMax;
-        computeMaximaInd<Grid, Indices, PeakFinder, Dim>(indicesMax, grid, peakFinder); 
+        computeMaximaInd<Grid, Indices, PeakFinder, Dim>(indicesMax, grid, peakFinder);
 
         translMax.clear();
         translMax.reserve(indicesMax.size());
         // for (auto idx : indicesMax) //cannot really use foreach here...
-        for (Counter i=0; i<indicesMax.size(); ++i)
+        for (Counter i = 0; i < indicesMax.size(); ++i)
         {
             Indices idx = indicesMax.at(i);
 
@@ -82,15 +82,15 @@ namespace cuars
         }
     }
 
-    template Point getTranslation<Indices2d, 2>(const Indices2d &indices, Point &translMin, Scalar &translRes);
-    template void computeMaximaInd<Grid2d, Indices2d, PeakFinder2d, 2>(std::vector<Indices2d> &indicesMax, Grid2d &grid, PeakFinder2d &peakFinder);
-    template void computeMaxima<Grid2d, Indices2d, PeakFinder2d, 2>(VectorPoint &translMax, Grid2d &grid, PeakFinder2d &peakFinder, Point &translMin, Scalar &translRes); // explicit instantiation for 2d version of computeMaxima()
+    // template Point getTranslation<Indices2d, 2>(const Indices2d &indices, Point &translMin, Scalar &translRes);
+    // template void computeMaximaInd<Grid2d, Indices2d, PeakFinder2d, 2>(std::vector<Indices2d> &indicesMax, Grid2d &grid, PeakFinder2d &peakFinder);
+    // template void computeMaxima<Grid2d, Indices2d, PeakFinder2d, 2>(VectorPoint &translMax, Grid2d &grid, PeakFinder2d &peakFinder, Point &translMin, Scalar &translRes); // explicit instantiation for 2d version of computeMaxima()
 
-    //wrapper
-    void computeMaxima2d(VectorPoint &translMax, Grid2d &grid, PeakFinder2d &peakFinder, Point &translMin, Scalar &translRes) {
-        computeMaxima<Grid2d, Indices2d, PeakFinder2d, 2>(
-            translMax, grid, peakFinder, translMin, translRes); 
-    } 
+    // wrapper
+    void computeMaxima2d(VectorPoint &translMax, Grid2d &grid, PeakFinder2d &peakFinder, Point &translMin, Scalar &translRes)
+    {
+        computeMaxima<Grid2d, Indices2d, PeakFinder2d, 2>(translMax, grid, peakFinder, translMin, translRes);
+    }
 
 } // end of namespace
 
