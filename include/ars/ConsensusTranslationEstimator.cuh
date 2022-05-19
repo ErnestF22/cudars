@@ -46,16 +46,7 @@ namespace cuars
     }
 
     /**
-     * @brief Re-init (used inside insert() when adaptive is true)
-     *
-     * @tparam Grid
-     * @tparam Indices
-     * @tparam PeakFinder
-     * @tparam Dim
-     * @tparam Scalar
-     * @param grid
-     * @param peakFinder
-     * @param gridSize
+     * @brief Re-init (called from insert() when @bool adaptive is true)
      */
     template <typename Grid, typename Indices, typename PeakFinder, size_t Dim, typename Scalar = double>
     void adaptInit(Grid &grid, PeakFinder &peakFinder, const Indices &gridSize)
