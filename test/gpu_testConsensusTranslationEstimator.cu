@@ -9,13 +9,14 @@ void plotGrid(const cuars::ConsensusTranslationEstimator2d::Grid &grid, const cu
 
 int main(int argc, char **argv)
 {
-    cuars::ConsensusTranslationEstimator2d translEstim;
+    // cuars::ConsensusTranslationEstimator2d translEstim;
     cuars::VecVec2d pointsSrc, pointsDst, translCandidates;
     cuars::Vec2d translMin, translGt, p;
     double translRes;
     typename cuars::ConsensusTranslationEstimator2d::Indices gridSize, gridWin;
     rofl::ParamMap params;
     std::string filenameCfg;
+    bool adaptiveGrid;
     bool plot;
 
     // Reads params from command line
@@ -32,6 +33,7 @@ int main(int argc, char **argv)
     params.getParam<double>("translGt-y", translGt.y, 5.0);
     params.getParamContainer("gridSize", gridSize.data(), gridSize.data() + gridSize.size(), "[21,21]", int(0), "[,]");
     params.getParamContainer("gridWin", gridWin.data(), gridWin.data() + gridWin.size(), "[1,1]", int(1), "[,]");
+    params.getParam<bool>("adaptive", adaptiveGrid, false);
     params.getParam<bool>("plot", plot, false);
 
     std::cout << "\nParams:" << std::endl;
@@ -67,23 +69,30 @@ int main(int argc, char **argv)
         std::cout << "]\n";
     }
 
-    translEstim.init(translMin, translRes, gridSize);
-    translEstim.setNonMaximaWindowDim(gridWin);
+    cuars::Grid2d grid; //!! the only 2 remaining external classes used are here
+    cuars::PeakFinder2d pf;
+
+    // translEstim.init(translMin, translRes, gridSize);
+    // translEstim.setNonMaximaWindowDim(gridWin);
+    cuars::init2d(grid, pf, gridSize, gridWin);
 
     std::cout << "Inserting pair source-destination:\n";
-    translEstim.insert(pointsSrc, pointsDst);
+    // translEstim.insert(pointsSrc, pointsDst);
+    cuars::insert2d(pointsSrc, pointsDst, pf, grid, translMin, translRes, adaptiveGrid); // adaptive = false for the dummy example
 
     if (plot)
-        plotGrid(translEstim.getGrid(), translMin, translRes, "consensus_transl_grid.plot", 1.0);
+    {
+        cuars::ConsensusTranslationEstimator2d translEstimPlot(grid, pf, translMin, translRes, gridSize);
+        plotGrid(translEstimPlot.getGrid(), translMin, translRes, "consensus_transl_grid.plot", 1.0);
+    }
 
     std::cout << "Computing maxima:\n";
     // translEstim.computeMaxima(translCandidates); //TODO: adapt computeMaxima() for CUDA GPU parallelization
-    cuars::PeakFinder2d peakF = translEstim.getPeakFinder();
-    cuars::Grid2d grid = translEstim.getGrid();
     // cuars::computeMaxima<cuars::Grid2d, cuars::Indices2d, cuars::PeakFinder2d, 2>(translCandidates, grid, peakF, translMin, translRes);
-    cuars::computeMaxima2d(translCandidates, grid, peakF, translMin, translRes); // TODO: adapt computeMaxima() for CUDA GPU parallelization
+    cuars::computeMaxima2d(translCandidates, grid, pf, translMin, translRes); // TODO: adapt computeMaxima() for CUDA GPU parallelization
 
     std::cout << "Estimated translation values:\n";
+    // cuars::ConsensusTranslationEstimator2d translEstimOutput(...) //constructor can be used for example to fill the class with the outputs
     for (auto &pt : translCandidates)
     {
         std::cout << "  [";

@@ -78,6 +78,16 @@ namespace cuars
             peakFinder_.setDomain(gridSize);
         }
 
+        ConsensusTranslationEstimator(const Grid& grid, const PeakFinder& peakF, const Point &translMin, const Scalar &translRes, const Indices &gridSize)
+            : grid_(), translMin_(translMin), translRes_(translRes), peakFinder_()
+        {
+            grid_.initBounds(gridSize);
+            peakFinder_.setDomain(gridSize);
+
+            grid_ = grid;
+            peakFinder_ = peakF;
+        }
+
         virtual ~ConsensusTranslationEstimator()
         {
         }
@@ -100,6 +110,11 @@ namespace cuars
             peakFinder_.setPeakWindow(dim);
         }
 
+        void setupPickFilter(const VecVec2d& pointsSrc, const VecVec2d& pointsDst) {
+            Counter thres = std::min(pointsSrc.size(), pointsDst.size()) / 2; //TODO: re-add these 2 lines
+            peakFinder_.enableFilterPeakMin(true, thres);
+        }
+
         void insert(const VectorPoint &pointsSrc, const VectorPoint &pointsDst, bool adaptive = false)
         {
             Point transl, translMax, srcMin, srcMax, dstMin, dstMax;
@@ -119,7 +134,6 @@ namespace cuars
                         //     srcMin(d) = p(d);
                         // if (p(d) > srcMax(d))
                         //     srcMax(d) = p(d);
-
                         if (idxGetter(p, d) < idxGetter(p, d))
                             idxSetter(srcMin, d, idxGetter(p, d));
                         if (idxGetter(p, d) > idxGetter(srcMax, d))
@@ -242,6 +256,14 @@ namespace cuars
         const PeakFinder &getPeakFinder() const
         {
             return peakFinder_;
+        }
+
+        const Point & getTranslMin() const {
+            return translMin_;
+        }
+        
+        const Scalar & getTranslRes() const {
+            return translRes_;
         }
 
     private:

@@ -30,6 +30,130 @@ namespace cuars
     using Point = typename MakePt<Scalar, 2>::type; // for now we work with 2d
     using VectorPoint = thrust::host_vector<Point>;
 
+    /**
+     * @brief Initial init (used in main function() )
+     */
+    template <typename Grid, typename Indices, typename PeakFinder, size_t Dim, typename Scalar = double>
+    void init(Grid &grid, PeakFinder &peakFinder, const Indices &gridSize, const Indices &gridWin)
+    {
+        grid.initBounds(gridSize);
+        // translMin_ = translMin; //translMin, translRes are used directly in the followings
+        // translRes_ = translRes;
+        peakFinder.setDomain(gridSize);
+
+        // translEstim.setNonMaximaWindowDim(gridWin);
+        peakFinder.setPeakWindow(gridWin);
+    }
+
+    /**
+     * @brief Re-init (used inside insert() when adaptive is true)
+     * 
+     * @tparam Grid 
+     * @tparam Indices 
+     * @tparam PeakFinder 
+     * @tparam Dim 
+     * @tparam Scalar 
+     * @param grid 
+     * @param peakFinder 
+     * @param gridSize 
+     */
+    template <typename Grid, typename Indices, typename PeakFinder, size_t Dim, typename Scalar = double>
+    void adaptInit(Grid &grid, PeakFinder &peakFinder, const Indices &gridSize)
+    {
+        grid.initBounds(gridSize);
+        // translMin_ = translMin; //translMin, translRes are used directly in the followings
+        // translRes_ = translRes;
+        peakFinder.setDomain(gridSize);
+    }
+
+    template <typename Indices, size_t Dim>
+    Indices getIndices(const Point &p, const Point &translMin, const Scalar &translRes)
+    {
+        Indices indices;
+        for (int d = 0; d < Dim; ++d)
+        {
+            // indices[d] = round((p(d) - translMin(d)) / translRes);
+            indices[d] = round((idxGetter(p, d) - idxGetter(translMin, d)) / translRes);
+        }
+        return indices;
+    }
+
+    template <typename Grid, typename Indices, typename PeakFinder, size_t Dim, typename Scalar = double>
+    void insert(const VectorPoint &pointsSrc, const VectorPoint &pointsDst, PeakFinder &pf, Grid &grid, Point &translMin, Scalar &translRes, bool adaptive = false)
+    {
+        Point transl, translMax, srcMin, srcMax, dstMin, dstMax;
+        Indices indices, gridSize;
+
+        if (adaptive)
+        {
+            // srcMin.fill(std::numeric_limits<Scalar>::max());
+            // srcMax.fill(std::numeric_limits<Scalar>::lowest());
+            fillVec2d(srcMin, std::numeric_limits<Scalar>::max(), std::numeric_limits<Scalar>::max());
+            fillVec2d(srcMax, std::numeric_limits<Scalar>::lowest(), std::numeric_limits<Scalar>::lowest());
+            for (auto &p : pointsSrc)
+            {
+                for (int d = 0; d < Dim; ++d)
+                {
+                    // if (p(d) < srcMin(d))
+                    //     srcMin(d) = p(d);
+                    // if (p(d) > srcMax(d))
+                    //     srcMax(d) = p(d);
+                    if (idxGetter(p, d) < idxGetter(p, d))
+                        idxSetter(srcMin, d, idxGetter(p, d));
+                    if (idxGetter(p, d) > idxGetter(srcMax, d))
+                        idxSetter(srcMax, d, idxGetter(p, d));
+                }
+            }
+            // dstMin.fill(std::numeric_limits<Scalar>::max());
+            // dstMax.fill(std::numeric_limits<Scalar>::lowest());
+            fillVec2d(dstMin, std::numeric_limits<Scalar>::max(), std::numeric_limits<Scalar>::max());
+            fillVec2d(dstMax, std::numeric_limits<Scalar>::lowest(), std::numeric_limits<Scalar>::lowest());
+            for (auto &p : pointsDst)
+            {
+                for (int d = 0; d < Dim; ++d)
+                {
+                    if (idxGetter(p, d) < idxGetter(p, d))
+                        idxSetter(dstMin, d, idxGetter(p, d));
+                    if (idxGetter(p, d) > idxGetter(srcMax, d))
+                        idxSetter(dstMax, d, idxGetter(p, d));
+                }
+            }
+            // translMin = dstMin - srcMax;
+            vec2diff(translMin, dstMin, srcMax);
+            // translMax = dstMax - srcMin;
+            vec2diff(translMax, dstMax, srcMin);
+
+            for (int d = 0; d < Dim; ++d)
+            {
+                // gridSize[d] = (Index)ceil((translMax(d) - translMin(d)) / translRes);
+                gridSize[d] = (Index)ceil((idxGetter(translMax, d) - idxGetter(translMin, d)) / translRes);
+            }
+            //                ARS_VAR5(translMin.transpose(), translMax.transpose(), translRes, gridSize[0], gridSize[1]);
+
+            // init(translMin, translRes, gridSize);
+            adaptInit<Grid, Indices, PeakFinder, Dim, Scalar>(grid, pf, gridSize);
+        }
+
+        // translEstim.setupPickFilter(pointsSrc, pointsDst);
+        Counter thres = std::min(pointsSrc.size(), pointsDst.size()) / 2; // TODO (maybe): move this line and the one below to an "init" function
+        pf.enableFilterPeakMin(true, thres);
+
+        for (auto &ps : pointsSrc)
+        {
+            for (auto &pd : pointsDst)
+            {
+                // transl = pd - ps;
+                vec2diff(transl, pd, ps);
+                indices = getIndices<Indices, Dim>(transl, translMin, translRes);
+                // ARS_VARIABLE4(transl.transpose(),indices[0],indices[1],grid_.inside(indices));
+                if (grid.inside(indices))
+                {
+                    grid.value(indices)++;
+                }
+            }
+        }
+    }
+
     // Point getTranslation(const Indices &indices) const;
     template <typename Indices, size_t Dim, typename Scalar = double>
     Point getTranslation(const Indices &indices, Point &translMin, Scalar &translRes)
@@ -70,7 +194,7 @@ namespace cuars
 
         translMax.clear();
         translMax.reserve(indicesMax.size());
-        for (auto idx : indicesMax) 
+        for (auto idx : indicesMax)
         // for (Counter i = 0; i < indicesMax.size(); ++i) //instead of using foreach, this standard for could be used...
         {
             // Indices idx = indicesMax.at(i); //... together with this additional variable/line
@@ -86,7 +210,17 @@ namespace cuars
     // template void computeMaximaInd<Grid2d, Indices2d, PeakFinder2d, 2>(std::vector<Indices2d> &indicesMax, Grid2d &grid, PeakFinder2d &peakFinder);
     // template void computeMaxima<Grid2d, Indices2d, PeakFinder2d, 2>(VectorPoint &translMax, Grid2d &grid, PeakFinder2d &peakFinder, Point &translMin, Scalar &translRes); // explicit instantiation for 2d version of computeMaxima()
 
-    // wrapper
+    // wrappers
+    void init2d(Grid2d &grid, PeakFinder2d &peakFinder, const Indices2d &gridSize, const Indices2d &gridWin)
+    {
+        init<Grid2d, Indices2d, PeakFinder2d, 2, Scalar>(grid, peakFinder, gridSize, gridWin);
+    }
+
+    void insert2d(const VectorPoint &pointsSrc, const VectorPoint &pointsDst, PeakFinder2d &pf, Grid2d &grid, Point &translMin, Scalar &translRes, bool adaptive = false)
+    {
+        insert<Grid2d, Indices2d, PeakFinder2d, 2, Scalar>(pointsSrc, pointsDst, pf, grid, translMin, translRes, adaptive);
+    }
+
     void computeMaxima2d(VectorPoint &translMax, Grid2d &grid, PeakFinder2d &peakFinder, Point &translMin, Scalar &translRes)
     {
         computeMaxima<Grid2d, Indices2d, PeakFinder2d, 2>(translMax, grid, peakFinder, translMin, translRes);
