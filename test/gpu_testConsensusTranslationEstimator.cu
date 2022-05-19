@@ -5,6 +5,7 @@
 #include <ars/ConsensusTranslationEstimator.h>
 #include <rofl/common/param_map.h>
 
+//!! cuars::ConsensusTranslationEstimator2d::Grid -> come usare gli using definiti nelle classi
 void plotGrid(const cuars::ConsensusTranslationEstimator2d::Grid &grid, const cuars::Vec2d &translMin, double translRes, const std::string &filename, double factor);
 
 int main(int argc, char **argv)

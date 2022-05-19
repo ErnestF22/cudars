@@ -47,15 +47,15 @@ namespace cuars
 
     /**
      * @brief Re-init (used inside insert() when adaptive is true)
-     * 
-     * @tparam Grid 
-     * @tparam Indices 
-     * @tparam PeakFinder 
-     * @tparam Dim 
-     * @tparam Scalar 
-     * @param grid 
-     * @param peakFinder 
-     * @param gridSize 
+     *
+     * @tparam Grid
+     * @tparam Indices
+     * @tparam PeakFinder
+     * @tparam Dim
+     * @tparam Scalar
+     * @param grid
+     * @param peakFinder
+     * @param gridSize
      */
     template <typename Grid, typename Indices, typename PeakFinder, size_t Dim, typename Scalar = double>
     void adaptInit(Grid &grid, PeakFinder &peakFinder, const Indices &gridSize)
@@ -66,6 +66,9 @@ namespace cuars
         peakFinder.setDomain(gridSize);
     }
 
+    /**
+     * Return indices corresponding to point @param p, according to grid params @param translMin, @param translRes
+     */
     template <typename Indices, size_t Dim>
     Indices getIndices(const Point &p, const Point &translMin, const Scalar &translRes)
     {
@@ -78,6 +81,11 @@ namespace cuars
         return indices;
     }
 
+    /**
+     * Insert points into the grid, incrementing counter of to corresponding grid cell
+     * Also, calls enableFilterPeakMin() function, needed for the correct functioning of the peak finder
+     * If @param adaptive is true, adaptation is performed before inserting points
+     */
     template <typename Grid, typename Indices, typename PeakFinder, size_t Dim, typename Scalar = double>
     void insert(const VectorPoint &pointsSrc, const VectorPoint &pointsDst, PeakFinder &pf, Grid &grid, Point &translMin, Scalar &translRes, bool adaptive = false)
     {
@@ -154,7 +162,9 @@ namespace cuars
         }
     }
 
-    // Point getTranslation(const Indices &indices) const;
+    /**
+     * @brief New version, now outside of TEC class, of method: Point getTranslation(const Indices &indices) const;
+     */
     template <typename Indices, size_t Dim, typename Scalar = double>
     Point getTranslation(const Indices &indices, Point &translMin, Scalar &translRes)
     {
@@ -169,6 +179,10 @@ namespace cuars
         return transl;
     }
 
+    /**
+     * @brief Calls peakFinder detection method on @param grid
+     * It is called internally from function computeMaxima()
+     */
     template <typename Grid, typename Indices, typename PeakFinder, size_t Dim, typename Scalar = double>
     void computeMaximaInd(std::vector<Indices> &indicesMax, Grid &grid, PeakFinder &peakFinder)
     {
@@ -186,6 +200,9 @@ namespace cuars
         //            }
     }
 
+    /**
+     * @brief Adaptation outside TEC class of its main computation method
+     */
     template <typename Grid, typename Indices, typename PeakFinder, size_t Dim, typename Scalar = double>
     void computeMaxima(VectorPoint &translMax, Grid &grid, PeakFinder &peakFinder, Point &translMin, Scalar &translRes)
     {
@@ -210,7 +227,10 @@ namespace cuars
     // template void computeMaximaInd<Grid2d, Indices2d, PeakFinder2d, 2>(std::vector<Indices2d> &indicesMax, Grid2d &grid, PeakFinder2d &peakFinder);
     // template void computeMaxima<Grid2d, Indices2d, PeakFinder2d, 2>(VectorPoint &translMax, Grid2d &grid, PeakFinder2d &peakFinder, Point &translMin, Scalar &translRes); // explicit instantiation for 2d version of computeMaxima()
 
-    // wrappers
+    /**
+     * Wrappers with explicited dimensions, floating-point precision, useful/used when calling functions for main
+     * for improved clarity
+     */
     void init2d(Grid2d &grid, PeakFinder2d &peakFinder, const Indices2d &gridSize, const Indices2d &gridWin)
     {
         init<Grid2d, Indices2d, PeakFinder2d, 2, Scalar>(grid, peakFinder, gridSize, gridWin);
