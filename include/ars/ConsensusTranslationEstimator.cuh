@@ -20,8 +20,8 @@
 
 #include <iostream>
 #include <vector>
-#include <ars/definitions.h>
-#include <rofl/common/grid.h>
+#include "ars/definitions.h"
+#include "ars/Grid.cuh"
 #include <rofl/common/peak_finder_d.h>
 
 namespace cuars

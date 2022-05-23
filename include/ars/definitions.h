@@ -126,7 +126,7 @@ namespace cuars
       PNEBI_LUT = 1
    };
 
-   // translation
+   // translation definitions
 
    template <typename T, int cn>
    struct MakePt;
@@ -146,10 +146,9 @@ namespace cuars
       using type = double2;
    };
 
-   // translation
    using Index = int;
    using Counter = size_t;
-   
+
    using Grid2d = rofl::Grid<2, Counter, Index, rofl::detail::RasterIndexer<2, Index>, std::vector, std::allocator>;
    using Indices2d = typename Grid2d::Indices;
    using PeakFinder2d = rofl::PeakFinderD<2, Counter, Index, std::greater<Index>>;
