@@ -4,13 +4,12 @@ project(ars-cuda LANGUAGES CXX CUDA)
 
 add_compile_options(-std=c++14)
 
-set(CMAKE_BUILD_TYPE Release)
+set(CMAKE_BUILD_TYPE Debug)
 #set(CMAKE_CUDA_FLAGS_DEBUG "-g -G")
 #add_compile_options(-lineinfo)
 
 #Compute capability for NVIDIA RTX 3090 -> 86
 set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS} -gencode arch=compute_75,code=sm_75)
-
 
 
 include_directories(include)
@@ -164,4 +163,13 @@ set_target_properties(gpu_fullArsIsoPcl PROPERTIES CUDA_ARCHITECTURES "75")
 
 add_executable(gpu_testConsensusTranslationEstimator test/gpu_testConsensusTranslationEstimator.cu)
 target_link_libraries(gpu_testConsensusTranslationEstimator ${ars_LINK_LIBS} iso_cuars_mpeg7 rofl_common ${PCL_LIBRARIES} -lstdc++fs)
+
+####################################################################################
+ 
+add_executable(gpu_testPoseMpeg7 test/gpu_testPoseMpeg7.cu)
+target_link_libraries(gpu_testPoseMpeg7 ${ars_LINK_LIBS} iso_cuars_mpeg7 ${PCL_LIBRARIES} rofl_common -lstdc++fs -lboost_filesystem)
+
+target_compile_features(gpu_testPoseMpeg7 PUBLIC cxx_std_11)
+set_target_properties(gpu_testPoseMpeg7 PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
+set_target_properties(gpu_testPoseMpeg7 PROPERTIES CUDA_ARCHITECTURES "75")
 

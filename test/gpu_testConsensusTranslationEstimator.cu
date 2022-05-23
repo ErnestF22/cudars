@@ -1,5 +1,6 @@
 #include <iostream>
 #include "ars/utils.h"
+#include "ars/ars2d.cuh"
 #include <ars/ars2d.h>
 #include <ars/ConsensusTranslationEstimator.cuh>
 #include <ars/ConsensusTranslationEstimator.h>
@@ -8,34 +9,35 @@
 //!! cuars::ConsensusTranslationEstimator2d::Grid -> come usare gli using definiti nelle classi
 void plotGrid(const cuars::ConsensusTranslationEstimator2d::Grid &grid, const cuars::Vec2d &translMin, double translRes, const std::string &filename, double factor);
 
+void computeArsTec(cuars::VecVec2d &translCandidates, const cuars::VecVec2d &pointsSrc, const cuars::VecVec2d &pointsDst, cuars::ArsTecParams &translParams, cuars::Grid2d &grid, cuars::PeakFinder2d &pf);
+
 int main(int argc, char **argv)
 {
     // cuars::ConsensusTranslationEstimator2d translEstim;
     cuars::VecVec2d pointsSrc, pointsDst, translCandidates;
-    cuars::Vec2d translMin, translGt, p;
-    double translRes;
-    typename cuars::ConsensusTranslationEstimator2d::Indices gridSize, gridWin;
+    cuars::Vec2d p;
     rofl::ParamMap params;
     std::string filenameCfg;
-    bool adaptiveGrid;
-    bool plot;
+
+    cuars::ArsTecParams translParams;
+    // ParlArsIsoParams paiParams;
 
     // Reads params from command line
     params.read(argc, argv);
     params.getParam("cfg", filenameCfg, std::string(""));
     params.read(filenameCfg);
     params.read(argc, argv);
-    params.getParam<double>("translRes", translRes, 1.0);
+    params.getParam<double>("translRes", translParams.translRes, 1.0);
     // params.getParamContainer("translMin", translMin.data(), translMin.data() + translMin.size(), "[-10.0,-10.0]", double(0.0), "[,]"); //TODO: adapt ParamContainer to Cuda types
-    params.getParam<double>("translMin-x", translMin.x, -10.0);
-    params.getParam<double>("translMin-y", translMin.y, -10.0);
+    params.getParam<double>("translMin-x", translParams.translMin.x, -10.0);
+    params.getParam<double>("translMin-y", translParams.translMin.y, -10.0);
     // params.getParamContainer("translGt", translGt.data(), translGt.data() + translGt.size(), "[-4.2,5.0]", double(1.0), "[,]");
-    params.getParam<double>("translGt-x", translGt.x, -4.2);
-    params.getParam<double>("translGt-y", translGt.y, 5.0);
-    params.getParamContainer("gridSize", gridSize.data(), gridSize.data() + gridSize.size(), "[21,21]", int(0), "[,]");
-    params.getParamContainer("gridWin", gridWin.data(), gridWin.data() + gridWin.size(), "[1,1]", int(1), "[,]");
-    params.getParam<bool>("adaptive", adaptiveGrid, false);
-    params.getParam<bool>("plot", plot, false);
+    params.getParam<double>("translGt-x", translParams.translGt.x, -4.2);
+    params.getParam<double>("translGt-y", translParams.translGt.y, 5.0);
+    params.getParamContainer("gridSize", translParams.gridSize.data(), translParams.gridSize.data() + translParams.gridSize.size(), "[21,21]", int(0), "[,]");
+    params.getParamContainer("gridWin", translParams.gridWin.data(), translParams.gridWin.data() + translParams.gridWin.size(), "[1,1]", int(1), "[,]");
+    params.getParam<bool>("adaptive", translParams.adaptiveGrid, false);
+    params.getParam<bool>("plot", translParams.plot, false);
 
     std::cout << "\nParams:" << std::endl;
     params.write(std::cout);
@@ -46,7 +48,7 @@ int main(int argc, char **argv)
     {
         cuars::fillVec2d(p, (1.0 + 0.4 * i), (-2.0 - 0.35 * i));
         pointsSrc.push_back(p);
-        pointsDst.push_back(cuars::vec2sumWRV(p, translGt));
+        pointsDst.push_back(cuars::vec2sumWRV(p, translParams.translGt));
     }
     pointsDst.push_back(make_double2(0.0, 0.0));
     pointsDst.push_back(make_double2(4.0, 4.0));
@@ -73,24 +75,7 @@ int main(int argc, char **argv)
     cuars::Grid2d grid; //!! the only 2 remaining external classes used are here
     cuars::PeakFinder2d pf;
 
-    // translEstim.init(translMin, translRes, gridSize);
-    // translEstim.setNonMaximaWindowDim(gridWin);
-    cuars::init2d(grid, pf, gridSize, gridWin);
-
-    std::cout << "Inserting pair source-destination:\n";
-    // translEstim.insert(pointsSrc, pointsDst);
-    cuars::insert2d(pointsSrc, pointsDst, pf, grid, translMin, translRes, adaptiveGrid); // adaptive = false for the dummy example
-
-    if (plot)
-    {
-        cuars::ConsensusTranslationEstimator2d translEstimPlot(grid, pf, translMin, translRes, gridSize);
-        plotGrid(translEstimPlot.getGrid(), translMin, translRes, "consensus_transl_grid.plot", 1.0);
-    }
-
-    std::cout << "Computing maxima:\n";
-    // translEstim.computeMaxima(translCandidates); //TODO: adapt computeMaxima() for CUDA GPU parallelization
-    // cuars::computeMaxima<cuars::Grid2d, cuars::Indices2d, cuars::PeakFinder2d, 2>(translCandidates, grid, peakF, translMin, translRes);
-    cuars::computeMaxima2d(translCandidates, grid, pf, translMin, translRes); // TODO: adapt computeMaxima() for CUDA GPU parallelization
+    computeArsTec(translCandidates, pointsSrc, pointsDst, translParams, grid, pf);
 
     std::cout << "Estimated translation values:\n";
     // cuars::ConsensusTranslationEstimator2d translEstimOutput(...) //constructor can be used for example to fill the class with the outputs
@@ -143,4 +128,26 @@ void plotGrid(const cuars::ConsensusTranslationEstimator2d::Grid &grid, const cu
     file << "e\n";
 
     file.close();
+}
+
+void computeArsTec(cuars::VecVec2d &translCandidates, const cuars::VecVec2d &pointsSrc, const cuars::VecVec2d &pointsDst, cuars::ArsTecParams &translParams, cuars::Grid2d &grid, cuars::PeakFinder2d &pf)
+{
+    // translEstim.init(translMin, translRes, gridSize);
+    // translEstim.setNonMaximaWindowDim(gridWin);
+    cuars::init2d(grid, pf, translParams.gridSize, translParams.gridWin);
+
+    std::cout << "Inserting pair source-destination:\n";
+    // translEstim.insert(pointsSrc, pointsDst);
+    cuars::insert2d(pointsSrc, pointsDst, pf, grid, translParams.translMin, translParams.translRes, translParams.adaptiveGrid); // adaptive = false for the dummy example
+
+    // if (translParams.plot)
+    // {
+    //     cuars::ConsensusTranslationEstimator2d translEstimPlot(grid, pf, translParams.translMin, translParams.translRes, translParams.gridSize);
+    //     plotGrid(translEstimPlot.getGrid(), translParams.translMin, translParams.translRes, "consensus_transl_grid.plot", 1.0);
+    // }
+
+    std::cout << "Computing maxima:\n";
+    // translEstim.computeMaxima(translCandidates); //TODO: adapt computeMaxima() for CUDA GPU parallelization
+    // cuars::computeMaxima<cuars::Grid2d, cuars::Indices2d, cuars::PeakFinder2d, 2>(translCandidates, grid, peakF, translMin, translRes);
+    cuars::computeMaxima2d(translCandidates, grid, pf, translParams.translMin, translParams.translRes); // TODO: adapt computeMaxima() for CUDA GPU parallelization
 }

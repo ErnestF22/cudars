@@ -146,12 +146,7 @@ namespace cuars
       using type = double2;
    };
 
-   using Index = int;
-   using Counter = size_t;
-
-   using Grid2d = rofl::Grid<2, Counter, Index, rofl::detail::RasterIndexer<2, Index>, std::vector, std::allocator>;
-   using Indices2d = typename Grid2d::Indices;
-   using PeakFinder2d = rofl::PeakFinderD<2, Counter, Index, std::greater<Index>>;
+   
 
 } // end of namespace
 

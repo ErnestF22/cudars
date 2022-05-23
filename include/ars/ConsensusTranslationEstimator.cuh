@@ -30,6 +30,23 @@ namespace cuars
     using Point = typename MakePt<Scalar, 2>::type; // for now we work with 2d
     using VectorPoint = thrust::host_vector<Point>;
 
+    using Index = int;
+    using Counter = size_t;
+
+    // using Grid2d = rofl::Grid<2, Counter, Index, rofl::detail::RasterIndexer<2, Index>, std::vector, std::allocator>;
+    using Grid2d = cuars::Grid;
+    using Indices2d = std::array<Index, DIM>;
+    using PeakFinder2d = rofl::PeakFinderD<2, Counter, Index, std::greater<Index>>;
+
+    struct ArsTecParams
+    {
+        cuars::Vec2d translMin, translMax, translGt;
+        double translRes;
+        cuars::Indices2d gridSize, gridWin;
+        bool adaptiveGrid;
+        bool plot;
+    };
+
     /**
      * @brief Initial init (used in main function() )
      */
@@ -70,6 +87,25 @@ namespace cuars
             indices[d] = round((idxGetter(p, d) - idxGetter(translMin, d)) / translRes);
         }
         return indices;
+    }
+
+    template <typename Grid, typename Indices, typename PeakFinder, size_t Dim, typename Scalar = double>
+    void potentialKernel(const VectorPoint &pointsSrc, const VectorPoint &pointsDst, Grid &grid, Indices &indices, Point &transl, Point &translMin, Scalar &translRes)
+    {
+        for (auto &ps : pointsSrc)
+        {
+            for (auto &pd : pointsDst)
+            {
+                // transl = pd - ps;
+                vec2diff(transl, pd, ps);
+                indices = getIndices<Indices, Dim>(transl, translMin, translRes);
+                // ARS_VARIABLE4(transl.transpose(),indices[0],indices[1],grid_.inside(indices));
+                if (grid.inside(indices))
+                {
+                    grid.value(indices)++;
+                }
+            }
+        }
     }
 
     /**
@@ -137,20 +173,7 @@ namespace cuars
         Counter thres = std::min(pointsSrc.size(), pointsDst.size()) / 2; // TODO (maybe): move this line and the one below to an "init" function
         pf.enableFilterPeakMin(true, thres);
 
-        for (auto &ps : pointsSrc)
-        {
-            for (auto &pd : pointsDst)
-            {
-                // transl = pd - ps;
-                vec2diff(transl, pd, ps);
-                indices = getIndices<Indices, Dim>(transl, translMin, translRes);
-                // ARS_VARIABLE4(transl.transpose(),indices[0],indices[1],grid_.inside(indices));
-                if (grid.inside(indices))
-                {
-                    grid.value(indices)++;
-                }
-            }
-        }
+        potentialKernel<Grid, Indices, PeakFinder, Dim>(pointsSrc, pointsDst, grid, indices, transl, translMin, translRes);
     }
 
     /**
