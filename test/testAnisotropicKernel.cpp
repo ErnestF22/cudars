@@ -2,7 +2,7 @@
 #include <ars/ArsKernelIsotropic2d.h>
 #include <ars/ArsKernelAnisotropic2d.h>
 #include <ars/ars2d.h>
-#include <ars/definitions.h>
+#include "ars/definitions.h"
 #include <ars/functions.h>
 #include <ars/thirdparty/gnuplot-iostream.h>
 #include <ars/Profiler.h>

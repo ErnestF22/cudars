@@ -16,7 +16,7 @@
  * along with ARS.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include <ars/utils.h>
-#include <ars/definitions.h>
+#include "ars/definitions.h"
 
 namespace cuars
 {

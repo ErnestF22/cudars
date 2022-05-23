@@ -20,7 +20,7 @@
 #include <iostream>
 #include <thrust/host_vector.h>
 #include <cmath>
-#include <ars/definitions.h>
+#include "ars/definitions.h"
 #include <ars/functions.h>
 #include <ars/BBOptimizer1d.h>
 #include <ars/ArsKernelIsotropic2d.h>

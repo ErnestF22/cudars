@@ -22,7 +22,7 @@
 
 #include <array>
 #include <type_traits>   // for std::underlying_type_t()
-#include <ars/definitions.h>
+#include "ars/definitions.h"
 #include <ars/functions.h>
 
 

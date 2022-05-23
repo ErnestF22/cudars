@@ -19,7 +19,7 @@
 
 #include <iostream>
 
-#include <ars/definitions.h>
+#include "ars/definitions.h"
 #include <ars/functions.h>
 #include <ars/BBOptimizer1d.h>
 #include <ars/ArsKernelIsotropic2d.h>

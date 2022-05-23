@@ -18,7 +18,7 @@
 #include <iostream>
 #include <eigen3/Eigen/Dense>
 
-#include <ars/definitions.h>
+#include "ars/definitions.h"
 #include <ars/ars2d.h>
 #include <ars/GaussianMixtureEstimator.h>
 #include <ars/utils.h>
