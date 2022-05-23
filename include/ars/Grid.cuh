@@ -205,21 +205,17 @@ namespace cuars
         {
         }
 
-        /**
-         * Says if the given indices are inside the index domain.
-         * @param indices the input indices
-         * @return true if the given indices are inside the domain
-         */
-        bool insideGrid(const Indices &indices)
-        {
-            // return domain_.inside(indices);
-            return domain_.insideDomain(indices);
+        void initBounds(const Indices& dimensions) {
+            Indices zeros;
+            zeros.fill(0);
+            domain_.initBounds(zeros, dimensions);
+            std::cout << "domain size " << domain_.size() << std::endl;
+            data_.resize(domain_.size());
         }
 
-        Index getPos(const Indices &indices) const
-        {
-            // return StaticRasterIndexer.getPos(domain_.min(), domain_.dimensions(), indices);
-            return RasterIndexer::getPos(domain_.min(), domain_.dimensions_, indices);
+        void initBounds(const Indices& min, const Indices& dimensions) {
+            domain_.initBounds(min, dimensions);
+            data_.resize(domain_.size());
         }
 
         size_t size() const
@@ -237,23 +233,41 @@ namespace cuars
          * @param indices the input indices
          * @return true if the given indices are inside the domain
          */
+        bool insideGrid(const Indices &indices)
+        {
+            // return domain_.inside(indices);
+            return domain_.insideDomain(indices);
+        }
+
+        Index getPos(const Indices &indices) const
+        {
+            // return StaticRasterIndexer.getPos(domain_.min(), domain_.dimensions(), indices);
+            return RasterIndexer::getPos(domain_.min(), domain_.dimensions_, indices);
+        }
+
+        
+
+        void fill(const Value& value) {
+            std::fill(std::begin(data_), std::end(data_), value);
+        }
+
+        void reset() {
+            fill(0);
+        }
+
+        
+
+        /**
+         * Says if the given indices are inside the index domain.
+         * @param indices the input indices
+         * @return true if the given indices are inside the domain
+         */
         bool inside(const Indices &indices) const
         {
             return domain_.inside(indices);
         }
 
-        void initBounds(const Indices& dimensions) {
-            Indices zeros;
-            zeros.fill(0);
-            domain_.initBounds(zeros, dimensions);
-            data_.resize(domain_.size());
-        }
-
-        void initBounds(const Indices& min, const Indices& dimensions) {
-            domain_.initBounds(min, dimensions);
-            data_.resize(domain_.size());
-        }
-
+        
 
         /**
          * Warning: the user is responsible about the correct access to the buffer.
