@@ -15,7 +15,8 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with ARS.  If not, see <http://www.gnu.org/licenses/>.
  */
-#pragma once
+#ifndef ARS_KERNEL_ANISOTROPIC2D_H
+#define ARS_KERNEL_ANISOTROPIC2D_H
 
 #include <iostream>
 #include <thrust/host_vector.h>
@@ -190,3 +191,5 @@ namespace cuars {
     };
 
 }
+
+#endif /*ARS_KERNEL_ANISOPTROPIC2D_H*/

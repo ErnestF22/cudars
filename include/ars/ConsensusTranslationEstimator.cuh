@@ -70,6 +70,11 @@ namespace cuars
             translMin_ = translParams.translMin;
             translMax_ = translParams.translMax;
             translRes_ = translParams.translRes;
+
+            grid_.initBounds(translParams.gridSize);
+            peakFinder_.setDomain(translParams.gridSize);
+            // translEstim.setNonMaximaWindowDim(gridWin);
+            peakFinder_.setPeakWindow(translParams.gridWin);
         }
 
         ArsTec(const Point &translMin, const Scalar &translRes, const Indices &gridSize)
@@ -88,13 +93,13 @@ namespace cuars
          */
         void init(const Indices &gridSize, const Indices &gridWin)
         {
-            grid_.initBounds(gridSize);
+            // grid_.initBounds(gridSize);
             // translMin_ = translMin; //translMin, translRes are used directly in the followings
             // translRes_ = translRes;
-            peakFinder_.setDomain(gridSize);
+            // peakFinder_.setDomain(gridSize);
 
             // translEstim.setNonMaximaWindowDim(gridWin);
-            peakFinder_.setPeakWindow(gridWin);
+            // peakFinder_.setPeakWindow(gridWin);
         }
 
         /**
@@ -255,6 +260,7 @@ namespace cuars
 
             translMax.clear();
             translMax.reserve(indicesMax.size());
+            int ctr = 0;
             for (auto idx : indicesMax)
             // for (Counter i = 0; i < indicesMax.size(); ++i) //instead of using foreach, this standard for could be used...
             {
@@ -264,6 +270,9 @@ namespace cuars
 
                 //                ARS_VAR4(idx[0], idx[1], grid.value(idx), p.transpose());
                 translMax.push_back(p);
+
+                std::cout << "p " << ctr << " - " << p.x << " " << p.y << std::endl;
+                ctr++;
             }
         }
 

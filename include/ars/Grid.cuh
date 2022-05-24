@@ -37,6 +37,19 @@ namespace cuars
         }
     };
 
+    // struct RasterIterator : public IntervalIterator<Dim, Index, RasterIndexer> {
+
+    //         using BaseType = IntervalIterator<Dim, Index, RasterIndexer>;
+    //         using IntervalType = typename BaseType::IntervalType;
+    //         using Indices = typename BaseType::Indices;
+
+    //         RasterIterator(const IntervalType* interval, Index pos) : BaseType(interval, pos) {
+    //         }
+
+    //         virtual ~RasterIterator() {
+    //         }
+    //     };
+
     //!! DOMAIN = INTERVALTYPE = INTERVALINDICES
     struct Domain
     {
@@ -100,7 +113,6 @@ namespace cuars
             dimensions_ = dimensions;
         }
 
-        
         /**
          * Returns the dimension sizes of interval.
          */
@@ -205,7 +217,8 @@ namespace cuars
         {
         }
 
-        void initBounds(const Indices& dimensions) {
+        void initBounds(const Indices &dimensions)
+        {
             Indices zeros;
             zeros.fill(0);
             domain_.initBounds(zeros, dimensions);
@@ -213,7 +226,8 @@ namespace cuars
             data_.resize(domain_.size());
         }
 
-        void initBounds(const Indices& min, const Indices& dimensions) {
+        void initBounds(const Indices &min, const Indices &dimensions)
+        {
             domain_.initBounds(min, dimensions);
             data_.resize(domain_.size());
         }
@@ -245,17 +259,15 @@ namespace cuars
             return RasterIndexer::getPos(domain_.min(), domain_.dimensions_, indices);
         }
 
-        
-
-        void fill(const Value& value) {
+        void fill(const Value &value)
+        {
             std::fill(std::begin(data_), std::end(data_), value);
         }
 
-        void reset() {
+        void reset()
+        {
             fill(0);
         }
-
-        
 
         /**
          * Says if the given indices are inside the index domain.
@@ -266,8 +278,6 @@ namespace cuars
         {
             return domain_.inside(indices);
         }
-
-        
 
         /**
          * Warning: the user is responsible about the correct access to the buffer.

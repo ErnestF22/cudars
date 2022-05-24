@@ -29,7 +29,7 @@
 
 #include "ars/mpeg7RW.h"
 
-void plotGrid(const cuars::ConsensusTranslationEstimator2d::Grid &grid, const cuars::Vec2d &translMin, double translRes, const std::string &filename, double factor);
+void plotGrid(const cuars::ArsTec<cuars::Grid2d, cuars::Indices2d, cuars::PeakFinder2d, 2>& arsTec, const cuars::Vec2d &translMin, double translRes, const std::string &filename, double factor);
 
 void gpu_estimateRotationArsIso(const ArsImgTests::PointReaderWriter &pointsSrc, const ArsImgTests::PointReaderWriter &pointsDst, TestParams &tp, ParlArsIsoParams &paip, double &rotOut);
 
@@ -202,8 +202,9 @@ int main(int argc, char **argv)
     return 0;
 }
 
-void plotGrid(const cuars::ConsensusTranslationEstimator2d::Grid &grid, const cuars::Vec2d &translMin, double translRes, const std::string &filename, double factor)
+void plotGrid(const cuars::ArsTec<cuars::Grid2d, cuars::Indices2d, cuars::PeakFinder2d, 2>& arsTec, const cuars::Vec2d &translMin, double translRes, const std::string &filename, double factor)
 {
+    cuars::Grid2d grid = arsTec.grid_;
     int dim0 = grid.dimensions()[0];
     int dim1 = grid.dimensions()[1];
     int dim0Reduced = round(dim0 / factor);
@@ -304,7 +305,7 @@ void computeArsTec(cuars::VecVec2d &translCandidates, const cuars::VecVec2d &poi
 
     // translEstim.init(translMin, translRes, gridSize);
     // translEstim.setNonMaximaWindowDim(gridWin);    
-    translObj.init(translParams.gridSize, translParams.gridWin);
+    // translObj.init(); //for now init is included
 
     std::cout << "Inserting pair source-destination:\n";
     // translEstim.insert(pointsSrc, pointsDst);

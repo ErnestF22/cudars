@@ -23,7 +23,6 @@
 #include <thrust/host_vector.h>
 #include <cmath>
 
-#include <rofl/common/grid.h>
 #include <rofl/common/peak_finder_d.h>
 
 #define ARS_PRINT(MSG) std::cout << __FILE__ << "," << __LINE__ << ": " << MSG << std::endl;
