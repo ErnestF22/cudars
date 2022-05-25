@@ -33,7 +33,7 @@ void plotGrid(const cuars::ArsTec<cuars::Grid2d, cuars::Indices2d, cuars::PeakFi
 
 void gpu_estimateRotationArsIso(const ArsImgTests::PointReaderWriter &pointsSrc, const ArsImgTests::PointReaderWriter &pointsDst, TestParams &tp, ParlArsIsoParams &paip, double &rotOut);
 
-void computeArsTec(cuars::VecVec2d &translCandidates, const cuars::VecVec2d &pointsSrc, const cuars::VecVec2d &pointsDst, cuars::ArsTecParams &translParams);
+void computeArsTec(cuars::VecVec2d &translCandidates, const cuars::VecVec2d &pointsSrc, const cuars::VecVec2d &pointsDst, cuars::ArsTec2dParams &translParams);
 
 int main(int argc, char **argv)
 {
@@ -44,7 +44,7 @@ int main(int argc, char **argv)
 
     TestParams testParams;
     ParlArsIsoParams paiParams;
-    cuars::ArsTecParams translParams;
+    cuars::ArsTec2dParams translParams;
 
     rofl::ParamMap params;
     std::string filenameCfg;
@@ -299,23 +299,23 @@ void gpu_estimateRotationArsIso(const ArsImgTests::PointReaderWriter &pointsSrc,
     delete coeffsArsDst;
 }
 
-void computeArsTec(cuars::VecVec2d &translCandidates, const cuars::VecVec2d &pointsSrc, const cuars::VecVec2d &pointsDst, cuars::ArsTecParams &translParams)
+void computeArsTec(cuars::VecVec2d &translCandidates, const cuars::VecVec2d &pointsSrc, const cuars::VecVec2d &pointsDst, cuars::ArsTec2dParams &translParams)
 {
-    cuars::ArsTec<cuars::Grid2d, cuars::Indices2d, cuars::PeakFinder2d, 2> translObj(translParams); //ArsTec 2D object
+    cuars::ArsTec<cuars::Grid2d, cuars::Indices2d, cuars::PeakFinder2d, 2> translObj; //ArsTec 2D object
 
     // translEstim.init(translMin, translRes, gridSize);
     // translEstim.setNonMaximaWindowDim(gridWin);    
-    // translObj.init(); //for now init is included
+    translObj.init(translParams); //for now init is included
 
     std::cout << "Inserting pair source-destination:\n";
     // translEstim.insert(pointsSrc, pointsDst);
     translObj.insert(pointsSrc, pointsDst, translParams.adaptiveGrid); // adaptive = false for the dummy example
 
-    // if (translParams.plot)
-    // {
-    //     cuars::ConsensusTranslationEstimator2d translEstimPlot(grid, pf, translParams.translMin, translParams.translRes, translParams.gridSize);
-    //     plotGrid(translEstimPlot.getGrid(), translParams.translMin, translParams.translRes, "consensus_transl_grid.plot", 1.0);
-    // }
+    if (translParams.plot)
+    {
+        //     translObj.ConsensusTranslationEstimator2d translEstimPlot(grid, pf, translParams.translMin, translParams.translRes, translParams.gridSize);
+        plotGrid(translObj, translParams.translMin, translParams.translRes, "consensus_transl_grid.plot", 1.0);
+    }
 
     std::cout << "Computing maxima:\n";
     // translEstim.computeMaxima(translCandidates); //TODO: adapt computeMaxima() for CUDA GPU parallelization

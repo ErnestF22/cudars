@@ -38,7 +38,7 @@ namespace cuars
     using Indices2d = std::array<Index, DIM>;
     using PeakFinder2d = rofl::PeakFinderD<2, Counter, Index, std::greater<Index>>;
 
-    struct ArsTecParams
+    struct ArsTec2dParams
     {
         cuars::Vec2d translMin, translMax, translGt;
         double translRes;
@@ -50,6 +50,7 @@ namespace cuars
     template <typename Grid, typename Indices, typename PeakFinder, size_t Dim, typename Scalar = double>
     struct ArsTec
     {
+        /*members*/
         Grid grid_;
         Point translMin_;
         Point translMax_;
@@ -65,18 +66,6 @@ namespace cuars
             translMin_.y = 0.0;
         }
 
-        ArsTec(const ArsTecParams &translParams) : grid_(), peakFinder_()
-        {
-            translMin_ = translParams.translMin;
-            translMax_ = translParams.translMax;
-            translRes_ = translParams.translRes;
-
-            grid_.initBounds(translParams.gridSize);
-            peakFinder_.setDomain(translParams.gridSize);
-            // translEstim.setNonMaximaWindowDim(gridWin);
-            peakFinder_.setPeakWindow(translParams.gridWin);
-        }
-
         ArsTec(const Point &translMin, const Scalar &translRes, const Indices &gridSize)
             : grid_(), translMin_(translMin), translRes_(translRes), peakFinder_()
         {
@@ -88,18 +77,26 @@ namespace cuars
         {
         }
 
+        void setNonMaximaWindowDim(const Indices &dim)
+        {
+            peakFinder_.setPeakWindow(dim);
+        }
+
         /**
          * @brief Initial init (used in main function() )
          */
-        void init(const Indices &gridSize, const Indices &gridWin)
+        void init(const ArsTec2dParams &translParams)
         {
-            // grid_.initBounds(gridSize);
-            // translMin_ = translMin; //translMin, translRes are used directly in the followings
-            // translRes_ = translRes;
-            // peakFinder_.setDomain(gridSize);
+            grid_.initBounds(translParams.gridSize);
 
+            translMin_ = translParams.translMin;
+            translMax_ = translParams.translMax;
+            translRes_ = translParams.translRes;
+
+            peakFinder_.setDomain(translParams.gridSize);
             // translEstim.setNonMaximaWindowDim(gridWin);
-            // peakFinder_.setPeakWindow(gridWin);
+
+            setNonMaximaWindowDim(translParams.gridWin);
         }
 
         /**
@@ -114,19 +111,7 @@ namespace cuars
             peakFinder_.setDomain(gridSize);
         }
 
-        /**
-         * Return indices corresponding to point @param p, according to grid params @param translMin, @param translRes
-         */
-        Indices getIndices(const Point &p)
-        {
-            Indices indices;
-            for (int d = 0; d < Dim; ++d)
-            {
-                // indices[d] = round((p(d) - translMin(d)) / translRes);
-                indices[d] = round((idxGetter(p, d) - idxGetter(translMin_, d)) / translRes_);
-            }
-            return indices;
-        }
+        
 
         void potentialKernel(const VectorPoint &pointsSrc, const VectorPoint &pointsDst, Point &transl, Indices &indices)
         {
@@ -136,9 +121,9 @@ namespace cuars
                 {
                     // transl = pd - ps;
                     vec2diff(transl, pd, ps);
-                    getIndices(transl);
+                    indices = getIndices(transl);
                     // ARS_VARIABLE4(transl.transpose(),indices[0],indices[1],grid_.inside(indices));
-                    if (grid_.inside(indices))
+                    if (grid_.insideGrid(indices))
                     {
                         grid_.value(indices)++;
                     }
@@ -214,21 +199,7 @@ namespace cuars
             peakFinder_.enableFilterPeakMin(true, thres);
         }
 
-        /**
-         * @brief New version, now outside of TEC class, of method: Point getTranslation(const Indices &indices) const;
-         */
-        Point getTranslation(const Indices &indices)
-        {
-            Point transl;
-
-            for (int d = 0; d < Dim; ++d)
-            {
-                // transl(d) = translRes * indices[d] + translMin(d);
-                idxSetter(transl, d, translRes_ * indices[d] + idxGetter(translMin_, d));
-            }
-
-            return transl;
-        }
+        
 
         /**
          * @brief Calls peakFinder detection method on @param grid
@@ -274,6 +245,49 @@ namespace cuars
                 std::cout << "p " << ctr << " - " << p.x << " " << p.y << std::endl;
                 ctr++;
             }
+        }
+
+        /**
+         * Return indices corresponding to point @param p, according to grid params @param translMin, @param translRes
+         */
+        Indices getIndices(const Point &p)
+        {
+            Indices indices;
+            for (int d = 0; d < Dim; ++d)
+            {
+                // indices[d] = round((p(d) - translMin(d)) / translRes);
+                indices[d] = round((idxGetter(p, d) - idxGetter(translMin_, d)) / translRes_);
+            }
+            return indices;
+        }
+
+        /**
+         * @brief New version, now outside of TEC class, of method: Point getTranslation(const Indices &indices) const;
+         */
+        Point getTranslation(const Indices &indices)
+        {
+            Point transl;
+
+            for (int d = 0; d < Dim; ++d)
+            {
+                // transl(d) = translRes * indices[d] + translMin(d);
+                idxSetter(transl, d, translRes_ * indices[d] + idxGetter(translMin_, d));
+            }
+
+            return transl;
+        }
+
+        Counter getScore(const Point& p) const {
+            Indices indices = getIndices(p);
+            return getScore(indices);
+        }
+
+        Counter getScore(const Indices& indices) const {
+            return grid_.value(indices);
+        }
+
+        const Grid& getGrid() const {
+            return grid_;
         }
 
         // template Point getTranslation<Indices2d, 2>(const Indices2d &indices, Point &translMin, Scalar &translRes);
