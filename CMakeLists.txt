@@ -57,20 +57,6 @@ add_library(iso_cuars STATIC
     src/ArsKernelIsotropic2d.cpp
     src/BBOptimizer1d.cpp
     src/Profiler.cpp
-)
-
-add_library(iso_cuars_mpeg7 STATIC
-    src/ars2d.cpp
-    src/ars2d.cu
-
-    src/definitions.cpp
-    src/utils.cpp
-    src/functions.cpp
-
-    src/ArsKernelIsotropic2d.cpp
-
-    src/BBOptimizer1d.cpp
-    src/Profiler.cpp
 
     src/mpeg7RW.cpp
     src/mpeg7_io.cpp
@@ -104,7 +90,7 @@ add_library(ani_cuars STATIC
 ### Isotropic cuArs
 
 add_executable(gpu_testIsotropicArs test/gpu_testIsotropicArs.cu )
-target_link_libraries(gpu_testIsotropicArs ${ars_LINK_LIBS} iso_cuars)
+target_link_libraries(gpu_testIsotropicArs ${ars_LINK_LIBS} iso_cuars rofl_common ${PCL_LIBRARIES})
 
 #target_compile_features(gpu_testIsotropicArs PUBLIC cxx_std_11)
 set_target_properties(gpu_testIsotropicArs PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
@@ -113,7 +99,7 @@ set_target_properties(gpu_testIsotropicArs PROPERTIES CUDA_ARCHITECTURES "75")
 ####################################################################################
  
 add_executable(gpu_testArsIsoMpeg7 test/gpu_testArsIsoMpeg7.cu)
-target_link_libraries(gpu_testArsIsoMpeg7 ${ars_LINK_LIBS} iso_cuars_mpeg7 ${PCL_LIBRARIES} rofl_common -lstdc++fs -lboost_filesystem)
+target_link_libraries(gpu_testArsIsoMpeg7 ${ars_LINK_LIBS} iso_cuars ${PCL_LIBRARIES} rofl_common -lstdc++fs -lboost_filesystem)
 
 target_compile_features(gpu_testArsIsoMpeg7 PUBLIC cxx_std_11)
 set_target_properties(gpu_testArsIsoMpeg7 PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
@@ -122,7 +108,7 @@ set_target_properties(gpu_testArsIsoMpeg7 PROPERTIES CUDA_ARCHITECTURES "75")
 ####################################################################################
 
 add_executable(gpu_testArsIsoPcl test/gpu_testArsIsoPcl.cu)
-target_link_libraries(gpu_testArsIsoPcl ${ars_LINK_LIBS} iso_cuars_mpeg7 rofl_common ${PCL_LIBRARIES} -lstdc++fs)
+target_link_libraries(gpu_testArsIsoPcl ${ars_LINK_LIBS} iso_cuars rofl_common ${PCL_LIBRARIES} -lstdc++fs)
 
 target_compile_features(gpu_testArsIsoPcl PUBLIC cxx_std_11)
 set_target_properties(gpu_testArsIsoPcl PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
@@ -131,7 +117,7 @@ set_target_properties(gpu_testArsIsoPcl PROPERTIES CUDA_ARCHITECTURES "75")
 ####################################################################################
  
 add_executable(gpu_fullArsIsoMpeg7 app/gpu_fullArsIsoMpeg7.cu)
-target_link_libraries(gpu_fullArsIsoMpeg7 ${ars_LINK_LIBS} iso_cuars_mpeg7 rofl_common ${PCL_LIBRARIES} -lstdc++fs)
+target_link_libraries(gpu_fullArsIsoMpeg7 ${ars_LINK_LIBS} iso_cuars rofl_common ${PCL_LIBRARIES} -lstdc++fs)
 
 target_compile_features(gpu_fullArsIsoMpeg7 PUBLIC cxx_std_11)
 set_target_properties(gpu_fullArsIsoMpeg7 PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
@@ -140,7 +126,7 @@ set_target_properties(gpu_fullArsIsoMpeg7 PROPERTIES CUDA_ARCHITECTURES "75")
 #####################################################################################
 
 add_executable(gpu_fullArsIsoPcl app/gpu_fullArsIsoPcl.cu)
-target_link_libraries(gpu_fullArsIsoPcl ${ars_LINK_LIBS} iso_cuars_mpeg7 rofl_common ${PCL_LIBRARIES} -lstdc++fs)
+target_link_libraries(gpu_fullArsIsoPcl ${ars_LINK_LIBS} iso_cuars rofl_common ${PCL_LIBRARIES} -lstdc++fs)
 
 target_compile_features(gpu_fullArsIsoPcl PUBLIC cxx_std_11)
 set_target_properties(gpu_fullArsIsoPcl PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
@@ -162,12 +148,12 @@ set_target_properties(gpu_fullArsIsoPcl PROPERTIES CUDA_ARCHITECTURES "75")
 ### translation
 
 add_executable(gpu_testConsensusTranslationEstimator test/gpu_testConsensusTranslationEstimator.cu)
-target_link_libraries(gpu_testConsensusTranslationEstimator ${ars_LINK_LIBS} iso_cuars_mpeg7 rofl_common ${PCL_LIBRARIES} -lstdc++fs)
+target_link_libraries(gpu_testConsensusTranslationEstimator ${ars_LINK_LIBS} iso_cuars rofl_common ${PCL_LIBRARIES} -lstdc++fs)
 
 ####################################################################################
  
 add_executable(gpu_testPoseMpeg7 test/gpu_testPoseMpeg7.cu)
-target_link_libraries(gpu_testPoseMpeg7 ${ars_LINK_LIBS} iso_cuars_mpeg7 ${PCL_LIBRARIES} rofl_common -lstdc++fs -lboost_filesystem)
+target_link_libraries(gpu_testPoseMpeg7 ${ars_LINK_LIBS} iso_cuars ${PCL_LIBRARIES} rofl_common -lstdc++fs -lboost_filesystem)
 
 target_compile_features(gpu_testPoseMpeg7 PUBLIC cxx_std_11)
 set_target_properties(gpu_testPoseMpeg7 PROPERTIES CUDA_SEPARABLE_COMPILATION ON)

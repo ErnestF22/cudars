@@ -31,8 +31,6 @@
 
 void plotGrid2d(const cuars::ArsTec<cuars::Grid2d, cuars::Indices2d, cuars::PeakFinder2d, 2> &arsTec, const cuars::Vec2d &translMin, double translRes, const std::string &filename, double factor);
 
-void gpu_estimateRotationArsIso(const ArsImgTests::PointReaderWriter &pointsSrc, const ArsImgTests::PointReaderWriter &pointsDst, TestParams &tp, ParlArsIsoParams &paip, double &rotOut);
-
 int main(int argc, char **argv)
 {
     cuars::AngularRadonSpectrum2d arsSrc;
@@ -200,99 +198,5 @@ int main(int argc, char **argv)
     return 0;
 }
 
-void plotGrid2d(const cuars::ArsTec<cuars::Grid2d, cuars::Indices2d, cuars::PeakFinder2d, 2> &arsTec, const cuars::Vec2d &translMin, double translRes, const std::string &filename, double factor)
-{
-    cuars::Grid2d grid = arsTec.grid_;
-    int dim0 = grid.dimensions()[0];
-    int dim1 = grid.dimensions()[1];
-    int dim0Reduced = round(dim0 / factor);
-    int dim1Reduced = round(dim1 / factor);
-    double v0, v1;
 
-    std::ofstream file(filename);
-    if (!file)
-    {
-        std::cerr << "Cannot open \"" << filename << "\"" << std::endl;
-        return;
-    }
 
-    std::cout << "plotting grid with size " << dim0 << " x " << dim1 << std::endl;
-
-    file << "set grid nopolar\n"
-         << "set style data lines\n"
-         << "set dgrid3d " << dim0Reduced << "," << dim1Reduced << "\n"
-         << "set hidden3d\n";
-
-    file << "splot '-'\n";
-    for (int i0 = 0; i0 < dim0; ++i0)
-    {
-        for (int i1 = 0; i1 < dim1; ++i1)
-        {
-            // v0 = translMin(0) + translRes * i0;
-            v0 = translMin.x + translRes * i0;
-            // v1 = translMin(1) + translRes * i1;
-            v1 = translMin.y + translRes * i1;
-
-            file << v0 << " " << v1 << " " << grid.value({i0, i1}) << "\n";
-        }
-    }
-    file << "e\n";
-
-    file.close();
-}
-
-void gpu_estimateRotationArsIso(const ArsImgTests::PointReaderWriter &pointsSrc, const ArsImgTests::PointReaderWriter &pointsDst, TestParams &testParams, ParlArsIsoParams &paip, double &rotOut)
-{
-    // ARS SRC -> preparation for kernel calls and kernel calls
-    cudaEvent_t startSrc, stopSrc; // timing using CUDA events
-    cudaEventCreate(&startSrc);
-    cudaEventCreate(&stopSrc);
-
-    const cuars::VecVec2d &inputSrc = pointsSrc.points();
-    initParallelizationParams(paip, testParams.aiPms.arsIsoOrder, inputSrc.size(), paip.blockSz, paip.chunkMaxSz); // cudarsIso.init()
-    double *coeffsArsSrc = new double[paip.coeffsMatNumColsPadded];
-    computeArsIsoGpu(paip, testParams.aiPms, inputSrc, coeffsArsSrc, startSrc, stopSrc, paip.gpu_srcExecTime); // cudarsIso.compute()
-
-    cudaEventDestroy(startSrc);
-    cudaEventDestroy(stopSrc);
-    // END OF ARS SRC
-
-    //    std::cout << "\n------\n" << std::endl; //"pause" between ars src and ars dst
-
-    // ARS DST -> preparation for kernel calls and kernel calls
-    cudaEvent_t startDst, stopDst; // timing using CUDA events
-    cudaEventCreate(&startDst);
-    cudaEventCreate(&stopDst);
-
-    const cuars::VecVec2d &inputDst = pointsDst.points();
-    initParallelizationParams(paip, testParams.aiPms.arsIsoOrder, inputDst.size(), paip.blockSz, paip.chunkMaxSz); // cudarsIso.init()
-    double *coeffsArsDst = new double[paip.coeffsMatNumColsPadded];
-    computeArsIsoGpu(paip, testParams.aiPms, inputDst, coeffsArsDst, startDst, stopDst, paip.gpu_dstExecTime); // cudarsIso.compute()
-
-    cudaEventDestroy(startDst);
-    cudaEventDestroy(stopDst);
-    // END OF ARS DST
-
-    // Final computations (correlation, ...) on CPU
-    //     std::cout << "\nARS Coefficients:\n";
-    //     std::cout << "Coefficients: Src, Dst, Cor" << std::endl;
-
-    double thetaMax, corrMax, fourierTol;
-    fourierTol = 1.0; // TODO: check for a proper tolerance
-
-    std::vector<double> coeffsCor;
-    {
-        cuars::ScopedTimer("ars.correlation()");
-        std::vector<double> tmpSrc;
-        tmpSrc.assign(coeffsArsSrc, coeffsArsSrc + paip.coeffsMatNumColsPadded);
-        std::vector<double> tmpDst;
-        tmpDst.assign(coeffsArsDst, coeffsArsDst + paip.coeffsMatNumColsPadded);
-        cuars::computeFourierCorr(tmpSrc, tmpDst, coeffsCor);
-        cuars::findGlobalMaxBBFourier(coeffsCor, 0.0, M_PI, testParams.aiPms.arsIsoThetaToll, fourierTol, thetaMax, corrMax);
-        rotOut = thetaMax; //!! rotOut is passed to the function as reference
-    }
-
-    // Free CPU memory
-    delete coeffsArsSrc;
-    delete coeffsArsDst;
-}

@@ -39,8 +39,6 @@ std::string getPrefix(std::string filename);
 
 std::string getLeafDirectory(std::string filename);
 
-void gpu_estimateRotationArsIso(const ArsImgTests::PointReaderWriter& pointsSrc, const ArsImgTests::PointReaderWriter& pointsDst, TestParams& tp, ParlArsIsoParams& paip, double& rotOut);
-
 int main(int argc, char** argv) {
 
     rofl::ParamMap params;
@@ -356,100 +354,5 @@ std::string getLeafDirectory(std::string filename) {
     return leafDir;
 }
 
-void gpu_estimateRotationArsIso(const ArsImgTests::PointReaderWriter& pointsSrc, const ArsImgTests::PointReaderWriter& pointsDst, TestParams& tp, ParlArsIsoParams& paip, double& rotOut) {
-    //ARS SRC -> preparation for kernel calls and kernel calls
-    cudaEvent_t startSrc, stopSrc; //timing using CUDA events
-    cudaEventCreate(&startSrc);
-    cudaEventCreate(&stopSrc);
 
-    const cuars::VecVec2d& inputSrc = pointsSrc.points();
-    initParallelizationParams(paip, tp.aiPms.arsIsoOrder, inputSrc.size(), paip.blockSz, paip.chunkMaxSz); //cudarsIso.init()
-    double* coeffsArsSrc = new double [paip.coeffsMatNumColsPadded];
-    computeArsIsoGpu(paip, tp.aiPms, inputSrc, coeffsArsSrc, startSrc, stopSrc, paip.gpu_srcExecTime); //cudarsIso.compute()
-
-    cudaEventDestroy(startSrc);
-    cudaEventDestroy(stopSrc);
-    //END OF ARS SRC
-
-    //    std::cout << "\n------\n" << std::endl; //"pause" between ars src and ars dst
-
-    //ARS DST -> preparation for kernel calls and kernel calls
-    cudaEvent_t startDst, stopDst; //timing using CUDA events
-    cudaEventCreate(&startDst);
-    cudaEventCreate(&stopDst);
-
-    const cuars::VecVec2d& inputDst = pointsDst.points();
-    initParallelizationParams(paip, tp.aiPms.arsIsoOrder, inputDst.size(), paip.blockSz, paip.chunkMaxSz); //cudarsIso.init()
-    double* coeffsArsDst = new double [paip.coeffsMatNumColsPadded];
-    computeArsIsoGpu(paip, tp.aiPms, inputDst, coeffsArsDst, startDst, stopDst, paip.gpu_dstExecTime); //cudarsIso.compute()
-
-    cudaEventDestroy(startDst);
-    cudaEventDestroy(stopDst);
-    //END OF ARS DST
-
-    std::cout << std::endl << "---Computing corelation---" << std::endl;
-
-    //Final computations (correlation, ...) on CPU
-    //    std::cout << "\nARS Coefficients:\n";
-    //    std::cout << "Coefficients: Src, Dst, Cor" << std::endl;
-
-    double thetaMax, corrMax, fourierTol;
-    fourierTol = 1.0; // TODO: check for a proper tolerance
-
-    std::vector<double> coeffsCor;
-    {
-        cuars::ScopedTimer("ars.correlation()");
-        std::vector<double> tmpSrc;
-        tmpSrc.assign(coeffsArsSrc, coeffsArsSrc + paip.coeffsMatNumColsPadded);
-        std::vector<double> tmpDst;
-        tmpDst.assign(coeffsArsDst, coeffsArsDst + paip.coeffsMatNumColsPadded);
-        cuars::computeFourierCorr(tmpSrc, tmpDst, coeffsCor);
-        cuars::findGlobalMaxBBFourier(coeffsCor, 0.0, M_PI, tp.aiPms.arsIsoThetaToll, fourierTol, thetaMax, corrMax);
-        rotOut = thetaMax; //!! rotOut is passed to the function as reference
-    }
-
-
-    //  Output coeffs check: CPU version
-    //    arsSrc.setCoefficients(coeffsArsSrc, paip.coeffsMatNumCols);
-    //    //    for (int i = 0; i < coeffsVectorMaxSz; i++) {
-    //    //        std::cout << "arsSrc - coeff_d[" << i << "] " << d_coeffsMat1[i] << std::endl;
-    //    //    }
-    //    arsDst.setCoefficients(coeffsArsDst, paip.coeffsMatNumCols);
-    //    for (int i = 0; i < arsSrc.coefficients().size() && i < arsDst.coefficients().size(); ++i) {
-    //        std::cout << "\t" << i << " \t" << arsSrc.coefficients().at(i) << " \t" << arsDst.coefficients().at(i) << " \t" << coeffsCor[i] << std::endl;
-    //    }
-
-    //  Output coeffs check: GPU version
-    //    for (int i = 0; i < paip.coeffsMatNumCols; ++i) {
-    //        std::cout << "\t" << i << " \t" << coeffsArsSrc[i] << " \t" << coeffsArsDst[i] << " \t" << coeffsCor[i] << std::endl;
-    //    }
-    //    std::cout << std::endl;
-
-    std::cout << std::endl << "ROT OUT " << rotOut << std::endl;
-
-    // Computes the rotated points,centroid, affine transf matrix between src and dst
-    ArsImgTests::PointReaderWriter pointsRot(pointsSrc.points());
-    cuars::Vec2d centroidSrc = pointsSrc.computeCentroid();
-    cuars::Vec2d centroidDst = pointsDst.computeCentroid();
-    cuars::Affine2d rotSrcDst = ArsImgTests::PointReaderWriter::coordToTransform(0.0, 0.0, rotOut);
-    //    cuars::Vec2d translSrcDst = centroidDst - rotSrcDst * centroidSrc;
-    cuars::Vec2d translSrcDst;
-    cuars::vec2diff(translSrcDst, centroidDst, cuars::aff2TimesVec2WRV(rotSrcDst, centroidSrc));
-    //    std::cout << "centroidSrc " << centroidSrc.x << " \t" << centroidSrc.y << "\n"
-    //            << "centroidDst " << centroidDst.x << " \t" << centroidDst.y << "\n"
-    //            << "rotSrcDst\n" << rotSrcDst << "\n"
-    //            << "translation: [" << translSrcDst.x << " \t" << translSrcDst.y << "] rotation[deg] " << (180.0 / M_PI * rotOut) << "\n";
-    pointsRot.applyTransform(translSrcDst.x, translSrcDst.y, rotOut);
-
-
-    //    double rotTrue = pointsDst.getRotTheta() - pointsSrc.getRotTheta();
-    //    std::cout << "\n***\npointsDst.getrotTheta() [deg]" << (180 / M_PI * pointsDst.getRotTheta())
-    //            << ", pointsSrc.getrotTheta() [deg] " << (180.0 / M_PI * pointsSrc.getRotTheta()) << "\n";
-    //    std::cout << "rotTrue[deg] \t" << (180.0 / M_PI * rotTrue) << " \t" << (180.0 / M_PI * cuars::mod180(rotTrue)) << std::endl;
-    //    std::cout << "rotArs[deg] \t" << (180.0 / M_PI * rotOut) << " \t" << (180.0 / M_PI * cuars::mod180(rotOut)) << std::endl;
-
-    //Free CPU memory
-    delete coeffsArsSrc;
-    delete coeffsArsDst;
-}
 

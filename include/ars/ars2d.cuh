@@ -2,6 +2,11 @@
 
 #include <ars/functions.h>
 #include <ars/utils.h>
+#include <ars/ars2d.h>
+
+#include "ars/Profiler.h"
+
+#include "ars/mpeg7RW.h"
 
 struct ParlArsIsoParams
 { // Isotropic ARS Parallelization Params
@@ -38,8 +43,6 @@ struct ArsIsoParams
     double arsIsoThetaToll;
     cuars::ArsKernelIso2dComputeMode arsIsoPnebiMode;
 };
-
-
 
 struct TestParams
 {
@@ -195,3 +198,15 @@ void updateParallelizationParams(ParlArsIsoParams &pp, int currChunkSz);
  */
 //__host__
 void computeArsIsoGpu(ParlArsIsoParams &paip, ArsIsoParams &arsPms, const cuars::VecVec2d &points, double *coeffsArs, cudaEvent_t start, cudaEvent_t stop, double &execTime);
+
+/**
+ * @brief Method to be called from main: contains parameters initialization, computeArsIsoGpu(), correlation computation
+ * Contains also timers for profiling
+ *
+ * @param pointsSrc
+ * @param pointsDst
+ * @param tp
+ * @param paip
+ * @param rotOut
+ */
+void gpu_estimateRotationArsIso(const ArsImgTests::PointReaderWriter &pointsSrc, const ArsImgTests::PointReaderWriter &pointsDst, TestParams &tp, ParlArsIsoParams &paip, double &rotOut);
