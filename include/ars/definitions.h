@@ -22,6 +22,7 @@
 #include <limits>
 #include <thrust/host_vector.h>
 #include <cmath>
+#include <vector_functions.h>
 
 #include <rofl/common/peak_finder_d.h>
 
@@ -105,11 +106,19 @@ namespace cuars
 
       void initdata(double r, double tx, double ty);
 
+      double determinant() const;
+
+      void invert();
+
+      Affine2d inverse();
+
       bool isLastRowOK() const;
 
       bool isScale1();
 
       double at(int r, int c) const;
+
+      Vec2d translation() const;
 
       friend std::ostream &operator<<(std::ostream &os, cuars::Affine2d const &m)
       {
@@ -144,8 +153,6 @@ namespace cuars
    {
       using type = double2;
    };
-
-   
 
 } // end of namespace
 

@@ -134,6 +134,8 @@ namespace ArsImgTests {
 
         double getRotTheta() const;
 
+        cuars::Affine2d getTransform() const;
+
         double getNoiseSigma() const;
 
         int getNumIn() const;

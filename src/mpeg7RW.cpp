@@ -386,6 +386,17 @@ namespace ArsImgTests {
         return rot_theta;
     }
 
+    cuars::Affine2d PointReaderWriter::getTransform() const {
+        // Eigen::Translation2d t(transl_x, transl_y);
+        // Eigen::Affine3d rotBig = Eigen::Affine3d(Eigen::AngleAxisd(rot_theta, Eigen::Vector3d(0, 0, 1)));
+        // Eigen::Affine2d affMat = t * rotBig.linear().topLeftCorner<2, 2>();
+
+        //        ARS_VAR4(affMat.matrix(), rot_theta, transl_x, transl_y);
+
+
+        return cuars::Affine2d(rot_theta, transl_x, transl_y);
+    }
+
     double PointReaderWriter::getNoiseSigma() const {
         return noise_sigma;
     }

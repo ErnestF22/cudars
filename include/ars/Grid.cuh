@@ -20,7 +20,7 @@ namespace cuars
 
     using Value = size_t;
 
-    struct Grid
+    struct Grid // cuars::Grid is already specialized as Grid2d
     {
         IntervalType domain_;
         std::vector<size_t, std::allocator<size_t>> data_;

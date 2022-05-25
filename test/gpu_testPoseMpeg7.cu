@@ -56,6 +56,7 @@ int main(int argc, char **argv)
     int arsOrder;
     double arsSigma, arsThetaToll;
     double rotTrue, rotArs;
+    cuars::Vec2d translTrue;
     cuars::VecVec2d translCandidates;
     // The variables below are for I/O related functionalities (plot, etc.) that are highly Eigen-based and are present in the CPU-only ArsImgTests...
     // Maybe implement them later
@@ -154,6 +155,13 @@ int main(int argc, char **argv)
               << ", pointsSrc.getrotTheta() [deg] " << (180.0 / M_PI * pointsSrc.getRotTheta()) << "\n";
     std::cout << "rotTrue[deg] \t" << (180.0 / M_PI * rotTrue) << " \t" << (180.0 / M_PI * cuars::mod180(rotTrue)) << std::endl;
     std::cout << "rotArs[deg] \t" << (180.0 / M_PI * rotArs) << " \t" << (180.0 / M_PI * cuars::mod180(rotArs)) << std::endl;
+    
+    // Eigen::Affine2d transfSrcToDst = pointsDst.getTransform() * pointsSrc.getTransform().inverse();
+    cuars::Affine2d transfSrcToDst;
+    aff2Prod(transfSrcToDst, pointsDst.getTransform(), pointsSrc.getTransform().inverse());
+    std::cout << "diff transform" << std::endl
+              << transfSrcToDst << std::endl;
+    translTrue = transfSrcToDst.translation();
 
     // APPLY COMPUTED ROTATION
     // Computes the rotated points, centroid, affine transf matrix between src and dst
@@ -183,7 +191,10 @@ int main(int argc, char **argv)
 
     cuars::computeArsTec2d(translCandidates, pointsSrc.points(), pointsDst.points(), translParams);
 
-    std::cout << "Estimated translation values:\n";
+    std::cout << "translTrue:" << std::endl;
+    cuars::printVec2d(translTrue);
+
+    std::cout << "Estimated translation values:" << std::endl;
     // cuars::ConsensusTranslationEstimator2d translEstimOutput(...) //constructor can be used for example to fill the class with the outputs
     for (auto &pt : translCandidates)
     {

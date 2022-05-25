@@ -142,9 +142,8 @@ namespace cuars
             break;
         default:
             std::cout << "Bad idx getter (vec)!" << std::endl;
-            break;
         }
-        return retval; //TODO: maybe try to return directly from switch cases
+        return retval; // TODO: maybe try to return directly from switch cases
     }
 
     double idxGetter(const Mat2d &vec, int idx)
@@ -166,7 +165,6 @@ namespace cuars
             break;
         default:
             std::cout << "Bad idx getter (mat)!" << std::endl;
-            break;
         }
         return retval;
     }
@@ -183,7 +181,6 @@ namespace cuars
             break;
         default:
             std::cout << "Bad idx setter (vec)!" << std::endl;
-            break;
         }
     }
 
@@ -205,7 +202,6 @@ namespace cuars
             break;
         default:
             std::cout << "Bad idx setter (mat)!" << std::endl;
-            break;
         }
     }
 
@@ -253,7 +249,8 @@ namespace cuars
         mtx.z = cth;
     }
 
-    void fillVec2d(Vec2d &vec, double x, double y) {
+    void fillVec2d(Vec2d &vec, double x, double y)
+    {
         vec.x = x;
         vec.y = y;
     }
