@@ -29,11 +29,9 @@
 
 #include "ars/mpeg7RW.h"
 
-void plotGrid(const cuars::ArsTec<cuars::Grid2d, cuars::Indices2d, cuars::PeakFinder2d, 2>& arsTec, const cuars::Vec2d &translMin, double translRes, const std::string &filename, double factor);
+void plotGrid2d(const cuars::ArsTec<cuars::Grid2d, cuars::Indices2d, cuars::PeakFinder2d, 2>& arsTec, const cuars::Vec2d &translMin, double translRes, const std::string &filename, double factor);
 
 void gpu_estimateRotationArsIso(const ArsImgTests::PointReaderWriter &pointsSrc, const ArsImgTests::PointReaderWriter &pointsDst, TestParams &tp, ParlArsIsoParams &paip, double &rotOut);
-
-void computeArsTec(cuars::VecVec2d &translCandidates, const cuars::VecVec2d &pointsSrc, const cuars::VecVec2d &pointsDst, cuars::ArsTec2dParams &translParams);
 
 int main(int argc, char **argv)
 {
@@ -187,7 +185,7 @@ int main(int argc, char **argv)
     cuars::Grid2d grid; //!! the only 2 remaining external classes used are here
     cuars::PeakFinder2d pf;
     cuars::VecVec2d translCandidates;
-    computeArsTec(translCandidates, pointsRot.points(), pointsDst.points(), translParams);
+    cuars::computeArsTec(translCandidates, pointsRot.points(), pointsDst.points(), translParams);
 
     std::cout << "Estimated translation values:\n";
     // cuars::ConsensusTranslationEstimator2d translEstimOutput(...) //constructor can be used for example to fill the class with the outputs
@@ -202,7 +200,7 @@ int main(int argc, char **argv)
     return 0;
 }
 
-void plotGrid(const cuars::ArsTec<cuars::Grid2d, cuars::Indices2d, cuars::PeakFinder2d, 2>& arsTec, const cuars::Vec2d &translMin, double translRes, const std::string &filename, double factor)
+void plotGrid2d(const cuars::ArsTec<cuars::Grid2d, cuars::Indices2d, cuars::PeakFinder2d, 2>& arsTec, const cuars::Vec2d &translMin, double translRes, const std::string &filename, double factor)
 {
     cuars::Grid2d grid = arsTec.grid_;
     int dim0 = grid.dimensions()[0];
@@ -299,26 +297,3 @@ void gpu_estimateRotationArsIso(const ArsImgTests::PointReaderWriter &pointsSrc,
     delete coeffsArsDst;
 }
 
-void computeArsTec(cuars::VecVec2d &translCandidates, const cuars::VecVec2d &pointsSrc, const cuars::VecVec2d &pointsDst, cuars::ArsTec2dParams &translParams)
-{
-    cuars::ArsTec<cuars::Grid2d, cuars::Indices2d, cuars::PeakFinder2d, 2> translObj; //ArsTec 2D object
-
-    // translEstim.init(translMin, translRes, gridSize);
-    // translEstim.setNonMaximaWindowDim(gridWin);    
-    translObj.init(translParams); //for now init is included
-
-    std::cout << "Inserting pair source-destination:\n";
-    // translEstim.insert(pointsSrc, pointsDst);
-    translObj.insert(pointsSrc, pointsDst, translParams.adaptiveGrid); // adaptive = false for the dummy example
-
-    if (translParams.plot)
-    {
-        //     translObj.ConsensusTranslationEstimator2d translEstimPlot(grid, pf, translParams.translMin, translParams.translRes, translParams.gridSize);
-        plotGrid(translObj, translParams.translMin, translParams.translRes, "consensus_transl_grid.plot", 1.0);
-    }
-
-    std::cout << "Computing maxima:\n";
-    // translEstim.computeMaxima(translCandidates); //TODO: adapt computeMaxima() for CUDA GPU parallelization
-    // cuars::computeMaxima<cuars::Grid2d, cuars::Indices2d, cuars::PeakFinder2d, 2>(translCandidates, grid, peakF, translMin, translRes);
-    translObj.computeMaxima(translCandidates); // TODO: adapt computeMaxima() for CUDA GPU parallelization
-}
