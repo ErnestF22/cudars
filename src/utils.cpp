@@ -142,6 +142,7 @@ namespace cuars
             break;
         default:
             std::cout << "Bad idx getter (vec)!" << std::endl;
+            break;
         }
         return retval; //TODO: maybe try to return directly from switch cases
     }
@@ -165,6 +166,7 @@ namespace cuars
             break;
         default:
             std::cout << "Bad idx getter (mat)!" << std::endl;
+            break;
         }
         return retval;
     }
@@ -181,6 +183,7 @@ namespace cuars
             break;
         default:
             std::cout << "Bad idx setter (vec)!" << std::endl;
+            break;
         }
     }
 
@@ -202,6 +205,7 @@ namespace cuars
             break;
         default:
             std::cout << "Bad idx setter (mat)!" << std::endl;
+            break;
         }
     }
 

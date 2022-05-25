@@ -53,7 +53,7 @@ namespace cuars
         /*members*/
         Grid grid_;
         Point translMin_;
-        Point translMax_;
+        // Point translMax_;
         Scalar translRes_;
         PeakFinder peakFinder_;
 
@@ -77,11 +77,6 @@ namespace cuars
         {
         }
 
-        void setNonMaximaWindowDim(const Indices &dim)
-        {
-            peakFinder_.setPeakWindow(dim);
-        }
-
         /**
          * @brief Initial init (used in main function() )
          */
@@ -90,7 +85,7 @@ namespace cuars
             grid_.initBounds(translParams.gridSize);
 
             translMin_ = translParams.translMin;
-            translMax_ = translParams.translMax;
+            // translMax_ = translParams.translMax;
             translRes_ = translParams.translRes;
 
             peakFinder_.setDomain(translParams.gridSize);
@@ -102,12 +97,11 @@ namespace cuars
         /**
          * @brief Re-init (called from insert() when @bool adaptive is true)
          */
-        void adaptInit(const Indices &gridSize)
+        void adaptInit(const Point &translMin, const Scalar &translRes, const Indices &gridSize)
         {
-            // grid_.reset();
             grid_.initBounds(gridSize);
-            // translMin_ = translMin; //translMin, translRes are used directly in the followings
-            // translRes_ = translRes;
+            translMin_ = translMin;
+            translRes_ = translRes;
             peakFinder_.setDomain(gridSize);
         }
 
@@ -129,6 +123,16 @@ namespace cuars
             }
         }
 
+        void reset()
+        {
+            grid_.fill(0);
+        }
+
+        void setNonMaximaWindowDim(const Indices &dim)
+        {
+            peakFinder_.setPeakWindow(dim);
+        }
+
         /**
          * Insert points into the grid, incrementing counter of to corresponding grid cell
          * Also, calls enableFilterPeakMin() function, needed for the correct functioning of the peak finder
@@ -136,12 +140,13 @@ namespace cuars
          */
         void insert(const VectorPoint &pointsSrc, const VectorPoint &pointsDst, bool adaptive = false)
         {
-            Point transl, srcMin, srcMax, dstMin, dstMax;
+            Point transl, translMax, srcMin, srcMax, dstMin, dstMax;
             // Point translMax;
             Indices indices, gridSize;
 
             if (adaptive)
             {
+                // reset();
                 // srcMin.fill(std::numeric_limits<Scalar>::max());
                 // srcMax.fill(std::numeric_limits<Scalar>::lowest());
                 fillVec2d(srcMin, std::numeric_limits<Scalar>::max(), std::numeric_limits<Scalar>::max());
@@ -154,7 +159,7 @@ namespace cuars
                         //     srcMin(d) = p(d);
                         // if (p(d) > srcMax(d))
                         //     srcMax(d) = p(d);
-                        if (idxGetter(p, d) < idxGetter(p, d))
+                        if (idxGetter(p, d) < idxGetter(srcMin, d))
                             idxSetter(srcMin, d, idxGetter(p, d));
                         if (idxGetter(p, d) > idxGetter(srcMax, d))
                             idxSetter(srcMax, d, idxGetter(p, d));
@@ -168,26 +173,30 @@ namespace cuars
                 {
                     for (int d = 0; d < Dim; ++d)
                     {
-                        if (idxGetter(p, d) < idxGetter(p, d))
+                        // if (p(d) < dstMin(d))
+                        //     dstMin(d) = p(d);
+                        // if (p(d) > dstMax(d))
+                        //     dstMax(d) = p(d);
+                        if (idxGetter(p, d) < idxGetter(dstMin, d))
                             idxSetter(dstMin, d, idxGetter(p, d));
-                        if (idxGetter(p, d) > idxGetter(srcMax, d))
+                        if (idxGetter(p, d) > idxGetter(dstMax, d))
                             idxSetter(dstMax, d, idxGetter(p, d));
                     }
                 }
                 // translMin = dstMin - srcMax;
                 vec2diff(translMin_, dstMin, srcMax);
                 // translMax = dstMax - srcMin;
-                vec2diff(translMax_, dstMax, srcMin);
+                vec2diff(translMax, dstMax, srcMin);
 
                 for (int d = 0; d < Dim; ++d)
                 {
                     // gridSize[d] = (Index)ceil((translMax(d) - translMin(d)) / translRes);
-                    gridSize[d] = (Index)ceil((idxGetter(translMax_, d) - idxGetter(translMin_, d)) / translRes_);
+                    gridSize[d] = (Index)ceil((idxGetter(translMax, d) - idxGetter(translMin_, d)) / translRes_);
                 }
                 //                ARS_VAR5(translMin.transpose(), translMax.transpose(), translRes, gridSize[0], gridSize[1]);
 
                 // init(translMin, translRes, gridSize);
-                adaptInit(gridSize);
+                adaptInit(translMin_, translRes_, gridSize);
             }
 
             potentialKernel(pointsSrc, pointsDst, transl, indices);
@@ -316,7 +325,7 @@ namespace cuars
     // TODO: make ArsTec2d object specifying some template struct params
 
     /**
-     * @brief Support visual output method (for debugging) used inside computeArsTec     *
+     * @brief Support visual output method (for debugging) used inside computeArsTec2d     *
      *
      * @param arsTec
      * @param translMin
@@ -373,7 +382,7 @@ namespace cuars
      * @param pointsDst
      * @param translParams
      */
-    void computeArsTec(VecVec2d &translCandidates, const VecVec2d &pointsSrc, const VecVec2d &pointsDst, ArsTec2dParams &translParams)
+    void computeArsTec2d(VecVec2d &translCandidates, const VecVec2d &pointsSrc, const VecVec2d &pointsDst, ArsTec2dParams &translParams)
     {
         ArsTec<Grid2d, cuars::Indices2d, cuars::PeakFinder2d, 2> translObj; // ArsTec 2D object
 

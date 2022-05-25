@@ -56,6 +56,7 @@ int main(int argc, char **argv)
     int arsOrder;
     double arsSigma, arsThetaToll;
     double rotTrue, rotArs;
+    cuars::VecVec2d translCandidates;
     // The variables below are for I/O related functionalities (plot, etc.) that are highly Eigen-based and are present in the CPU-only ArsImgTests...
     // Maybe implement them later
     //     double sampleRes, sampleAng;
@@ -155,7 +156,7 @@ int main(int argc, char **argv)
     std::cout << "rotArs[deg] \t" << (180.0 / M_PI * rotArs) << " \t" << (180.0 / M_PI * cuars::mod180(rotArs)) << std::endl;
 
     // APPLY COMPUTED ROTATION
-    //  Computes the rotated points, centroid, affine transf matrix between src and dst
+    // Computes the rotated points, centroid, affine transf matrix between src and dst
     ArsImgTests::PointReaderWriter pointsRot(pointsSrc.points());
     cuars::Vec2d centroidSrc = pointsSrc.computeCentroid();
     cuars::Vec2d centroidDst = pointsDst.computeCentroid();
@@ -180,10 +181,7 @@ int main(int argc, char **argv)
         translParams.translMax = translMax;
     }
 
-    cuars::Grid2d grid; //!! the only 2 remaining external classes used are here
-    cuars::PeakFinder2d pf;
-    cuars::VecVec2d translCandidates;
-    cuars::computeArsTec(translCandidates, pointsRot.points(), pointsDst.points(), translParams);
+    cuars::computeArsTec2d(translCandidates, pointsSrc.points(), pointsDst.points(), translParams);
 
     std::cout << "Estimated translation values:\n";
     // cuars::ConsensusTranslationEstimator2d translEstimOutput(...) //constructor can be used for example to fill the class with the outputs
@@ -197,6 +195,3 @@ int main(int argc, char **argv)
 
     return 0;
 }
-
-
-

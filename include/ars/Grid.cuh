@@ -23,7 +23,7 @@ namespace cuars
     struct Grid
     {
         IntervalType domain_;
-        std::vector<size_t> data_;
+        std::vector<size_t, std::allocator<size_t>> data_;
 
         Grid() : data_(), domain_()
         {

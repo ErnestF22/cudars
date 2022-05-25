@@ -66,7 +66,7 @@ int main(int argc, char **argv)
         std::cout << "]\n";
     }
 
-    cuars::computeArsTec(translCandidates, pointsSrc, pointsDst, translParams);
+    cuars::computeArsTec2d(translCandidates, pointsSrc, pointsDst, translParams);
 
     std::cout << "Estimated translation values:\n";
     // cuars::ConsensusTranslationEstimator2d translEstimOutput(...) //constructor can be used for example to fill the class with the outputs
