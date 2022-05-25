@@ -47,7 +47,7 @@ namespace cuars
         bool plot;
     };
 
-        template <typename Grid, typename Indices, typename PeakFinder, size_t Dim, typename Scalar = double>
+    template <typename Grid, typename Indices, typename PeakFinder, size_t Dim, typename Scalar = double>
     struct ArsTec
     {
         /*members*/

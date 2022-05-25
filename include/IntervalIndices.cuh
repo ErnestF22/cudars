@@ -16,6 +16,9 @@
  * along with ROFL.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifndef INTERVAL_INDICES_CUH
+#define INTERVAL_INDICES_CUH
+
 #include <iostream>
 #include <sstream>
 #include <array>
@@ -710,3 +713,5 @@ namespace cuars
 //     interval.print(out);
 //     return out;
 // }
+
+#endif /*INTERVAL_INDICES_CUH*/

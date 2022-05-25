@@ -1,3 +1,6 @@
+#ifndef GRID_CUH
+#define GRID_CUH
+
 #include <array>
 #include <vector>
 
@@ -13,7 +16,7 @@ namespace cuars
     using IntervalType = IntervalIndices<DIM, Index>;
 
     using Indexer = detail::RasterIndexer<DIM, Index>;
-    using IndexerType = Indexer; //TODO later: remove this line appropriately
+    using IndexerType = Indexer; // TODO later: remove this line appropriately
 
     using Value = size_t;
 
@@ -148,3 +151,5 @@ namespace cuars
     };
 
 }
+
+#endif /*GRID_CUH*/

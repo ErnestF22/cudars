@@ -24,12 +24,12 @@
 
 #include "ars/ars2d.cuh"
 #include <ars/ars2d.h>
-#include <ars/ConsensusTranslationEstimator.cuh>
-#include <ars/ConsensusTranslationEstimator.h>
+
+#include "ars/ConsensusTranslationEstimator.cuh"
 
 #include "ars/mpeg7RW.h"
 
-void plotGrid2d(const cuars::ArsTec<cuars::Grid2d, cuars::Indices2d, cuars::PeakFinder2d, 2>& arsTec, const cuars::Vec2d &translMin, double translRes, const std::string &filename, double factor);
+void plotGrid2d(const cuars::ArsTec<cuars::Grid2d, cuars::Indices2d, cuars::PeakFinder2d, 2> &arsTec, const cuars::Vec2d &translMin, double translRes, const std::string &filename, double factor);
 
 void gpu_estimateRotationArsIso(const ArsImgTests::PointReaderWriter &pointsSrc, const ArsImgTests::PointReaderWriter &pointsDst, TestParams &tp, ParlArsIsoParams &paip, double &rotOut);
 
@@ -200,7 +200,7 @@ int main(int argc, char **argv)
     return 0;
 }
 
-void plotGrid2d(const cuars::ArsTec<cuars::Grid2d, cuars::Indices2d, cuars::PeakFinder2d, 2>& arsTec, const cuars::Vec2d &translMin, double translRes, const std::string &filename, double factor)
+void plotGrid2d(const cuars::ArsTec<cuars::Grid2d, cuars::Indices2d, cuars::PeakFinder2d, 2> &arsTec, const cuars::Vec2d &translMin, double translRes, const std::string &filename, double factor)
 {
     cuars::Grid2d grid = arsTec.grid_;
     int dim0 = grid.dimensions()[0];
@@ -296,4 +296,3 @@ void gpu_estimateRotationArsIso(const ArsImgTests::PointReaderWriter &pointsSrc,
     delete coeffsArsSrc;
     delete coeffsArsDst;
 }
-
