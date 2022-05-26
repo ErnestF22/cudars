@@ -1,22 +1,23 @@
 /**
- * ARS - Angular Radon Spectrum
+ * CudARS: Angular Radon Spectrum - CUDA version
  * Copyright (C) 2017-2020 Dario Lodi Rizzini.
+ * Copyright (C) 2021- Dario Lodi Rizzini, Ernesto Fontana.
  *
- * ARS is free software: you can redistribute it and/or modify
+ * CudARS is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * ARS is distributed in the hope that it will be useful,
+ * CudARS is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
- * along with ARS.  If not, see <http://www.gnu.org/licenses/>.
+ * along with CudARS.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef UTILS_H
-#define UTILS_H
+#ifndef CUDARS_UTILS_H
+#define CUDARS_UTILS_H
 
 #include "ars/definitions.h"
 
@@ -213,4 +214,4 @@ namespace cuars
 
 } // end of namespace
 
-#endif /* UTILS_H */
+#endif /* CUDARS_UTILS_H */
