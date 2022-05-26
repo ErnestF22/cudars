@@ -255,7 +255,7 @@ namespace cuars
         /**
          * Return indices corresponding to point @param p, according to grid params @param translMin, @param translRes
          */
-        Indices getIndices(const Point &p)
+        Indices getIndices(const Point &p) const
         {
             Indices indices;
             for (int d = 0; d < Dim; ++d)
@@ -269,7 +269,7 @@ namespace cuars
         /**
          * @brief New version, now outside of TEC class, of method: Point getTranslation(const Indices &indices) const;
          */
-        Point getTranslation(const Indices &indices)
+        Point getTranslation(const Indices &indices) const
         {
             Point transl;
 
@@ -382,28 +382,110 @@ namespace cuars
      * @param pointsDst
      * @param translParams
      */
-    void computeArsTec2d(VecVec2d &translCandidates, const VecVec2d &pointsSrc, const VecVec2d &pointsDst, ArsTec2dParams &translParams)
+    void computeArsTec2d(Vec2d &translArs, const double &rot, ArsImgTests::PointReaderWriter &pointsSrc, ArsImgTests::PointReaderWriter &pointsDst, ArsTec2dParams &translParams)
     {
-        ArsTec<Grid2d, cuars::Indices2d, cuars::PeakFinder2d, 2> translObj; // ArsTec 2D object
+        VecVec2d translCandidates;
 
-        // translEstim.init(translMin, translRes, gridSize);
-        // translEstim.setNonMaximaWindowDim(gridWin);
-        translObj.init(translParams); // for now init is included
+        cuars::ScopedTimer translTimer("Ars Transl Timer");
 
-        std::cout << "Inserting pair source-destination:\n";
-        // translEstim.insert(pointsSrc, pointsDst);
-        translObj.insert(pointsSrc, pointsDst, translParams.adaptiveGrid); // adaptive = false for the dummy example
+        double rotPos = cuars::mod180(rot);
+        double rotNeg = rotPos - M_PI;
+        //    if (rot >= 0)
+        //        rotOneeighty = rot - M_PI;
+        //    else
+        //        rotOneeighty = rot + M_PI;
 
-        if (translParams.plot)
+        std::vector<double> rots;
+        rots.push_back(rotPos);
+        rots.push_back(rotNeg);
+
+        int bestScore = 0;
+
+        for (double &r : rots)
         {
-            //     translObj.ConsensusTranslationEstimator2d translEstimPlot(grid, pf, translParams.translMin, translParams.translRes, translParams.gridSize);
-            plotGrid2d(translObj, translParams.translMin, translParams.translRes, "consensus_transl_grid.plot", 1.0);
-        }
+            std::cout << std::endl
+                      << "Now computing translation assuming rot " << r * 180.0 / M_PI << std::endl;
+            pointsSrc.applyTransform(0.0, 0.0, r);
 
-        std::cout << "Computing maxima:\n";
-        // translEstim.computeMaxima(translCandidates); //TODO: adapt computeMaxima() for CUDA GPU parallelization
-        // cuars::computeMaxima<cuars::Grid2d, cuars::Indices2d, cuars::PeakFinder2d, 2>(translCandidates, grid, peakF, translMin, translRes);
-        translObj.computeMaxima(translCandidates); // TODO: adapt computeMaxima() for CUDA GPU parallelization
+            ArsTec<Grid2d, cuars::Indices2d, cuars::PeakFinder2d, 2> translObj; // ArsTec 2D object
+
+            cuars::Vec2d translMinAfterRotation;
+            cuars::fillVec2d(translMinAfterRotation, pointsDst.xmin() - pointsSrc.xmax(), pointsDst.ymin() - pointsSrc.ymax());
+            //        std::cout << std::endl << "tmin [m]\n" << translMinAfterRotation << std::endl;
+
+            // setTranslMin(translMinAfterRotation); //from Transleval class
+            translParams.translMin = translMinAfterRotation;
+
+            if (translParams.adaptiveGrid)
+            {
+                cuars::Vec2d translMaxAfterRotation;
+                cuars::fillVec2d(translMaxAfterRotation, pointsDst.xmax() - pointsSrc.xmin(), pointsDst.ymax() - pointsSrc.ymin());
+                //            std::cout << std::endl << "tmax [m]\n" << translMaxAfterRotation << std::endl;
+                // setTranslMax(translMaxAfterRotation); //from Transleval class
+                translParams.translMax = translMaxAfterRotation;
+            }
+            // else /*Nothing to change as translMax does not matter for grid init */
+
+            // translEstim.init(translMin, translRes, gridSize);
+            // translEstim.setNonMaximaWindowDim(gridWin);
+            translObj.init(translParams); // for now init is included
+
+            std::cout << "Inserting pair source-destination:\n";
+            // translEstim.insert(pointsSrc, pointsDst);
+            translObj.insert(pointsSrc.points(), pointsDst.points(), translParams.adaptiveGrid); // adaptive = false for the dummy example
+
+            if (translParams.plot)
+            {
+                //     translObj.ConsensusTranslationEstimator2d translEstimPlot(grid, pf, translParams.translMin, translParams.translRes, translParams.gridSize);
+                plotGrid2d(translObj, translParams.translMin, translParams.translRes, "consensus_transl_grid.plot", 1.0);
+            }
+
+            std::cout << "Computing maxima:\n";
+            // translEstim.computeMaxima(translCandidates); //TODO: adapt computeMaxima() for CUDA GPU parallelization
+            // cuars::computeMaxima<cuars::Grid2d, cuars::Indices2d, cuars::PeakFinder2d, 2>(translCandidates, grid, peakF, translMin, translRes);
+            translObj.computeMaxima(translCandidates); // TODO: adapt computeMaxima() for CUDA GPU parallelization
+
+            std::cout << "Estimated translation values:" << std::endl;
+            for (auto &pt : translCandidates)
+            {
+                std::cout << "  [";
+                // cuars::printVec2d(pt);
+                std::cout << pt.x << "\t" << pt.y;
+                std::cout << "]\n";
+            }
+
+            std::cout << "Estimated translation values:" << std::endl;
+            int candidatesCtr = 0;
+            if (translCandidates.size() > 0)
+            {
+                if (translObj.getScore(translCandidates[0]) > bestScore)
+                {
+                    bestScore = translObj.getScore(translCandidates[0]); // for now, considering just best candidate for each rot
+                    translArs = translCandidates[0];
+                }
+                for (auto &pt : translCandidates)
+                {
+                    //                std::cout << "candidate " << candidatesCtr << ":  [" << pt.transpose() << "]\n";
+                    candidatesCtr++;
+                }
+
+                // if (tp.plotOutput)
+                // {
+                //     pointsSrc.applyTransform(translArs(0), translArs(1), 0.0);
+                //     pointsSrc.save("pointsSrcFinal.txt");
+                //     pointsSrc.applyTransform(-translArs(0), -translArs(1), 0.0);
+                // }
+            }
+            else if (bestScore == 0)
+            {
+                // translArs << 0.0f, 0.0f;
+                cuars::fillVec2d(translArs, 0.0f, 0.0f);
+                std::cerr << "No candidates found!" << std::endl;
+            }
+            pointsSrc.applyTransform(0.0, 0.0, -r);
+        }
+        // translSrcExecTime = translTimer.elapsedTimeMs() / 2;
+        // translDstExecTime = translSrcExecTime;
     }
 
 } // end of namespace

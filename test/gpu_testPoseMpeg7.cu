@@ -56,8 +56,9 @@ int main(int argc, char **argv)
     int arsOrder;
     double arsSigma, arsThetaToll;
     double rotTrue, rotArs;
-    cuars::Vec2d translTrue;
-    cuars::VecVec2d translCandidates;
+    // cuars::VecVec2d translCandidates;
+    cuars::Vec2d translTrue, translArs;
+
     // The variables below are for I/O related functionalities (plot, etc.) that are highly Eigen-based and are present in the CPU-only ArsImgTests...
     // Maybe implement them later
     //     double sampleRes, sampleAng;
@@ -132,7 +133,7 @@ int main(int argc, char **argv)
     pointsDst.load(filenameDst);
     std::cout << "  points src " << pointsSrc.points().size() << ", points dst " << pointsDst.points().size() << std::endl;
 
-    int numPts = std::min<int>(pointsSrc.points().size(), pointsDst.points().size()); // the two should normally be equals
+    int numPts = std::min<int>(pointsSrc.points().size(), pointsDst.points().size()); // the two should normally be equal
     //    int numPtsAfterPadding = numPts;
 
     // ARS parameters setting
@@ -155,54 +156,18 @@ int main(int argc, char **argv)
               << ", pointsSrc.getrotTheta() [deg] " << (180.0 / M_PI * pointsSrc.getRotTheta()) << "\n";
     std::cout << "rotTrue[deg] \t" << (180.0 / M_PI * rotTrue) << " \t" << (180.0 / M_PI * cuars::mod180(rotTrue)) << std::endl;
     std::cout << "rotArs[deg] \t" << (180.0 / M_PI * rotArs) << " \t" << (180.0 / M_PI * cuars::mod180(rotArs)) << std::endl;
-    
-    // Eigen::Affine2d transfSrcToDst = pointsDst.getTransform() * pointsSrc.getTransform().inverse();
+
+    // // Eigen::Affine2d transfSrcToDst = pointsDst.getTransform() * pointsSrc.getTransform().inverse();
     cuars::Affine2d transfSrcToDst;
     aff2Prod(transfSrcToDst, pointsDst.getTransform(), pointsSrc.getTransform().inverse());
     std::cout << "diff transform" << std::endl
               << transfSrcToDst << std::endl;
     translTrue = transfSrcToDst.translation();
 
-    // APPLY COMPUTED ROTATION
-    // Computes the rotated points, centroid, affine transf matrix between src and dst
-    ArsImgTests::PointReaderWriter pointsRot(pointsSrc.points());
-    cuars::Vec2d centroidSrc = pointsSrc.computeCentroid();
-    cuars::Vec2d centroidDst = pointsDst.computeCentroid();
-    cuars::Affine2d rotSrcDst = ArsImgTests::PointReaderWriter::coordToTransform(0.0, 0.0, rotArs);
-    //    cuars::Vec2d translSrcDst = centroidDst - rotSrcDst * centroidSrc;
-    cuars::Vec2d translSrcDst;
-    cuars::vec2diff(translSrcDst, centroidDst, cuars::aff2TimesVec2WRV(rotSrcDst, centroidSrc));
-    pointsRot.applyTransform(translSrcDst.x, translSrcDst.y, rotArs);
-
-    if (translParams.adaptiveGrid)
-    {
-        cuars::Vec2d translMin;
-        translMin.x = pointsDst.xmin() - pointsSrc.xmax();
-        translMin.y = pointsDst.ymin() - pointsSrc.ymax();
-        //        std::cout << std::endl << "tmin [m]\n" << translMin << std::endl;
-        translParams.translMin = translMin;
-
-        cuars::Vec2d translMax;
-        translMax.x = pointsDst.xmax() - pointsSrc.xmin();
-        translMax.y = pointsDst.ymax() - pointsSrc.ymin();
-        //        std::cout << "tmax [m]\n" << translMax << std::endl;
-        translParams.translMax = translMax;
-    }
-
-    cuars::computeArsTec2d(translCandidates, pointsSrc.points(), pointsDst.points(), translParams);
+    cuars::computeArsTec2d(translArs, rotArs, pointsSrc, pointsDst, translParams);
 
     std::cout << "translTrue:" << std::endl;
     cuars::printVec2d(translTrue);
-
-    std::cout << "Estimated translation values:" << std::endl;
-    // cuars::ConsensusTranslationEstimator2d translEstimOutput(...) //constructor can be used for example to fill the class with the outputs
-    for (auto &pt : translCandidates)
-    {
-        std::cout << "  [";
-        // cuars::printVec2d(pt);
-        std::cout << pt.x << "\t" << pt.y;
-        std::cout << "]\n";
-    }
 
     return 0;
 }

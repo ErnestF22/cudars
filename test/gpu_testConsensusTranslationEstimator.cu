@@ -9,6 +9,8 @@ int main(int argc, char **argv)
 {
     // cuars::ConsensusTranslationEstimator2d translEstim;
     cuars::VecVec2d pointsSrc, pointsDst, translCandidates;
+    // cuars::VecVec2d translCandidates;
+    cuars::Vec2d translTrue, translArs;
     rofl::ParamMap params;
     std::string filenameCfg;
 
@@ -66,7 +68,7 @@ int main(int argc, char **argv)
         std::cout << "]\n";
     }
 
-    cuars::computeArsTec2d(translCandidates, pointsSrc, pointsDst, translParams);
+    cuars::computeArsTec2d(translArs, rotArs, pointsSrc, pointsDst, translParams);
 
     std::cout << "Estimated translation values:\n";
     // cuars::ConsensusTranslationEstimator2d translEstimOutput(...) //constructor can be used for example to fill the class with the outputs
