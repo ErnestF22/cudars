@@ -376,6 +376,11 @@ namespace cudars
     }
 
     /**
+     * @brief Convenient definition
+     */
+    using ArsTec2d = ArsTec<Grid2d, cudars::Indices2d, cudars::PeakFinder2d, 2>;
+
+    /**
      * @brief Main computation method, ideally the only one that should be "public"
      *
      * @param translCandidates
@@ -385,7 +390,7 @@ namespace cudars
      */
     void computeArsTec2d(Vec2d &translArs, const double &rot, ArsImgTests::PointReaderWriter &pointsSrc, ArsImgTests::PointReaderWriter &pointsDst, ArsTec2dParams &translParams)
     {
-        VecVec2d translCandidates; //TODO: add translCandidates as member, and add its getter function
+        VecVec2d translCandidates; // TODO: add translCandidates as member, and add its getter function
 
         cudars::ScopedTimer translTimer("Ars Transl Timer");
 
@@ -408,7 +413,7 @@ namespace cudars
                       << "Now computing translation assuming rot " << r * 180.0 / M_PI << std::endl;
             pointsSrc.applyTransform(0.0, 0.0, r);
 
-            ArsTec<Grid2d, cudars::Indices2d, cudars::PeakFinder2d, 2> translObj; // ArsTec 2D object
+            ArsTec2d translObj; // ArsTec 2D object
 
             // translEstim.init(translMin, translRes, gridSize);
             // translEstim.setNonMaximaWindowDim(gridWin);
@@ -454,7 +459,7 @@ namespace cudars
                 std::cout << pt.x << "\t" << pt.y;
                 std::cout << "]\n";
             }
-            
+
             int candidatesCtr = 0;
             if (translCandidates.size() > 0)
             {
