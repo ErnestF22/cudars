@@ -19,7 +19,7 @@
 #ifndef CUDARS_UTILS_H
 #define CUDARS_UTILS_H
 
-#include "ars/definitions.h"
+#include "cudars/definitions.h"
 
 #include <cmath>
 

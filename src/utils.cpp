@@ -17,8 +17,8 @@
  * along with CudARS.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <ars/utils.h>
-#include "ars/definitions.h"
+#include "cudars/utils.h"
+#include "cudars/definitions.h"
 
 namespace cuars
 {

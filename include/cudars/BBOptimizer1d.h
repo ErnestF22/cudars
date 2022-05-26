@@ -18,7 +18,7 @@
 #ifndef OPTIMIZERBB1D_H
 #define OPTIMIZERBB1D_H
 
-#include <ars/functions.h>
+#include "cudars/functions.h"
 
 namespace cuars {
 

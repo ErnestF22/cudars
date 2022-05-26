@@ -27,7 +27,7 @@
 #include <algorithm>
 #include <type_traits> // for static_assert()
 
-#include "ars/definitions.h"
+#include "cudars/definitions.h"
 
 namespace ars {
 

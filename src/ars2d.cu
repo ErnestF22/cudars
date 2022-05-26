@@ -17,7 +17,7 @@
  * along with CudARS.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ars/ars2d.cuh"
+#include "cudars/ars2d.cuh"
 
 // --------------------------------------------------------
 // DIVISION IN CHUNKS (FOR BIG IMAGES)

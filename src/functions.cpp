@@ -17,7 +17,7 @@
  * along with CudARS.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ars/definitions.h"
+#include "cudars/definitions.h"
 
 #include <cassert> 
 #include <algorithm>
@@ -27,7 +27,7 @@
 //#include <cufftw.h>
 //#include <cufftXt.h>
 
-#include <ars/functions.h>
+#include "cudars/functions.h"
 
 
 namespace cuars {

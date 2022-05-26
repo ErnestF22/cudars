@@ -1,10 +1,10 @@
 #include <iostream>
-#include "ars/utils.h"
-#include "ars/ars2d.cuh"
-#include <ars/ars2d.h>
-#include <ars/ConsensusTranslationEstimator.cuh>
+#include "cudars/utils.h"
+#include "cudars/ars2d.cuh"
+#include "cudars/ars2d.h"
+#include "cudars/ConsensusTranslationEstimator.cuh"
 #include <rofl/common/param_map.h>
-#include "ars/mpeg7RW.h"
+#include "cudars/mpeg7RW.h"
 
 
 int main(int argc, char **argv)

@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with LIRE.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include <ars/Profiler.h>
+#include "cudars/Profiler.h"
 
 namespace cuars {
 

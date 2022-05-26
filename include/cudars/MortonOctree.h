@@ -6,8 +6,8 @@
 #include <thrust/host_vector.h>
 
 
-//#include "ars/definitions.h"
-//#include <ars/MortonSort.h>
+//#include "cudars/definitions.h"
+//#include "cudars/MortonSort.h"
 #include "definitions.h"
 #include "MortonSort.h"
 

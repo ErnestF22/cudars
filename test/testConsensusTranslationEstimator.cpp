@@ -1,7 +1,7 @@
 #include <iostream>
-#include "ars/definitions.h"
-#include <ars/ConsensusTranslationEstimator.h>
-#include <ars/ParamMap.h>
+#include "cudars/definitions.h"
+#include "cudars/ConsensusTranslationEstimator.h>
+#include "cudars/ParamMap.h>
 
 void plotGrid(const ars::ConsensusTranslationEstimator2d::Grid& grid, const ars::Vector2& translMin, double translRes, const std::string& filename, double factor);
 

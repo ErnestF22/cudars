@@ -20,11 +20,11 @@
 
 #include <iostream>
 
-#include "ars/definitions.h"
-#include <ars/functions.h>
-#include <ars/BBOptimizer1d.h>
-#include <ars/ArsKernelIsotropic2d.h>
-//#include <ars/ArsKernelAnisotropic2d.h>
+#include "cudars/definitions.h"
+#include "cudars/functions.h"
+#include "cudars/BBOptimizer1d.h"
+#include "cudars/ArsKernelIsotropic2d.h"
+//#include "cudars/ArsKernelAnisotropic2d.h"
 
 
 #include <thrust/host_vector.h>

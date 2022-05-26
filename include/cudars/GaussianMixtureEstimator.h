@@ -22,9 +22,9 @@
 #include <thrust/host_vector.h>
 #include <deque>
 
-#include "ars/definitions.h"
-#include <ars/MortonOctree.h>
-#include <ars/DisjointSet.h>
+#include "cudars/definitions.h"
+#include "cudars/MortonOctree.h"
+#include "cudars/DisjointSet.h"
 #include <boost/math/distributions/chi_squared.hpp>
 
 #include "utils.h"

@@ -17,12 +17,12 @@
  * along with CudARS.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include <iostream>
-#include <ars/functions.h>
-#include <ars/ars2d.h>
-#include <ars/thirdparty/gnuplot-iostream.h>
-#include <ars/Profiler.h>
+#include "cudars/functions.h"
+#include "cudars/ars2d.h"
+#include "cudars/thirdparty/gnuplot-iostream.h>
+#include "cudars/Profiler.h"
 
-#include "ars/utils.h"
+#include "cudars/utils.h"
 
 struct PlotItem {
     std::vector<std::pair<double, double> > values;

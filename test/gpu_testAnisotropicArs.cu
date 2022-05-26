@@ -19,18 +19,18 @@
 
 #include <iostream>
 
-#include "ars/definitions.h"
-#include <ars/ars2d.h>
-#include <ars/GaussianMixtureEstimator.h>
-#include <ars/utils.h>
+#include "cudars/definitions.h"
+#include "cudars/ars2d.h"
+#include "cudars/GaussianMixtureEstimator.h"
+#include "cudars/utils.h"
 
-#include <ars/niars2d.cuh>
+#include "cudars/niars2d.cuh>
 
-#include <ars/thirdparty/gnuplot-iostream.h>
+#include "cudars/thirdparty/gnuplot-iostream.h>
 
 #include <rofl/common/param_map.h>
 
-#include "ars/Profiler.h"
+#include "cudars/Profiler.h"
 
 
 double acesRanges[] = {50.00, 50.00, 50.00, 5.26, 5.21, 5.06, 5.01, 3.01, 2.94,

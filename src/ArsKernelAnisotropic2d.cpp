@@ -15,10 +15,10 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with ARS.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include <ars/ArsKernelAnisotropic2d.h>
-#include <ars/utils.h>
+#include "cudars/ArsKernelAnisotropic2d.h"
+#include "cudars/utils.h"
 
-#include <ars/functions.h>
+#include "cudars/functions.h"
 
 namespace cuars {
 

@@ -1,12 +1,12 @@
 #include <device_launch_parameters.h> //blockIdx.x, threadIdx.x, blockDim, threadDim
 
-#include <ars/functions.h>
-#include <ars/utils.h>
-#include <ars/ars2d.h>
+#include "cudars/functions.h"
+#include "cudars/utils.h"
+#include "cudars/ars2d.h"
 
-#include "ars/Profiler.h"
+#include "cudars/Profiler.h"
 
-#include "ars/mpeg7RW.h"
+#include "cudars/mpeg7RW.h"
 
 struct ParlArsIsoParams
 { // Isotropic ARS Parallelization Params

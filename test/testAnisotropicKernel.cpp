@@ -1,12 +1,12 @@
 #include <iostream>
-#include <ars/ArsKernelIsotropic2d.h>
-#include <ars/ArsKernelAnisotropic2d.h>
-#include <ars/ars2d.h>
-#include "ars/definitions.h"
-#include <ars/functions.h>
-#include <ars/thirdparty/gnuplot-iostream.h>
-#include <ars/Profiler.h>
-#include <ars/ParamMap.h>
+#include "cudars/ArsKernelIsotropic2d.h"
+#include "cudars/ArsKernelAnisotropic2d.h"
+#include "cudars/ars2d.h"
+#include "cudars/definitions.h"
+#include "cudars/functions.h"
+#include "cudars/thirdparty/gnuplot-iostream.h>
+#include "cudars/Profiler.h"
+#include "cudars/ParamMap.h>
 
 const double PLOT_EPS = 1e-4;
 

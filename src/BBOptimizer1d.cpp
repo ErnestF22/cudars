@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with ARS.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include <ars/BBOptimizer1d.h>
+#include "cudars/BBOptimizer1d.h"
 
 //#define STREAM_BOUND_INTERVAL(X)  "depth " << (X).depth << "[" << (X).xmin.transpose() << "; " << (X).xmax.transpose() << "]: values in  [" << (X).ylower << "," << (X).yupper << "]"
 

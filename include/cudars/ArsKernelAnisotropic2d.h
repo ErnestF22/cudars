@@ -22,7 +22,7 @@
 #include <thrust/host_vector.h>
 #include <cmath>
 #include <unsupported/Eigen/FFT>
-#include "ars/definitions.h"
+#include "cudars/definitions.h"
 
 
 namespace cuars {

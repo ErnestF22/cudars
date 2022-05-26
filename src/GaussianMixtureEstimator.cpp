@@ -16,12 +16,12 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with ARS.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include <ars/GaussianMixtureEstimator.h>
+#include "cudars/GaussianMixtureEstimator.h"
 #include <thrust/host_vector.h>
 #include <deque>
 #include <signal.h>
 
-#include <ars/utils.h>
+#include "cudars/utils.h"
 
 namespace cuars {
 

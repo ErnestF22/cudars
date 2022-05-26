@@ -18,14 +18,14 @@
 #include <iostream>
 #include <eigen3/Eigen/Dense>
 
-#include "ars/definitions.h"
-#include <ars/ars2d.h>
-#include <ars/GaussianMixtureEstimator.h>
-#include <ars/utils.h>
-#include <ars/ParamMap.h>
-#include <ars/thirdparty/gnuplot-iostream.h>
+#include "cudars/definitions.h"
+#include "cudars/ars2d.h"
+#include "cudars/GaussianMixtureEstimator.h"
+#include "cudars/utils.h"
+#include "cudars/ParamMap.h>
+#include "cudars/thirdparty/gnuplot-iostream.h>
 
-#include "ars/Profiler.h"
+#include "cudars/Profiler.h"
 
 double acesRanges[] = {50.00, 50.00, 50.00, 5.26, 5.21, 5.06, 5.01, 3.01, 2.94,
     2.89, 2.84, 2.74, 2.69, 2.64, 2.59, 2.54, 2.49, 2.49, 2.44, 2.39, 2.34,

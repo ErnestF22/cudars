@@ -1,4 +1,4 @@
-#include "ars/mpeg7RW.h"
+#include "cudars/mpeg7RW.h"
 
 
 namespace ArsImgTests {

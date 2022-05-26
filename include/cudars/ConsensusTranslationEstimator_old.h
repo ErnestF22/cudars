@@ -20,7 +20,8 @@
 
 // #include <iostream>
 // #include <vector>
-// #include "ars/definitions.h"
+// #include <Eigen/Dense>
+// #include "cudars/definitions.h"
 // #include <rofl/common/grid.h>
 // #include <rofl/common/peak_finder_d.h>
 
@@ -48,7 +49,6 @@
 //      * classic voting grid.
 //      * Translation vector candidates correspond to maxima in grid.
 //      */
-
 //     template <size_t Dim, typename Scalar = double>
 //     class ConsensusTranslationEstimator
 //     {
@@ -59,16 +59,14 @@
 //         using Indices = typename Grid::Indices;
 //         using PeakFinder = rofl::PeakFinderD<Dim, Counter, Index, std::greater<Index>>;
 
-//         // using Point =  Eigen::Matrix<Scalar, Dim, 1>;
-//         typedef typename MakePt<Scalar, 2>::type Point;
-//         using VectorPoint = thrust::host_vector<Point>;
+//         using Point = Eigen::Matrix<Scalar, Dim, 1>;
+//         using VectorPoint = std::vector<Point>;
 
 //         /**
 //          * Default constructor.
 //          */
-//         ConsensusTranslationEstimator() : grid_(), translRes_(1.0), peakFinder_()
+//         ConsensusTranslationEstimator() : grid_(), translMin_(Point::Zero()), translRes_(1.0), peakFinder_()
 //         {
-//             translMin_ = make_double2(0.0, 0.0);
 //         }
 
 //         ConsensusTranslationEstimator(const Point &translMin, const Scalar &translRes, const Indices &gridSize)
@@ -76,16 +74,6 @@
 //         {
 //             grid_.initBounds(gridSize);
 //             peakFinder_.setDomain(gridSize);
-//         }
-
-//         ConsensusTranslationEstimator(const Grid &grid, const PeakFinder &peakF, const Point &translMin, const Scalar &translRes, const Indices &gridSize)
-//             : grid_(), translMin_(translMin), translRes_(translRes), peakFinder_()
-//         {
-//             grid_.initBounds(gridSize);
-//             peakFinder_.setDomain(gridSize);
-
-//             grid_ = grid;
-//             peakFinder_ = peakF;
 //         }
 
 //         virtual ~ConsensusTranslationEstimator()
@@ -110,12 +98,6 @@
 //             peakFinder_.setPeakWindow(dim);
 //         }
 
-//         void setupPickFilter(const VecVec2d &pointsSrc, const VecVec2d &pointsDst)
-//         {
-//             Counter thres = std::min(pointsSrc.size(), pointsDst.size()) / 2; // TODO: re-add these 2 lines
-//             peakFinder_.enableFilterPeakMin(true, thres);
-//         }
-
 //         void insert(const VectorPoint &pointsSrc, const VectorPoint &pointsDst, bool adaptive = false)
 //         {
 //             Point transl, translMax, srcMin, srcMax, dstMin, dstMax;
@@ -123,47 +105,35 @@
 
 //             if (adaptive)
 //             {
-//                 // srcMin.fill(std::numeric_limits<Scalar>::max());
-//                 // srcMax.fill(std::numeric_limits<Scalar>::lowest());
-//                 fillVec2d(srcMin, std::numeric_limits<Scalar>::max(), std::numeric_limits<Scalar>::max());
-//                 fillVec2d(srcMax, std::numeric_limits<Scalar>::lowest(), std::numeric_limits<Scalar>::lowest());
+//                 srcMin.fill(std::numeric_limits<Scalar>::max());
+//                 srcMax.fill(std::numeric_limits<Scalar>::lowest());
 //                 for (auto &p : pointsSrc)
 //                 {
 //                     for (int d = 0; d < Dim; ++d)
 //                     {
-//                         // if (p(d) < srcMin(d))
-//                         //     srcMin(d) = p(d);
-//                         // if (p(d) > srcMax(d))
-//                         //     srcMax(d) = p(d);
-//                         if (idxGetter(p, d) < idxGetter(p, d))
-//                             idxSetter(srcMin, d, idxGetter(p, d));
-//                         if (idxGetter(p, d) > idxGetter(srcMax, d))
-//                             idxSetter(srcMax, d, idxGetter(p, d));
+//                         if (p(d) < srcMin(d))
+//                             srcMin(d) = p(d);
+//                         if (p(d) > srcMax(d))
+//                             srcMax(d) = p(d);
 //                     }
 //                 }
-//                 // dstMin.fill(std::numeric_limits<Scalar>::max());
-//                 // dstMax.fill(std::numeric_limits<Scalar>::lowest());
-//                 fillVec2d(dstMin, std::numeric_limits<Scalar>::max(), std::numeric_limits<Scalar>::max());
-//                 fillVec2d(dstMax, std::numeric_limits<Scalar>::lowest(), std::numeric_limits<Scalar>::lowest());
+//                 dstMin.fill(std::numeric_limits<Scalar>::max());
+//                 dstMax.fill(std::numeric_limits<Scalar>::lowest());
 //                 for (auto &p : pointsDst)
 //                 {
 //                     for (int d = 0; d < Dim; ++d)
 //                     {
-//                         if (idxGetter(p, d) < idxGetter(p, d))
-//                             idxSetter(dstMin, d, idxGetter(p, d));
-//                         if (idxGetter(p, d) > idxGetter(srcMax, d))
-//                             idxSetter(dstMax, d, idxGetter(p, d));
+//                         if (p(d) < dstMin(d))
+//                             dstMin(d) = p(d);
+//                         if (p(d) > dstMax(d))
+//                             dstMax(d) = p(d);
 //                     }
 //                 }
-//                 // translMin_ = dstMin - srcMax;
-//                 vec2diff(translMin_, dstMin, srcMax);
-//                 // translMax = dstMax - srcMin;
-//                 vec2diff(translMax, dstMax, srcMin);
-
+//                 translMin_ = dstMin - srcMax;
+//                 translMax = dstMax - srcMin;
 //                 for (int d = 0; d < Dim; ++d)
 //                 {
-//                     // gridSize[d] = (Index)ceil((translMax(d) - translMin_(d)) / translRes_);
-//                     gridSize[d] = (Index)ceil((idxGetter(translMax, d) - idxGetter(translMin_, d)) / translRes_);
+//                     gridSize[d] = (Index)ceil((translMax(d) - translMin_(d)) / translRes_);
 //                 }
 //                 //                ARS_VAR5(translMin_.transpose(), translMax.transpose(), translRes_, gridSize[0], gridSize[1]);
 //                 init(translMin_, translRes_, gridSize);
@@ -173,8 +143,7 @@
 //             {
 //                 for (auto &pd : pointsDst)
 //                 {
-//                     // transl = pd - ps;
-//                     vec2diff(transl, pd, ps);
+//                     transl = pd - ps;
 //                     indices = getIndices(transl);
 //                     // ARS_VARIABLE4(transl.transpose(),indices[0],indices[1],grid_.inside(indices));
 //                     if (grid_.inside(indices))
@@ -187,7 +156,7 @@
 //             peakFinder_.enableFilterPeakMin(true, thres);
 //         }
 
-//         void computeMaximaInd(std::vector<Indices> &indicesMax)
+//         void computeMaxima(std::vector<Indices> &indicesMax)
 //         {
 //             auto histoMap = [&](const Indices &indices) -> Counter
 //             {
@@ -205,7 +174,7 @@
 //         void computeMaxima(VectorPoint &translMax)
 //         {
 //             std::vector<Indices> indicesMax;
-//             computeMaximaInd(indicesMax);
+//             computeMaxima(indicesMax);
 //             translMax.clear();
 //             translMax.reserve(indicesMax.size());
 //             for (auto idx : indicesMax)
@@ -221,8 +190,7 @@
 //             Indices indices;
 //             for (int d = 0; d < Dim; ++d)
 //             {
-//                 // indices[d] = round((p(d) - translMin_(d)) / translRes_);
-//                 indices[d] = round((idxGetter(p, d) - idxGetter(translMin_, d)) / translRes_);
+//                 indices[d] = round((p(d) - translMin_(d)) / translRes_);
 //             }
 //             return indices;
 //         }
@@ -232,8 +200,7 @@
 //             Point transl;
 //             for (int d = 0; d < Dim; ++d)
 //             {
-//                 // transl(d) = translRes_ * indices[d] + translMin_(d);
-//                 idxSetter(transl, d, translRes_ * indices[d] + idxGetter(translMin_, d));
+//                 transl(d) = translRes_ * indices[d] + translMin_(d);
 //             }
 //             return transl;
 //         }
@@ -252,21 +219,6 @@
 //         const Grid &getGrid() const
 //         {
 //             return grid_;
-//         }
-
-//         const PeakFinder &getPeakFinder() const
-//         {
-//             return peakFinder_;
-//         }
-
-//         const Point &getTranslMin() const
-//         {
-//             return translMin_;
-//         }
-
-//         const Scalar &getTranslRes() const
-//         {
-//             return translRes_;
 //         }
 
 //     private:

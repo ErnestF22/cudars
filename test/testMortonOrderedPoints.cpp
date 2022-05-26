@@ -1,7 +1,7 @@
 #include <iostream>
-#include <ars/MortonOrderedPoints.h>
-#include <ars/MortonTree.h>
-#include "ars/definitions.h"
+#include "cudars/MortonOrderedPoints.h>
+#include "cudars/MortonTree.h>
+#include "cudars/definitions.h"
 #include <deque>
 
 int main(int argc, char** argv) {

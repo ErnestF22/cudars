@@ -19,12 +19,12 @@
 
 #include <eigen3/Eigen/Dense>
 
-#include "ars/definitions.h"
-#include <ars/ars2d.h>
-#include <ars/BBOptimizer1d.h>
+#include "cudars/definitions.h"
+#include "cudars/ars2d.h"
+#include "cudars/BBOptimizer1d.h"
 
 #include <chrono>
-#include <ars/thirdparty/gnuplot-iostream.h>
+#include "cudars/thirdparty/gnuplot-iostream.h>
 
 
 

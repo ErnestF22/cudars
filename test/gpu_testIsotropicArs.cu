@@ -21,11 +21,11 @@
 #include <iostream>
 #include <chrono>
 
-#include "ars/utils.h"
-#include <ars/ars2d.h>
+#include "cudars/utils.h"
+#include "cudars/ars2d.h"
 
-#include "ars/ars2d.cuh"
-#include "ars/mpeg7RW.h"
+#include "cudars/ars2d.cuh"
+#include "cudars/mpeg7RW.h"
 
 
 

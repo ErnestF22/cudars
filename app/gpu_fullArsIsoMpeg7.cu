@@ -20,12 +20,12 @@
 #include <iostream>
 #include <chrono>
 
-#include "ars/Profiler.h"
+#include "cudars/Profiler.h"
 
-#include "ars/mpeg7RW.h"
-#include "ars/mpeg7_io.h"
-#include "ars/ars2d.cuh"
-#include <ars/ars2d.h>
+#include "cudars/mpeg7RW.h"
+#include "cudars/mpeg7_io.h"
+#include "cudars/ars2d.cuh"
+#include "cudars/ars2d.h"
 
 namespace expfs = std::experimental::filesystem;
 
