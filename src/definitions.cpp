@@ -62,34 +62,35 @@ namespace cuars
     // assumes matrix indices start from 0 (0,1 and 2)
     double Affine2d::determinant() const
     {
-        //computed like it is a normal 3d matrix
-        const double m00 = at(0,0);
-        const double m01 = at(0,1);
-        const double m02 = at(0,2);
-        const double m10 = at(1,0);
-        const double m11 = at(1,1);
-        const double m12 = at(1,2);
-        const double m20 = at(2,0);
-        const double m21 = at(2,1);
-        const double m22 = at(2,2);
+        // computed like it is a normal 3d matrix
+        const double m00 = at(0, 0);
+        const double m01 = at(0, 1);
+        const double m02 = at(0, 2);
+        const double m10 = at(1, 0);
+        const double m11 = at(1, 1);
+        const double m12 = at(1, 2);
+        const double m20 = at(2, 0);
+        const double m21 = at(2, 1);
+        const double m22 = at(2, 2);
 
-        double value = m00 * m11 * m22 + m01 * m12 * m20 + m02 * m10 * m21 - m00 * m12 * m21 - m01 * m10 * m22 - m02 * m11 * m20;
-        return value;
+        // double det = (m00 * m11 * m22) - (m00 * m12 * m21) + (m01 * m12 * m20) - (m01 * m10 * m22) + (m02 * m10 * m21) - (m02 * m11 * m20); //Laplace (more general) rule
+        double det = m00 * m11 * m22 + m01 * m12 * m20 + m02 * m10 * m21 - m00 * m12 * m21 - m01 * m10 * m22 - m02 * m11 * m20; // Sarrus rule
+        return det;
     }
 
     void Affine2d::invert()
     {
         double det = determinant();
 
-        const double m00 = at(0,0);
-        const double m01 = at(0,1);
-        const double m02 = at(0,2);
-        const double m10 = at(1,0);
-        const double m11 = at(1,1);
-        const double m12 = at(1,2);
-        const double m20 = at(2,0);
-        const double m21 = at(2,1);
-        const double m22 = at(2,2);
+        const double m00 = at(0, 0);
+        const double m01 = at(0, 1);
+        const double m02 = at(0, 2);
+        const double m10 = at(1, 0);
+        const double m11 = at(1, 1);
+        const double m12 = at(1, 2);
+        const double m20 = at(2, 0);
+        const double m21 = at(2, 1);
+        const double m22 = at(2, 2);
 
         data_[0 * Three + 0] = (m11 * m22 - m12 * m21) / det;
         data_[0 * Three + 1] = (m02 * m21 - m01 * m22) / det;
@@ -106,15 +107,15 @@ namespace cuars
     {
         double det = determinant();
 
-        const double m00 = at(0,0);
-        const double m01 = at(0,1);
-        const double m02 = at(0,2);
-        const double m10 = at(1,0);
-        const double m11 = at(1,1);
-        const double m12 = at(1,2);
-        const double m20 = at(2,0);
-        const double m21 = at(2,1);
-        const double m22 = at(2,2);
+        const double m00 = at(0, 0);
+        const double m01 = at(0, 1);
+        const double m02 = at(0, 2);
+        const double m10 = at(1, 0);
+        const double m11 = at(1, 1);
+        const double m12 = at(1, 2);
+        const double m20 = at(2, 0);
+        const double m21 = at(2, 1);
+        const double m22 = at(2, 2);
 
         Affine2d out;
 
@@ -127,7 +128,7 @@ namespace cuars
         out.data_[2 * Three + 0] = (m10 * m21 - m11 * m20) / det;
         out.data_[2 * Three + 1] = (m01 * m20 - m00 * m21) / det;
         out.data_[2 * Three + 2] = (m00 * m11 - m01 * m10) / det;
-        
+
         return out;
     }
 
@@ -170,7 +171,7 @@ namespace cuars
     {
         const double a22 = data_[2 * Three + 2];
 
-        return make_double2(data_[0 * Three + 2]/a22, data_[1 * Three + 2]/a22);
+        return make_double2(data_[0 * Three + 2] / a22, data_[1 * Three + 2] / a22);
     }
 
 }

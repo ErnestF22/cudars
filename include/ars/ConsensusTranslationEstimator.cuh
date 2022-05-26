@@ -453,8 +453,7 @@ namespace cuars
                 std::cout << pt.x << "\t" << pt.y;
                 std::cout << "]\n";
             }
-
-            std::cout << "Estimated translation values:" << std::endl;
+            
             int candidatesCtr = 0;
             if (translCandidates.size() > 0)
             {

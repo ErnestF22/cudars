@@ -679,8 +679,8 @@ namespace cuars
             out.data_[2 * cuars::Three + 1] = 0.0;
 
             // third column
-            out.data_[0 * cuars::Three + 2] = (a.at(0, 0) * b.at(0, 2)) + (a.at(0, 1) * b.at(1, 2)); // + a.at(0,2) * b.at(2,2)
-            out.data_[1 * cuars::Three + 2] = (a.at(1, 0) * b.at(0, 2)) + (a.at(1, 1) * b.at(1, 2)); // + a.at(1,2) * b.at(2,2)
+            out.data_[0 * cuars::Three + 2] = (a.at(0, 0) * b.at(0, 2)) + (a.at(0, 1) * b.at(1, 2)) + a.at(0,2) * b.at(2,2);
+            out.data_[1 * cuars::Three + 2] = (a.at(1, 0) * b.at(0, 2)) + (a.at(1, 1) * b.at(1, 2)) + a.at(1,2) * b.at(2,2);
             //            out.data_[2 * cuars::Three + 2] = (a.at(2, 0) * b.at(0, 2)) + (a.at(2, 1) * b.at(1, 2)) + (a.at(2, 2) + b.at(2, 2));
             out.data_[2 * cuars::Three + 2] = 1.0;
         }

@@ -53,8 +53,7 @@ int main(int argc, char **argv)
     std::string filenameArsCor;
     std::string filenameCovSrc;
     std::string filenameCovDst;
-    int arsOrder;
-    double arsSigma, arsThetaToll;
+    
     double rotTrue, rotArs;
     // cuars::VecVec2d translCandidates;
     cuars::Vec2d translTrue, translArs;
@@ -77,10 +76,6 @@ int main(int argc, char **argv)
     params.read(argc, argv);
     params.getParam<std::string>("src", filenameSrc, "/home/rimlab/Downloads/mpeg7_point_tests/noise000_occl00_rand000/apple-1_xp0686_yp0967_t059_sigma0001_occl000.txt");
     params.getParam<std::string>("dst", filenameDst, "/home/rimlab/Downloads/mpeg7_point_tests/noise000_occl00_rand000/apple-1_xp0749_yn0521_t090_sigma0001_occl000.txt");
-    params.getParam<int>("arsOrder", arsOrder, 20);
-    params.getParam<double>("arsSigma", arsSigma, 1.0);
-    params.getParam<double>("arsTollDeg", arsThetaToll, 1.0);
-    arsThetaToll *= M_PI / 180.0;
     //    params.getParam<double>("sampleResDeg", sampleRes, 0.5);
     //    sampleRes *= M_PI / 180.0;
     //    params.getParam<bool>("saveOn", saveOn, false);
@@ -137,8 +132,8 @@ int main(int argc, char **argv)
     //    int numPtsAfterPadding = numPts;
 
     // ARS parameters setting
-    arsSrc.setARSFOrder(arsOrder);
-    arsDst.setARSFOrder(arsOrder);
+    arsSrc.setARSFOrder(testParams.aiPms.arsIsoOrder);
+    arsDst.setARSFOrder(testParams.aiPms.arsIsoOrder);
     cuars::ArsKernelIso2dComputeMode pnebiMode = cuars::ArsKernelIso2dComputeMode::PNEBI_DOWNWARD;
     arsSrc.setComputeMode(pnebiMode);
     arsDst.setComputeMode(pnebiMode);
@@ -149,6 +144,13 @@ int main(int argc, char **argv)
     std::cout << "\n\nCalling kernel functions on GPU\n"
               << std::endl;
 
+    // Eigen::Affine2d transfSrcToDst = pointsDst.getTransform() * pointsSrc.getTransform().inverse();
+    cuars::Affine2d transfSrcToDst;
+    aff2Prod(transfSrcToDst, pointsDst.getTransform(), pointsSrc.getTransform().inverse());
+    std::cout << "transfSrcToDst" << std::endl
+              << transfSrcToDst << std::endl;
+    translTrue = transfSrcToDst.translation();
+
     gpu_estimateRotationArsIso(pointsSrc, pointsDst, testParams, paiParams, rotArs);
 
     rotTrue = pointsDst.getRotTheta() - pointsSrc.getRotTheta();
@@ -156,13 +158,6 @@ int main(int argc, char **argv)
               << ", pointsSrc.getrotTheta() [deg] " << (180.0 / M_PI * pointsSrc.getRotTheta()) << "\n";
     std::cout << "rotTrue[deg] \t" << (180.0 / M_PI * rotTrue) << " \t" << (180.0 / M_PI * cuars::mod180(rotTrue)) << std::endl;
     std::cout << "rotArs[deg] \t" << (180.0 / M_PI * rotArs) << " \t" << (180.0 / M_PI * cuars::mod180(rotArs)) << std::endl;
-
-    // // Eigen::Affine2d transfSrcToDst = pointsDst.getTransform() * pointsSrc.getTransform().inverse();
-    cuars::Affine2d transfSrcToDst;
-    aff2Prod(transfSrcToDst, pointsDst.getTransform(), pointsSrc.getTransform().inverse());
-    std::cout << "diff transform" << std::endl
-              << transfSrcToDst << std::endl;
-    translTrue = transfSrcToDst.translation();
 
     cuars::computeArsTec2d(translArs, rotArs, pointsSrc, pointsDst, translParams);
 

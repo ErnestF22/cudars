@@ -94,7 +94,7 @@ namespace cuars
    public: // TODO: improve separation between public and private
       double data_[Nine];
 
-      double rot_;
+      double rot_; //TODO: update these rot, transl after making products, transformations, ...
       double translX_;
       double translY_;
 
