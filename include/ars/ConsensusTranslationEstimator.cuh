@@ -384,7 +384,7 @@ namespace cuars
      */
     void computeArsTec2d(Vec2d &translArs, const double &rot, ArsImgTests::PointReaderWriter &pointsSrc, ArsImgTests::PointReaderWriter &pointsDst, ArsTec2dParams &translParams)
     {
-        VecVec2d translCandidates;
+        VecVec2d translCandidates; //TODO: add translCandidates as member, and add its getter function
 
         cuars::ScopedTimer translTimer("Ars Transl Timer");
 
@@ -409,6 +409,10 @@ namespace cuars
 
             ArsTec<Grid2d, cuars::Indices2d, cuars::PeakFinder2d, 2> translObj; // ArsTec 2D object
 
+            // translEstim.init(translMin, translRes, gridSize);
+            // translEstim.setNonMaximaWindowDim(gridWin);
+            translObj.init(translParams); // for now init is included
+
             cuars::Vec2d translMinAfterRotation;
             cuars::fillVec2d(translMinAfterRotation, pointsDst.xmin() - pointsSrc.xmax(), pointsDst.ymin() - pointsSrc.ymax());
             //        std::cout << std::endl << "tmin [m]\n" << translMinAfterRotation << std::endl;
@@ -425,10 +429,6 @@ namespace cuars
                 translParams.translMax = translMaxAfterRotation;
             }
             // else /*Nothing to change as translMax does not matter for grid init */
-
-            // translEstim.init(translMin, translRes, gridSize);
-            // translEstim.setNonMaximaWindowDim(gridWin);
-            translObj.init(translParams); // for now init is included
 
             std::cout << "Inserting pair source-destination:\n";
             // translEstim.insert(pointsSrc, pointsDst);
@@ -469,7 +469,7 @@ namespace cuars
                     candidatesCtr++;
                 }
 
-                // if (tp.plotOutput)
+                // if (tp.plotOutput) //TODO: add plot
                 // {
                 //     pointsSrc.applyTransform(translArs(0), translArs(1), 0.0);
                 //     pointsSrc.save("pointsSrcFinal.txt");
@@ -484,8 +484,10 @@ namespace cuars
             }
             pointsSrc.applyTransform(0.0, 0.0, -r);
         }
-        // translSrcExecTime = translTimer.elapsedTimeMs() / 2;
+        // translSrcExecTime = translTimer.elapsedTimeMs() / 2; //TODO: add timer
         // translDstExecTime = translSrcExecTime;
+
+        //!! TODO: set translMin, translMax and other params according to config that gave the better results
     }
 
 } // end of namespace

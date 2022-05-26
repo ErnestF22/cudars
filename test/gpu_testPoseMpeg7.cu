@@ -91,7 +91,7 @@ int main(int argc, char **argv)
     // ArsIso params (CPU and GPU)
     params.getParam<bool>("arsisoEnable", testParams.arsIsoEnable, false);
     params.getParam<bool>("gpu_arsisoEnable", testParams.gpu_arsIsoEnable, true);
-    params.getParam<int>("arsisoOrder", testParams.aiPms.arsIsoOrder, 20);
+    params.getParam<int>("arsisoOrder", testParams.aiPms.arsIsoOrder, 32);
     params.getParam<double>("arsisoSigma", testParams.aiPms.arsIsoSigma, 1.0);
     params.getParam<double>("arsisoTollDeg", testParams.aiPms.arsIsoThetaToll, 0.5);
     testParams.aiPms.arsIsoThetaToll *= M_PI / 180.0;
@@ -108,17 +108,17 @@ int main(int argc, char **argv)
     params.getParam<int>("blockSz", paiParams.blockSz, 256);
     params.getParam<int>("chunkMaxSz", paiParams.chunkMaxSz, 4096);
 
-    params.getParam<double>("translRes", translParams.translRes, 2.0);
+    params.getParam<double>("translRes", translParams.translRes, 3.0);
     // params.getParamContainer("translMin", translMin.data(), translMin.data() + translMin.size(), "[-10.0,-10.0]", double(0.0), "[,]"); //TODO: adapt ParamContainer to Cuda types
     params.getParam<double>("translMin-x", translParams.translMin.x, 0);
     params.getParam<double>("translMin-y", translParams.translMin.y, 0);
     params.getParam<double>("translMax-x", translParams.translMax.x, 1000.0);
     params.getParam<double>("translMax-y", translParams.translMax.y, 1000.0);
     // params.getParamContainer("translGt", translGt.data(), translGt.data() + translGt.size(), "[-4.2,5.0]", double(1.0), "[,]");
-    params.getParam<double>("translGt-x", translParams.translGt.x, -4.2);
-    params.getParam<double>("translGt-y", translParams.translGt.y, 5.0);
-    params.getParamContainer("gridSize", translParams.gridSize.data(), translParams.gridSize.data() + translParams.gridSize.size(), "[1000,1000]", int(0), "[,]");
-    params.getParamContainer("gridWin", translParams.gridWin.data(), translParams.gridWin.data() + translParams.gridWin.size(), "[10,10]", int(1), "[,]");
+    // params.getParam<double>("translGt-x", translParams.translGt.x, -4.2); //OSS. translGt is made useless
+    // params.getParam<double>("translGt-y", translParams.translGt.y, 5.0);
+    params.getParamContainer("gridSize", translParams.gridSize.data(), translParams.gridSize.data() + translParams.gridSize.size(), "[200,200]", int(0), "[,]");
+    params.getParamContainer("gridWin", translParams.gridWin.data(), translParams.gridWin.data() + translParams.gridWin.size(), "[5,5]", int(1), "[,]");
     params.getParam<bool>("adaptive", translParams.adaptiveGrid, true);
     params.getParam<bool>("plot", translParams.plot, false);
 
@@ -166,8 +166,11 @@ int main(int argc, char **argv)
 
     cuars::computeArsTec2d(translArs, rotArs, pointsSrc, pointsDst, translParams);
 
-    std::cout << "translTrue:" << std::endl;
-    cuars::printVec2d(translTrue);
+    // std::cout << "translTrue:" << std::endl;
+    cuars::printVec2d(translTrue, "translTrue");
+
+    // std::cout << "translArs:" << std::endl;
+    cuars::printVec2d(translArs, "translArs");
 
     return 0;
 }

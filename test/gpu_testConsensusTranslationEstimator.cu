@@ -4,6 +4,8 @@
 #include <ars/ars2d.h>
 #include <ars/ConsensusTranslationEstimator.cuh>
 #include <rofl/common/param_map.h>
+#include "ars/mpeg7RW.h"
+
 
 int main(int argc, char **argv)
 {
@@ -68,17 +70,28 @@ int main(int argc, char **argv)
         std::cout << "]\n";
     }
 
-    cuars::computeArsTec2d(translArs, rotArs, pointsSrc, pointsDst, translParams);
+    const double rotArs = 0.0; //this is a Dummy example
 
-    std::cout << "Estimated translation values:\n";
-    // cuars::ConsensusTranslationEstimator2d translEstimOutput(...) //constructor can be used for example to fill the class with the outputs
-    for (auto &pt : translCandidates)
-    {
-        std::cout << "  [";
-        // cuars::printVec2d(pt);
-        std::cout << pt.x << "\t" << pt.y;
-        std::cout << "]\n";
-    }
+    ArsImgTests::PointReaderWriter src(pointsSrc);
+    ArsImgTests::PointReaderWriter dst(pointsDst);
+
+    cuars::computeArsTec2d(translArs, rotArs, src, dst, translParams);
+
+    // std::cout << "Estimated translation values:\n";
+    // for (auto &pt : translCandidates)
+    // {
+    //     std::cout << "  [";
+    //     // cuars::printVec2d(pt);
+    //     std::cout << pt.x << "\t" << pt.y;
+    //     std::cout << "]\n";
+    // }
+
+    // std::cout << "translTrue:" << std::endl;
+    translTrue = translParams.translGt;
+    cuars::printVec2d(translTrue, "translTrue");
+
+    // std::cout << "translArs:" << std::endl;
+    cuars::printVec2d(translArs, "translArs");
 
     return 0;
 }
