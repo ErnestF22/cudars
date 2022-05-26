@@ -29,8 +29,6 @@
 
 #include "ars/mpeg7RW.h"
 
-void plotGrid2d(const cuars::ArsTec<cuars::Grid2d, cuars::Indices2d, cuars::PeakFinder2d, 2> &arsTec, const cuars::Vec2d &translMin, double translRes, const std::string &filename, double factor);
-
 int main(int argc, char **argv)
 {
     cuars::AngularRadonSpectrum2d arsSrc;

@@ -152,10 +152,10 @@ target_link_libraries(gpu_testConsensusTranslationEstimator ${ars_LINK_LIBS} iso
 
 ####################################################################################
  
-add_executable(gpu_testPoseMpeg7 test/gpu_testPoseMpeg7.cu)
-target_link_libraries(gpu_testPoseMpeg7 ${ars_LINK_LIBS} iso_cuars ${PCL_LIBRARIES} rofl_common -lstdc++fs -lboost_filesystem)
+add_executable(gpu_testArsIsoPoseMpeg7 test/gpu_testArsIsoPoseMpeg7.cu)
+target_link_libraries(gpu_testArsIsoPoseMpeg7 ${ars_LINK_LIBS} iso_cuars ${PCL_LIBRARIES} rofl_common -lstdc++fs -lboost_filesystem)
 
-target_compile_features(gpu_testPoseMpeg7 PUBLIC cxx_std_11)
-set_target_properties(gpu_testPoseMpeg7 PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
-set_target_properties(gpu_testPoseMpeg7 PROPERTIES CUDA_ARCHITECTURES "75")
+target_compile_features(gpu_testArsIsoPoseMpeg7 PUBLIC cxx_std_11)
+set_target_properties(gpu_testArsIsoPoseMpeg7 PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
+set_target_properties(gpu_testArsIsoPoseMpeg7 PROPERTIES CUDA_ARCHITECTURES "75")
 
