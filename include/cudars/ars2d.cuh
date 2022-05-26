@@ -41,7 +41,7 @@ struct ArsIsoParams
     int arsIsoOrder;
     double arsIsoSigma;
     double arsIsoThetaToll;
-    cuars::ArsKernelIso2dComputeMode arsIsoPnebiMode;
+    cudars::ArsKernelIso2dComputeMode arsIsoPnebiMode;
 };
 
 struct TestParams
@@ -131,7 +131,7 @@ __device__ void evaluatePnebiVectorGPU(int n, double x, double *pnebis, int pneb
  * @param pnebiMode
  * @param coeffsMat
  */
-__global__ void iigDw(cuars::Vec2d *means, double sigma1, double sigma2, int numPts, int fourierOrder, int numColsPadded, cuars::ArsKernelIso2dComputeMode pnebiMode, double *coeffsMat);
+__global__ void iigDw(cudars::Vec2d *means, double sigma1, double sigma2, int numPts, int fourierOrder, int numColsPadded, cudars::ArsKernelIso2dComputeMode pnebiMode, double *coeffsMat);
 
 /**
  * !! UNFINISHED
@@ -147,7 +147,7 @@ __global__ void iigDw(cuars::Vec2d *means, double sigma1, double sigma2, int num
  * @param pnebiLUT
  * @param coeffsMat
  */
-__global__ void iigLut(cuars::Vec2d *means, double sigma1, double sigma2, int numPts, int numPtsAfterPadding, int fourierOrder, int numColsPadded, cuars::ArsKernelIso2dComputeMode pnebiMode, cuars::PnebiLUT &pnebiLUT, double *coeffsMat);
+__global__ void iigLut(cudars::Vec2d *means, double sigma1, double sigma2, int numPts, int numPtsAfterPadding, int fourierOrder, int numColsPadded, cudars::ArsKernelIso2dComputeMode pnebiMode, cudars::PnebiLUT &pnebiLUT, double *coeffsMat);
 
 /**
  * Compute partial sums of subsets of rows taken from iig output matrix
@@ -197,7 +197,7 @@ void updateParallelizationParams(ParlArsIsoParams &pp, int currChunkSz);
  * @param startSrc, @param stopSrc and @param execTime are used for profiling execution times of the GPU kernel calls
  */
 //__host__
-void computeArsIsoGpu(ParlArsIsoParams &paip, ArsIsoParams &arsPms, const cuars::VecVec2d &points, double *coeffsArs, cudaEvent_t start, cudaEvent_t stop, double &execTime);
+void computeArsIsoGpu(ParlArsIsoParams &paip, ArsIsoParams &arsPms, const cudars::VecVec2d &points, double *coeffsArs, cudaEvent_t start, cudaEvent_t stop, double &execTime);
 
 /**
  * @brief Method to be called from main: contains parameters initialization, computeArsIsoGpu(), correlation computation

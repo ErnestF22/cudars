@@ -23,7 +23,7 @@
 
 #include "cudars/utils.h"
 
-namespace cuars {
+namespace cudars {
 
     //-----------------------------------------------------
     // GaussianMixtureEstimator
@@ -270,7 +270,7 @@ namespace cuars {
             //            tmp = (points[i] - mean);
             tmp = vec2diffWRV(points[i], mean);
             //            covar = tmp * tmp.transpose();
-            cuars::vec2outerProduct(covar, tmp, tmp);
+            cudars::vec2outerProduct(covar, tmp, tmp);
         }
 
         if (first == last) {
@@ -290,7 +290,7 @@ namespace cuars {
             if (l.z < sigmaMinSquare)
                 l.z = sigmaMinSquare;
             //            covar = v * l * v.transpose();
-            cuars::threeMats2dProd(covar, v, l, cuars::transposeWRV(v)); //cuars::mat2dProd(covar, v, cuars::mat2dProdWRV(l, cuars::transposeWRV(v)));
+            cudars::threeMats2dProd(covar, v, l, cudars::transposeWRV(v)); //cudars::mat2dProd(covar, v, cudars::mat2dProdWRV(l, cudars::transposeWRV(v)));
         }
     }
 
@@ -321,7 +321,7 @@ namespace cuars {
             //            tmp = (points[i] - mean);
             vec2diff(tmp, points[i], mean);
             //            covar = tmp * tmp.transpose();
-            cuars::vec2outerProduct(covar, tmp, tmp);
+            cudars::vec2outerProduct(covar, tmp, tmp);
         }
 
         if (first == last) {
@@ -346,9 +346,9 @@ namespace cuars {
             }
             fillRowMajor(covar, lmax, 0.0, 0.0, lmin);
             //            v = Eigen::Rotation2Dd(theta);
-            cuars::make2dRotMat(v, theta);
+            cudars::make2dRotMat(v, theta);
             //            covar = v * covar * v.transpose();
-            cuars::threeMats2dProd(covar, v, covar, cuars::transposeWRV(v));
+            cudars::threeMats2dProd(covar, v, covar, cudars::transposeWRV(v));
 
 
             //            ARS_PRINT("[" << first << "," << last << "]: lmin " << lmin << ", lmax " << lmax << ", theta[deg] " << (180.0 / M_PI * theta)
@@ -436,8 +436,8 @@ namespace cuars {
 
                 //                gaussians_[gaussianIndex].covar += samples[i] * samples[i].transpose();
                 Mat2d tmp;
-                cuars::vec2outerProduct(tmp, samples[i], samples[i]);
-                cuars::mat2dPlusEq(gaussians_[gaussianIndex].covar, tmp);
+                cudars::vec2outerProduct(tmp, samples[i], samples[i]);
+                cudars::mat2dPlusEq(gaussians_[gaussianIndex].covar, tmp);
 
                 gaussians_[gaussianIndex].weight += 1.0;
             }
@@ -448,8 +448,8 @@ namespace cuars {
                 scalarDiv(g.mean, g.weight);
 
                 //                g.covar = (g.covar - g.weight * g.mean * g.mean.transpose()) / (g.weight - 1.0);
-                g.covar = cuars::scalarDivWRV(
-                        cuars::mat2dDiffWRV(g.covar, cuars::scalarMulWRV(cuars::vec2outerProductWRV(g.mean, g.mean), g.weight)),
+                g.covar = cudars::scalarDivWRV(
+                        cudars::mat2dDiffWRV(g.covar, cudars::scalarMulWRV(cudars::vec2outerProductWRV(g.mean, g.mean), g.weight)),
                         (g.weight - 1.0)
                         );
 
@@ -654,7 +654,7 @@ namespace cuars {
             Vec2d tmpItVal;
             tmpItVal.x = it->value(0);
             tmpItVal.y = it->value(1);
-            cuars::vec2dPlusEq(mean, tmpItVal);
+            cudars::vec2dPlusEq(mean, tmpItVal);
 
             num++;
         }
@@ -672,10 +672,10 @@ namespace cuars {
             Vec2d tmpItVal;
             tmpItVal.x = it->value(0);
             tmpItVal.y = it->value(1);
-            cuars::vec2diff(tmp, tmpItVal, mean);
+            cudars::vec2diff(tmp, tmpItVal, mean);
 
             //            covar += tmp * tmp.transpose();
-            cuars::mat2dPlusEq(covar, cuars::vec2outerProductWRV(tmp, tmp));
+            cudars::mat2dPlusEq(covar, cudars::vec2outerProductWRV(tmp, tmp));
         }
 
         if (num <= 1) {
@@ -697,23 +697,23 @@ namespace cuars {
                 l.z = sigmaMinSquare;
 
             //            covar = v * l * v.transpose();
-            cuars::threeMats2dProd(covar, v, l, cuars::transposeWRV(v));
+            cudars::threeMats2dProd(covar, v, l, cudars::transposeWRV(v));
 
         }
 
         inlier = 0;
         //        infoMat = covar.inverse();
-        infoMat = cuars::mat2dInverse(covar);
+        infoMat = cudars::mat2dInverse(covar);
 
         //ARS_PRINT("covar\n" << covar << "\neigenvalues:\n" << l.transpose() << "\ninfoMat\n" << infoMat);
         for (auto it = beg; it != end; ++it) {
             Vec2d tmpItVal;
             tmpItVal.x = it->value(0);
             tmpItVal.y = it->value(1);
-            cuars::vec2diff(tmp, tmpItVal, mean);
+            cudars::vec2diff(tmp, tmpItVal, mean);
 
             //            distSqr = tmp.transpose() * infoMat * tmp;
-            distSqr = cuars::vec2dotProduct(cuars::row2VecTimesMat2WRV(tmp, infoMat), tmp);
+            distSqr = cudars::vec2dotProduct(cudars::row2VecTimesMat2WRV(tmp, infoMat), tmp);
 
             if (distSqr < chi2Thres_) {
                 inlier++;
@@ -741,7 +741,7 @@ namespace cuars {
             Vec2d tmpItVal;
             tmpItVal.x = it->value(0);
             tmpItVal.y = it->value(1);
-            cuars::vec2dPlusEq(mean, tmpItVal);
+            cudars::vec2dPlusEq(mean, tmpItVal);
             num++;
         }
         //        mean = mean / num;
@@ -756,7 +756,7 @@ namespace cuars {
             tmpItVal.x = it->value(0);
             tmpItVal.y = it->value(1);
             vec2diff(tmp, tmpItVal, mean);
-            cuars::mat2dPlusEq(covar, cuars::vec2outerProductWRV(tmp, tmp));
+            cudars::mat2dPlusEq(covar, cudars::vec2outerProductWRV(tmp, tmp));
         }
 
         if (num <= 1) {
@@ -789,25 +789,25 @@ namespace cuars {
             fillRowMajor(covar, lmax, 0.0, 0.0, lmin);
 
             //                    v.make2dRotMat(theta);
-            cuars::make2dRotMat(v, theta);
+            cudars::make2dRotMat(v, theta);
             //                    covar = v * covar * v.transpose();
-            cuars::threeMats2dProd(covar, v, covar, cuars::transposeWRV(v));
+            cudars::threeMats2dProd(covar, v, covar, cudars::transposeWRV(v));
 
         }
 
         inlier = 0;
         //        infoMat = covar.inverse();
-        infoMat = cuars::mat2dInverse(covar);
+        infoMat = cudars::mat2dInverse(covar);
         //ARS_PRINT("covar\n" << covar << "\neigenvalues:\n" << l.transpose() << "\ninfoMat\n" << infoMat);
         for (auto it = beg; it != end; ++it) {
             //            tmp = (it->value - mean);
             Vec2d tmpItVal;
             tmpItVal.x = it->value(0);
             tmpItVal.y = it->value(1);
-            cuars::vec2diff(tmp, tmpItVal, mean);
+            cudars::vec2diff(tmp, tmpItVal, mean);
 
             //            distSqr = tmp.transpose() * infoMat * tmp;
-            distSqr = cuars::vec2dotProduct(cuars::row2VecTimesMat2WRV(tmp, infoMat), tmp);
+            distSqr = cudars::vec2dotProduct(cudars::row2VecTimesMat2WRV(tmp, infoMat), tmp);
             if (distSqr < chi2Thres_) {
                 inlier++;
             }
@@ -836,7 +836,7 @@ namespace cuars {
             Vec2d vTmp; //could probably just use make_double2() constructor
             vTmp.x = it->value(0);
             vTmp.y = it->value(1);
-            cuars::vec2dPlusEq(mean, vTmp);
+            cudars::vec2dPlusEq(mean, vTmp);
 
             num++;
         }
@@ -859,7 +859,7 @@ namespace cuars {
             tmpItVal.y = it->value(1);
             Vec2d tmp = vec2diffWRV(tmpItVal, mean);
             //            covar += tmp * tmp.transpose();
-            cuars::mat2dPlusEq(covar, vec2outerProductWRV(tmp, tmp));
+            cudars::mat2dPlusEq(covar, vec2outerProductWRV(tmp, tmp));
         }
         //        covar = covar / num;
         scalarDiv(covar, num);
@@ -875,7 +875,7 @@ namespace cuars {
         double jNN = 0.0, jLL = 0.0, jNL = 0.0;
 
         //                jLL = wMerged * wMerged / (2 * M_PI * sqrt((2 * covar).determinant()));
-        jLL = wMerged * wMerged / (2 * M_PI * sqrt(cuars::mat2dDeterminant(cuars::scalarMulWRV(covar, 2))));
+        jLL = wMerged * wMerged / (2 * M_PI * sqrt(cudars::mat2dDeterminant(cudars::scalarMulWRV(covar, 2))));
 
 
         double normOrig = 1.0 / (4 * M_PI * sigmaMinSqrd); //normNN
@@ -883,14 +883,14 @@ namespace cuars {
 
         //        Mat2d covarNL = covar + sigmaMinSqrd * Mat2d::Identity();
         Mat2d sigmaMinSqrdDiagMat;
-        cuars::fillRowMajor(sigmaMinSqrdDiagMat, sigmaMinSqrd, 0.0, 0.0, sigmaMinSqrd);
-        Mat2d covarNL = cuars::mat2dSumWRV(covar, sigmaMinSqrdDiagMat);
+        cudars::fillRowMajor(sigmaMinSqrdDiagMat, sigmaMinSqrd, 0.0, 0.0, sigmaMinSqrd);
+        Mat2d covarNL = cudars::mat2dSumWRV(covar, sigmaMinSqrdDiagMat);
 
         //        Mat2d infoNL = covarNL.inverse();
-        Mat2d infoNL = cuars::mat2dInverse(covarNL);
+        Mat2d infoNL = cudars::mat2dInverse(covarNL);
 
         //        double normNL = 1.0 / (2 * M_PI * sqrt(covarNL.determinant()));
-        double normNL = 1.0 / (2 * M_PI * sqrt(cuars::mat2dDeterminant(covarNL)));
+        double normNL = 1.0 / (2 * M_PI * sqrt(cudars::mat2dDeterminant(covarNL)));
 
 
         for (auto it = beg; it != end; ++it) {
@@ -903,9 +903,9 @@ namespace cuars {
             tmpItValue.x = it->value(0);
             tmpItValue.y = it->value(1);
             Vec2d tmpVec;
-            cuars::vec2diff(tmpVec, tmpItValue, mean);
+            cudars::vec2diff(tmpVec, tmpItValue, mean);
             jNL += exp(-0.5 *
-                    cuars::vec2dotProduct(cuars::row2VecTimesMat2WRV(tmpVec, infoNL), (tmpVec))
+                    cudars::vec2dotProduct(cudars::row2VecTimesMat2WRV(tmpVec, infoNL), (tmpVec))
                     );
         }
         jNN *= wOrig * wOrig * normOrig;

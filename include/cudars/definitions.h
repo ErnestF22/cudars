@@ -61,7 +61,7 @@
       exit(-1);                                                                                   \
    }
 
-namespace cuars
+namespace cudars
 {
 
    static const size_t Two = 2;   // useful for expanding (i,j) indexing into  i*Two+j
@@ -121,11 +121,11 @@ namespace cuars
 
       Vec2d translation() const;
 
-      friend std::ostream &operator<<(std::ostream &os, cuars::Affine2d const &m)
+      friend std::ostream &operator<<(std::ostream &os, cudars::Affine2d const &m)
       {
-         return os << m.data_[0 * cuars::Three + 0] << " \t" << m.data_[0 * cuars::Three + 1] << " \t" << m.data_[0 * cuars::Three + 2] << " \n"
-                   << m.data_[1 * cuars::Three + 0] << " \t" << m.data_[1 * cuars::Three + 1] << " \t" << m.data_[1 * cuars::Three + 2] << " \n"
-                   << m.data_[2 * cuars::Three + 0] << " \t" << m.data_[2 * cuars::Three + 1] << " \t" << m.data_[2 * cuars::Three + 2] << " \n";
+         return os << m.data_[0 * cudars::Three + 0] << " \t" << m.data_[0 * cudars::Three + 1] << " \t" << m.data_[0 * cudars::Three + 2] << " \n"
+                   << m.data_[1 * cudars::Three + 0] << " \t" << m.data_[1 * cudars::Three + 1] << " \t" << m.data_[1 * cudars::Three + 2] << " \n"
+                   << m.data_[2 * cudars::Three + 0] << " \t" << m.data_[2 * cudars::Three + 1] << " \t" << m.data_[2 * cudars::Three + 2] << " \n";
       }
    };
 
@@ -157,7 +157,7 @@ namespace cuars
 
 } // end of namespace
 
-// std::ostream &operator<<(std::ostream &os, cuars::Vec2d const &v) {
+// std::ostream &operator<<(std::ostream &os, cudars::Vec2d const &v) {
 //     return os << v.x << " \t" << v.y << "\n";
 // }
 

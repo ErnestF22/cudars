@@ -23,7 +23,7 @@
 #include <sstream>
 #include <array>
 
-namespace cuars
+namespace cudars
 {
 
     /**
@@ -705,7 +705,7 @@ namespace cuars
         return out.str();
     }
 
-} // end of namespace cuars
+} // end of namespace cudars
 
 // template <size_t D, typename I>
 // std::ostream &operator<<(std::ostream &out, const rofl::IntervalIndices<D, I> &interval)

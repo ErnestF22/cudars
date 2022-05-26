@@ -2,7 +2,7 @@
 #include <cstdio>
 #include <sstream>
 
-namespace cuars {
+namespace cudars {
 
     bool ParamMap::read(std::istream& in) {
         std::string name;

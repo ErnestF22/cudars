@@ -20,7 +20,7 @@
 
 #include <iostream>
 
-namespace cuars {
+namespace cudars {
 
     /** Hough transform and spectrum. Lines are represented with Hessian (aka 
      * polar) parameters:

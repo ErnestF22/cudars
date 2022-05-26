@@ -26,7 +26,7 @@
 #include "cudars/functions.h"
 
 
-namespace cuars {
+namespace cudars {
 
     // --------------------------------------------------------
     // ARS-2D FUNCTIONS FOR ISOTROPIC KERNEL

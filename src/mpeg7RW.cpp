@@ -48,7 +48,7 @@ namespace ArsImgTests {
         initFlann();
     }
 
-    PointReaderWriter::PointReaderWriter(const cuars::VecVec2d& points)
+    PointReaderWriter::PointReaderWriter(const cudars::VecVec2d& points)
     : points_(points.begin(), points.end()), min_(), max_(), randDev_(), randGen_(randDev_()),
     flannIndexer_(nullptr), flannPoints_(), pointsVec_() {
         transl_x = 0.0;
@@ -62,7 +62,7 @@ namespace ArsImgTests {
         initFlann();
     }
 
-    PointReaderWriter::PointReaderWriter(const cuars::VecVec2d& points, const cuars::Affine2d& transf)
+    PointReaderWriter::PointReaderWriter(const cudars::VecVec2d& points, const cudars::Affine2d& transf)
     : points_(points.begin(), points.end()), min_(), max_(), randDev_(), randGen_(randDev_()),
     flannIndexer_(nullptr), flannPoints_(), pointsVec_() {
         transformToCoodinates(transf, transl_x, transl_y, rot_theta);
@@ -77,7 +77,7 @@ namespace ArsImgTests {
             //    std::cout << "  " << p.transpose() << " --> ";
 
             //            p = transf * p;
-            cuars::preTransfVec2(p, transf);
+            cudars::preTransfVec2(p, transf);
 
             //    std::cout << p.transpose() << std::endl;
         }
@@ -85,7 +85,7 @@ namespace ArsImgTests {
         initFlann();
     }
 
-    //PointReaderWriter::PointReaderWriter(const std::vector<cuars::Vec2d>& points,const cuars::Affine2d& transf)
+    //PointReaderWriter::PointReaderWriter(const std::vector<cudars::Vec2d>& points,const cudars::Affine2d& transf)
     //  : points_(), min_(), max_(), randDev_(), randGen_(randDev_()) 
     //{
     //  transformToCoodinates(transf,transl_x,transl_y,rot_theta);
@@ -121,7 +121,7 @@ namespace ArsImgTests {
         rofl::ParamMap params;
         //  char buffer[1000];
         std::string line, comment;
-        cuars::Vec2d p;
+        cudars::Vec2d p;
         size_t pos;
         int count;
 
@@ -199,7 +199,7 @@ namespace ArsImgTests {
 
         std::string line, comment;
         size_t pos;
-        cuars::Vec2d pt;
+        cudars::Vec2d pt;
 
         std::ifstream file(cloudFilename);
         if (!file) {
@@ -326,7 +326,7 @@ namespace ArsImgTests {
 
     /**
      */
-    const cuars::VecVec2d& PointReaderWriter::points() const {
+    const cudars::VecVec2d& PointReaderWriter::points() const {
         return points_;
     }
 
@@ -337,7 +337,7 @@ namespace ArsImgTests {
         clearFlann();
     }
 
-    void PointReaderWriter::insertPoints(const cuars::VecVec2d& points) {
+    void PointReaderWriter::insertPoints(const cudars::VecVec2d& points) {
         points_ = points;
         initFlann();
     }
@@ -386,7 +386,7 @@ namespace ArsImgTests {
         return rot_theta;
     }
 
-    cuars::Affine2d PointReaderWriter::getTransform() const {
+    cudars::Affine2d PointReaderWriter::getTransform() const {
         // Eigen::Translation2d t(transl_x, transl_y);
         // Eigen::Affine3d rotBig = Eigen::Affine3d(Eigen::AngleAxisd(rot_theta, Eigen::Vector3d(0, 0, 1)));
         // Eigen::Affine2d affMat = t * rotBig.linear().topLeftCorner<2, 2>();
@@ -394,7 +394,7 @@ namespace ArsImgTests {
         //        ARS_VAR4(affMat.matrix(), rot_theta, transl_x, transl_y);
 
 
-        return cuars::Affine2d(rot_theta, transl_x, transl_y);
+        return cudars::Affine2d(rot_theta, transl_x, transl_y);
     }
 
     double PointReaderWriter::getNoiseSigma() const {
@@ -417,7 +417,7 @@ namespace ArsImgTests {
         return pcdHeader;
     }
 
-    void PointReaderWriter::findKNearest(const cuars::Vec2d& query, int k, std::vector<int>& indices, std::vector<double>& distances) const {
+    void PointReaderWriter::findKNearest(const cudars::Vec2d& query, int k, std::vector<int>& indices, std::vector<double>& distances) const {
         double queryVec[2];
 
         // Initialization of query FLANN matrix
@@ -441,11 +441,11 @@ namespace ArsImgTests {
         }
     }
 
-    void PointReaderWriter::computeContour(cuars::VecVec2d& contour) const {
+    void PointReaderWriter::computeContour(cudars::VecVec2d& contour) const {
         std::vector<bool> visited(points_.size(), false);
         std::vector<int> indices;
         std::vector<double> distances;
-        cuars::Vec2d center = computeCentroid();
+        cudars::Vec2d center = computeCentroid();
         int k = 50;
         int idx, inext;
 
@@ -476,7 +476,7 @@ namespace ArsImgTests {
         applyTransform(randX(randGen_), randY(randGen_), randTheta(randGen_));
     }
 
-    void PointReaderWriter::applyTransform(const cuars::Affine2d& transf) {
+    void PointReaderWriter::applyTransform(const cudars::Affine2d& transf) {
         //        min_ << 1e+6, 1e+6;
         min_.x = 1e+6;
         min_.y = 1e+6;
@@ -486,7 +486,7 @@ namespace ArsImgTests {
 
         for (auto& p : points_) {
             //            p = transf * p;
-            cuars::preTransfVec2(p, transf);
+            cudars::preTransfVec2(p, transf);
 
             if (p.x < min_.x) min_.x = p.x;
             if (p.x > max_.x) max_.x = p.x;
@@ -498,7 +498,7 @@ namespace ArsImgTests {
 
     void PointReaderWriter::applyTransform(double x, double y, double theta) {
         std::cout << __FILE__ << "," << __LINE__ << ": transform x " << x << ", y " << y << ", theta[deg] " << (180.0 / M_PI * theta) << std::endl;
-        cuars::Affine2d transf = coordToTransform(x, y, theta);
+        cudars::Affine2d transf = coordToTransform(x, y, theta);
         applyTransform(transf);
     }
 
@@ -512,14 +512,14 @@ namespace ArsImgTests {
         std::uniform_int_distribution<> randIdx(0, points_.size() - 1);
 
         // Generate occlusion region as a random circle 
-        //  cuars::Vec2d center(randX(randGen_),randY(randGen_));
+        //  cudars::Vec2d center(randX(randGen_),randY(randGen_));
         //  double radius = randRadius(randGen_);
-        cuars::Vec2d center = points_[randIdx(randGen_)];
+        cudars::Vec2d center = points_[randIdx(randGen_)];
         double radius = radiusMean;
-        cuars::VecVec2d pointsTmp;
+        cudars::VecVec2d pointsTmp;
         for (auto& p : points_) {
             //            if ((p - center).norm() > radius) {
-            if (cuars::vec2norm(cuars::vec2diffWRV(p, center)) > radius) {
+            if (cudars::vec2norm(cudars::vec2diffWRV(p, center)) > radius) {
                 pointsTmp.push_back(p);
             }
         }
@@ -544,7 +544,7 @@ namespace ArsImgTests {
         //  std::uniform_real_distribution<> randX(min_.x-dx,max_.x+dx);
         //  std::uniform_real_distribution<> randY(min_.y-dy,max_.y+dy);
         //  int num = perc * points_.size();
-        //  cuars::Vec2d p;
+        //  cudars::Vec2d p;
         //  for (int i = 0; i < num; ++i) {
         //    p << randX(randGen_), randY(randGen_);
         //    points_.push_back(p);
@@ -552,7 +552,7 @@ namespace ArsImgTests {
         std::uniform_real_distribution<> randRadius(0.0, std::max(dx, dy));
         std::uniform_real_distribution<> randTheta(0.0, 2.0 * M_PI);
         int num = perc * points_.size();
-        cuars::Vec2d p;
+        cudars::Vec2d p;
         double r, a;
         for (int i = 0; i < num; ++i) {
             r = randRadius(randGen_);
@@ -581,8 +581,8 @@ namespace ArsImgTests {
     }
 
     void PointReaderWriter::removeBias() {
-        //        cuars::Vec2d mean = cuars::Vec2d::Zero();
-        cuars::Vec2d mean;
+        //        cudars::Vec2d mean = cudars::Vec2d::Zero();
+        cudars::Vec2d mean;
         mean.x = 0.0;
         mean.y = 0.0;
         int count = 0;
@@ -613,15 +613,15 @@ namespace ArsImgTests {
 
     }
 
-    cuars::Vec2d PointReaderWriter::computeCentroid() const {
-        cuars::Vec2d mean;
+    cudars::Vec2d PointReaderWriter::computeCentroid() const {
+        cudars::Vec2d mean;
         mean.x = 0.0;
         mean.y = 0.0;
 
         int count = 0;
         for (auto& p : points_) {
-            mean.x += p.x; //maybe use cuars::vec2sum function instead of going element by element?
-            mean.y += p.y; //maybe use cuars::vec2sum function instead of going element by element?
+            mean.x += p.x; //maybe use cudars::vec2sum function instead of going element by element?
+            mean.y += p.y; //maybe use cudars::vec2sum function instead of going element by element?
 
             count++;
         }
@@ -634,10 +634,10 @@ namespace ArsImgTests {
         return mean;
     }
 
-    cuars::Mat2d PointReaderWriter::computeCovariance() const {
-        cuars::Vec2d mean = computeCentroid();
-        //        cuars::Mat2d cov = cuars::Mat2d::Zero();
-        cuars::Mat2d cov;
+    cudars::Mat2d PointReaderWriter::computeCovariance() const {
+        cudars::Vec2d mean = computeCentroid();
+        //        cudars::Mat2d cov = cudars::Mat2d::Zero();
+        cudars::Mat2d cov;
         cov.w = 0.0;
         cov.x = 0.0;
         cov.y = 0.0;
@@ -647,10 +647,10 @@ namespace ArsImgTests {
         //        for (auto& p : points_)
         for (int i = 0; i < points_.size(); ++i) {
             //            cov += (p - mean) * (p - mean).transpose();
-            const cuars::Vec2d p = points_[i];
-            cuars::Mat2d tmp;
-            cuars::vec2outerProduct(tmp, p, mean);
-            cuars::mat2dPlusEq(cov, tmp);
+            const cudars::Vec2d p = points_[i];
+            cudars::Mat2d tmp;
+            cudars::vec2outerProduct(tmp, p, mean);
+            cudars::mat2dPlusEq(cov, tmp);
 
             count++;
         }
@@ -669,29 +669,29 @@ namespace ArsImgTests {
     // STATIC METHODS
     // --------------------------------------------------------
 
-    cuars::Affine2d PointReaderWriter::coordToTransform(double x, double y, double theta) {
-        //        cuars::Affine2d transform = cuars::Affine2d::Identity();
-        cuars::Affine2d transform(0.0, 0.0, 0.0);
+    cudars::Affine2d PointReaderWriter::coordToTransform(double x, double y, double theta) {
+        //        cudars::Affine2d transform = cudars::Affine2d::Identity();
+        cudars::Affine2d transform(0.0, 0.0, 0.0);
 
         //        std::cout << "TRANSFORM IDENTITY" << std::endl;
         //        std::cout << transform;
 
         //        transform.prerotate(theta);
-        cuars::preRotateAff2(transform, theta);
-        //        transform.pretranslate(cuars::Vec2d(x, y));
-        cuars::preTranslateAff2(transform, x, y);
+        cudars::preRotateAff2(transform, theta);
+        //        transform.pretranslate(cudars::Vec2d(x, y));
+        cudars::preTranslateAff2(transform, x, y);
 
         return transform;
     }
 
-    void PointReaderWriter::transformToCoodinates(const cuars::Affine2d& transform, double& x, double& y, double& theta) {
+    void PointReaderWriter::transformToCoodinates(const cudars::Affine2d& transform, double& x, double& y, double& theta) {
         //        x = transform.matrix()(0, 2);
-        x = transform.data_[0 * cuars::Three + 2];
+        x = transform.data_[0 * cudars::Three + 2];
         //        y = transform.matrix()(1, 2);
-        y = transform.data_[1 * cuars::Three + 2];
+        y = transform.data_[1 * cudars::Three + 2];
 
         //        theta = atan2(transform.matrix()(1, 0), transform.matrix()(0, 0));
-        theta = atan2(transform.data_[1 * cuars::Three + 0], transform.data_[0 * cuars::Three + 0]);
+        theta = atan2(transform.data_[1 * cudars::Three + 0], transform.data_[0 * cudars::Three + 0]);
 
     }
 
@@ -715,16 +715,16 @@ namespace ArsImgTests {
 
         ss >> transl_x >> transl_y >> dummyZ >> quat.w >> quat.x >> quat.y >> quat.z;
 
-        rot_theta = cuars::quatTo2dAngle(quat).yaw;
+        rot_theta = cudars::quatTo2dAngle(quat).yaw;
         std::cout << "transl_x " << transl_x << " transl_y " << transl_y << " rot_theta " << rot_theta << std::endl;
 
-        cuars::Affine2d transf(rot_theta, transl_x, transl_y);
+        cudars::Affine2d transf(rot_theta, transl_x, transl_y);
         updateTransformInfo(transf);
     }
 
-    void PointReaderWriter::updateTransformInfo(const cuars::Affine2d& transform) {
-        cuars::Affine2d prevTorig = coordToTransform(transl_x, transl_y, rot_theta);
-        cuars::Affine2d currTorig = cuars::aff2ProdWRV(transform, prevTorig);
+    void PointReaderWriter::updateTransformInfo(const cudars::Affine2d& transform) {
+        cudars::Affine2d prevTorig = coordToTransform(transl_x, transl_y, rot_theta);
+        cudars::Affine2d currTorig = cudars::aff2ProdWRV(transform, prevTorig);
         transformToCoodinates(currTorig, transl_x, transl_y, rot_theta);
     }
 

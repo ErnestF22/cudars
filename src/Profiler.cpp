@@ -17,7 +17,7 @@
  */
 #include "cudars/Profiler.h"
 
-namespace cuars {
+namespace cudars {
 
     // ----------------------------------------------------
     // PROFILER

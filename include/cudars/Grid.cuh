@@ -6,7 +6,7 @@
 
 #include "IntervalIndices.cuh"
 
-namespace cuars
+namespace cudars
 {
     // TODO (maybe): switch these declarations to template-approach
     using Index = int;
@@ -20,7 +20,7 @@ namespace cuars
 
     using Value = size_t;
 
-    struct Grid // cuars::Grid is already specialized as Grid2d
+    struct Grid // cudars::Grid is already specialized as Grid2d
     {
         IntervalType domain_;
         std::vector<size_t, std::allocator<size_t>> data_;

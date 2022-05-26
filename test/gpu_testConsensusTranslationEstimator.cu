@@ -9,14 +9,14 @@
 
 int main(int argc, char **argv)
 {
-    // cuars::ConsensusTranslationEstimator2d translEstim;
-    cuars::VecVec2d pointsSrc, pointsDst, translCandidates;
-    // cuars::VecVec2d translCandidates;
-    cuars::Vec2d translTrue, translArs;
+    // cudars::ConsensusTranslationEstimator2d translEstim;
+    cudars::VecVec2d pointsSrc, pointsDst, translCandidates;
+    // cudars::VecVec2d translCandidates;
+    cudars::Vec2d translTrue, translArs;
     rofl::ParamMap params;
     std::string filenameCfg;
 
-    cuars::ArsTec2dParams translParams;
+    cudars::ArsTec2dParams translParams;
     // ParlArsIsoParams paiParams;
 
     // Reads params from command line
@@ -43,10 +43,10 @@ int main(int argc, char **argv)
 
     for (int i = 0; i < 10; ++i)
     {
-        cuars::Vec2d p;
-        cuars::fillVec2d(p, (1.0 + 0.4 * i), (-2.0 - 0.35 * i));
+        cudars::Vec2d p;
+        cudars::fillVec2d(p, (1.0 + 0.4 * i), (-2.0 - 0.35 * i));
         pointsSrc.push_back(p);
-        pointsDst.push_back(cuars::vec2sumWRV(p, translParams.translGt));
+        pointsDst.push_back(cudars::vec2sumWRV(p, translParams.translGt));
     }
     pointsDst.push_back(make_double2(0.0, 0.0));
     pointsDst.push_back(make_double2(4.0, 4.0));
@@ -57,7 +57,7 @@ int main(int argc, char **argv)
     for (auto &pt : pointsSrc)
     {
         std::cout << "  [";
-        // cuars::printVec2d(pt);
+        // cudars::printVec2d(pt);
         std::cout << pt.x << "\t" << pt.y;
         std::cout << "]\n";
     }
@@ -65,7 +65,7 @@ int main(int argc, char **argv)
     for (auto &pt : pointsDst)
     {
         std::cout << "  [";
-        // cuars::printVec2d(pt);
+        // cudars::printVec2d(pt);
         std::cout << pt.x << "\t" << pt.y;
         std::cout << "]\n";
     }
@@ -75,23 +75,23 @@ int main(int argc, char **argv)
     ArsImgTests::PointReaderWriter src(pointsSrc);
     ArsImgTests::PointReaderWriter dst(pointsDst);
 
-    cuars::computeArsTec2d(translArs, rotArs, src, dst, translParams);
+    cudars::computeArsTec2d(translArs, rotArs, src, dst, translParams);
 
     // std::cout << "Estimated translation values:\n";
     // for (auto &pt : translCandidates)
     // {
     //     std::cout << "  [";
-    //     // cuars::printVec2d(pt);
+    //     // cudars::printVec2d(pt);
     //     std::cout << pt.x << "\t" << pt.y;
     //     std::cout << "]\n";
     // }
 
     // std::cout << "translTrue:" << std::endl;
     translTrue = translParams.translGt;
-    cuars::printVec2d(translTrue, "translTrue");
+    cudars::printVec2d(translTrue, "translTrue");
 
     // std::cout << "translArs:" << std::endl;
-    cuars::printVec2d(translArs, "translArs");
+    cudars::printVec2d(translArs, "translArs");
 
     return 0;
 }

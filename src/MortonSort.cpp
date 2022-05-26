@@ -1,6 +1,6 @@
 #include "cudars/MortonSort.h"
 
-namespace cuars {
+namespace cudars {
 
     // ---------------------------------------------------------------
     // NUMBER OF LEADING ZEROS

@@ -20,7 +20,7 @@
 
 #include "cudars/functions.h"
 
-namespace cuars {
+namespace cudars {
 
     // --------------------------------------------------------
     // BRANCH AND BOUND OPTIMIZER

@@ -31,14 +31,14 @@
 
 int main(int argc, char **argv)
 {
-    cuars::AngularRadonSpectrum2d arsSrc;
-    cuars::AngularRadonSpectrum2d arsDst;
+    cudars::AngularRadonSpectrum2d arsSrc;
+    cudars::AngularRadonSpectrum2d arsDst;
     ArsImgTests::PointReaderWriter pointsSrc;
     ArsImgTests::PointReaderWriter pointsDst;
 
     TestParams testParams;
     ParlArsIsoParams paiParams;
-    cuars::ArsTec2dParams translParams;
+    cudars::ArsTec2dParams translParams;
 
     rofl::ParamMap params;
     std::string filenameCfg;
@@ -53,8 +53,8 @@ int main(int argc, char **argv)
     std::string filenameCovDst;
     
     double rotTrue, rotArs;
-    // cuars::VecVec2d translCandidates;
-    cuars::Vec2d translTrue, translArs;
+    // cudars::VecVec2d translCandidates;
+    cudars::Vec2d translTrue, translArs;
 
     // The variables below are for I/O related functionalities (plot, etc.) that are highly Eigen-based and are present in the CPU-only ArsImgTests...
     // Maybe implement them later
@@ -88,14 +88,14 @@ int main(int argc, char **argv)
     params.getParam<double>("arsisoSigma", testParams.aiPms.arsIsoSigma, 1.0);
     params.getParam<double>("arsisoTollDeg", testParams.aiPms.arsIsoThetaToll, 0.5);
     testParams.aiPms.arsIsoThetaToll *= M_PI / 180.0;
-    //    params.getParam<unsigned int>("arsisoPnebiMode", tp.arsIsoPnebiMode, cuars::ArsKernelIsotropic2d::ComputeMode::PNEBI_DOWNWARD);
+    //    params.getParam<unsigned int>("arsisoPnebiMode", tp.arsIsoPnebiMode, cudars::ArsKernelIsotropic2d::ComputeMode::PNEBI_DOWNWARD);
 
     arsSrc.setARSFOrder(testParams.aiPms.arsIsoOrder);
     //    arsSrc.initLUT(0.0001);
     //    arsSrc.setComputeMode(ars::ArsKernelIsotropic2d::ComputeMode::PNEBI_LUT);
-    arsSrc.setComputeMode(cuars::ArsKernelIso2dComputeMode::PNEBI_DOWNWARD);
+    arsSrc.setComputeMode(cudars::ArsKernelIso2dComputeMode::PNEBI_DOWNWARD);
     arsDst.setARSFOrder(testParams.aiPms.arsIsoOrder);
-    arsDst.setComputeMode(cuars::ArsKernelIso2dComputeMode::PNEBI_DOWNWARD);
+    arsDst.setComputeMode(cudars::ArsKernelIso2dComputeMode::PNEBI_DOWNWARD);
 
     // parallelization parameters
     params.getParam<int>("blockSz", paiParams.blockSz, 256);
@@ -132,7 +132,7 @@ int main(int argc, char **argv)
     // ARS parameters setting
     arsSrc.setARSFOrder(testParams.aiPms.arsIsoOrder);
     arsDst.setARSFOrder(testParams.aiPms.arsIsoOrder);
-    cuars::ArsKernelIso2dComputeMode pnebiMode = cuars::ArsKernelIso2dComputeMode::PNEBI_DOWNWARD;
+    cudars::ArsKernelIso2dComputeMode pnebiMode = cudars::ArsKernelIso2dComputeMode::PNEBI_DOWNWARD;
     arsSrc.setComputeMode(pnebiMode);
     arsDst.setComputeMode(pnebiMode);
 
@@ -143,7 +143,7 @@ int main(int argc, char **argv)
               << std::endl;
 
     // Eigen::Affine2d transfSrcToDst = pointsDst.getTransform() * pointsSrc.getTransform().inverse();
-    cuars::Affine2d transfSrcToDst;
+    cudars::Affine2d transfSrcToDst;
     aff2Prod(transfSrcToDst, pointsDst.getTransform(), pointsSrc.getTransform().inverse());
     std::cout << "transfSrcToDst" << std::endl
               << transfSrcToDst << std::endl;
@@ -154,16 +154,16 @@ int main(int argc, char **argv)
     rotTrue = pointsDst.getRotTheta() - pointsSrc.getRotTheta();
     std::cout << "\n***\npointsDst.getrotTheta() [deg]" << (180 / M_PI * pointsDst.getRotTheta())
               << ", pointsSrc.getrotTheta() [deg] " << (180.0 / M_PI * pointsSrc.getRotTheta()) << "\n";
-    std::cout << "rotTrue[deg] \t" << (180.0 / M_PI * rotTrue) << " \t" << (180.0 / M_PI * cuars::mod180(rotTrue)) << std::endl;
-    std::cout << "rotArs[deg] \t" << (180.0 / M_PI * rotArs) << " \t" << (180.0 / M_PI * cuars::mod180(rotArs)) << std::endl;
+    std::cout << "rotTrue[deg] \t" << (180.0 / M_PI * rotTrue) << " \t" << (180.0 / M_PI * cudars::mod180(rotTrue)) << std::endl;
+    std::cout << "rotArs[deg] \t" << (180.0 / M_PI * rotArs) << " \t" << (180.0 / M_PI * cudars::mod180(rotArs)) << std::endl;
 
-    cuars::computeArsTec2d(translArs, rotArs, pointsSrc, pointsDst, translParams);
+    cudars::computeArsTec2d(translArs, rotArs, pointsSrc, pointsDst, translParams);
 
     // std::cout << "translTrue:" << std::endl;
-    cuars::printVec2d(translTrue, "translTrue");
+    cudars::printVec2d(translTrue, "translTrue");
 
     // std::cout << "translArs:" << std::endl;
-    cuars::printVec2d(translArs, "translArs");
+    cudars::printVec2d(translArs, "translArs");
 
     return 0;
 }

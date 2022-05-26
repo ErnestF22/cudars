@@ -26,7 +26,7 @@
 #define PRINT_DIM(X) std::cout << #X << " rows " << X.rows() << " cols " << X.cols() << std::endl;
 #define RAD2DEG(X) (180.0 / M_PI * (X))
 
-namespace cuars
+namespace cudars
 {
 
 #ifdef __CUDACC__
@@ -210,7 +210,7 @@ namespace cuars
     /**
      * Credit to: https://en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles
      */
-    cuars::EulerAngles quatTo2dAngle(const double4 &q);
+    cudars::EulerAngles quatTo2dAngle(const double4 &q);
 
 } // end of namespace
 

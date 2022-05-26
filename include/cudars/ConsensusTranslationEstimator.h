@@ -24,7 +24,7 @@
 // #include <rofl/common/grid.h>
 // #include <rofl/common/peak_finder_d.h>
 
-// namespace cuars
+// namespace cudars
 // {
 
 //     /**

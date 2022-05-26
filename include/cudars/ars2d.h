@@ -32,7 +32,7 @@
 
 
 
-namespace cuars {
+namespace cudars {
 
     /** Computes coefficients of Fourier series Correlation. 
      * Given two series Fsrc(t) and Fdst(t) with coefficients:

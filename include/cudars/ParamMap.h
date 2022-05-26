@@ -8,7 +8,7 @@
 #include <map>
 #include <boost/lexical_cast.hpp>
 
-namespace cuars {
+namespace cudars {
 
     /** Reads and stores parameters from a string, a file, etc.
      */

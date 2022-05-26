@@ -29,8 +29,8 @@
 #include "cudars/mpeg7RW.h"
 
 int main(int argc, char **argv) {
-    cuars::AngularRadonSpectrum2d arsSrc;
-    cuars::AngularRadonSpectrum2d arsDst;
+    cudars::AngularRadonSpectrum2d arsSrc;
+    cudars::AngularRadonSpectrum2d arsDst;
     ArsImgTests::PointReaderWriter pointsSrc;
     ArsImgTests::PointReaderWriter pointsDst;
 
@@ -94,7 +94,7 @@ int main(int argc, char **argv) {
     //ARS parameters setting
     arsSrc.setARSFOrder(arsOrder);
     arsDst.setARSFOrder(arsOrder);
-    cuars::ArsKernelIso2dComputeMode pnebiMode = cuars::ArsKernelIso2dComputeMode::PNEBI_DOWNWARD;
+    cudars::ArsKernelIso2dComputeMode pnebiMode = cudars::ArsKernelIso2dComputeMode::PNEBI_DOWNWARD;
     arsSrc.setComputeMode(pnebiMode);
     arsDst.setComputeMode(pnebiMode);
 
@@ -125,16 +125,16 @@ int main(int argc, char **argv) {
         thrust::pair<int, int> indicesStartEnd = chunkStartEndIndices(i, numPts, chunkMaxSz);
         int chunkSz = (indicesStartEnd.second - indicesStartEnd.first) + 1;
 
-        cuars::Vec2d* kernelInputSrc;
-        cudaMalloc((void**) &kernelInputSrc, chunkSz * sizeof (cuars::Vec2d));
-        //        cudaMemcpy(kernelInputSrc, pointsSrc.points().data(), numPtsAfterPadding * sizeof (cuars::Vec2d), cudaMemcpyHostToDevice);
+        cudars::Vec2d* kernelInputSrc;
+        cudaMalloc((void**) &kernelInputSrc, chunkSz * sizeof (cudars::Vec2d));
+        //        cudaMemcpy(kernelInputSrc, pointsSrc.points().data(), numPtsAfterPadding * sizeof (cudars::Vec2d), cudaMemcpyHostToDevice);
         std::cout << "round " << i << "/" << nc << " -> "
                 << "chunk-beg " << indicesStartEnd.first << " chunk-end " << indicesStartEnd.second << " --- chunk-size " << chunkSz << std::endl;
-        cuars::VecVec2d dataChunk(pointsSrc.points().begin() + indicesStartEnd.first, pointsSrc.points().begin() + (indicesStartEnd.first + chunkSz));
-        cudaMemcpy(kernelInputSrc, dataChunk.data(), (dataChunk.size()) * sizeof (cuars::Vec2d), cudaMemcpyHostToDevice);
+        cudars::VecVec2d dataChunk(pointsSrc.points().begin() + indicesStartEnd.first, pointsSrc.points().begin() + (indicesStartEnd.first + chunkSz));
+        cudaMemcpy(kernelInputSrc, dataChunk.data(), (dataChunk.size()) * sizeof (cudars::Vec2d), cudaMemcpyHostToDevice);
 
         //Fourier coefficients mega-matrix computation -> parallelization parameters
-        const int gridTotalSize = cuars::sumNaturalsUpToN(chunkSz - 1); //total number of threads in grid Fourier coefficients grid - BEFORE PADDING
+        const int gridTotalSize = cudars::sumNaturalsUpToN(chunkSz - 1); //total number of threads in grid Fourier coefficients grid - BEFORE PADDING
         const int blockSize = 256;
         const int numBlocks = floor(gridTotalSize / blockSize) + 1; //number of blocks in grid (each block contains blockSize threads)
         const int gridTotalSizeAfterPadding = blockSize * numBlocks;
@@ -223,16 +223,16 @@ int main(int argc, char **argv) {
         thrust::pair<int, int> indicesStartEnd = chunkStartEndIndices(i, numPts, chunkMaxSz);
         int chunkSz = (indicesStartEnd.second - indicesStartEnd.first) + 1;
 
-        cuars::Vec2d * kernelInputDst;
-        cudaMalloc((void**) &kernelInputDst, chunkSz * sizeof (cuars::Vec2d));
-        //        cudaMemcpy(kernelInputDst, pointsDst.points().data(), numPtsAfterPadding * sizeof (cuars::Vec2d), cudaMemcpyHostToDevice);
+        cudars::Vec2d * kernelInputDst;
+        cudaMalloc((void**) &kernelInputDst, chunkSz * sizeof (cudars::Vec2d));
+        //        cudaMemcpy(kernelInputDst, pointsDst.points().data(), numPtsAfterPadding * sizeof (cudars::Vec2d), cudaMemcpyHostToDevice);
         std::cout << "round " << i << "/" << nc << " -> "
                 << "chunk-beg " << indicesStartEnd.first << " chunk-end " << indicesStartEnd.second << " --- chunk-size " << chunkSz << std::endl;
-        cuars::VecVec2d dataChunk(pointsDst.points().begin() + indicesStartEnd.first, pointsDst.points().begin() + (indicesStartEnd.first + chunkSz));
-        cudaMemcpy(kernelInputDst, dataChunk.data(), (dataChunk.size()) * sizeof (cuars::Vec2d), cudaMemcpyHostToDevice);
+        cudars::VecVec2d dataChunk(pointsDst.points().begin() + indicesStartEnd.first, pointsDst.points().begin() + (indicesStartEnd.first + chunkSz));
+        cudaMemcpy(kernelInputDst, dataChunk.data(), (dataChunk.size()) * sizeof (cudars::Vec2d), cudaMemcpyHostToDevice);
 
         //Fourier coefficients mega-matrix computation -> parallelization parameters
-        const int gridTotalSize = cuars::sumNaturalsUpToN(chunkSz - 1); //total number of threads in grid Fourier coefficients grid - BEFORE PADDING
+        const int gridTotalSize = cudars::sumNaturalsUpToN(chunkSz - 1); //total number of threads in grid Fourier coefficients grid - BEFORE PADDING
         const int blockSize = 256;
         const int numBlocks = floor(gridTotalSize / blockSize) + 1; //number of blocks in grid (each block contains blockSize threads)
         const int gridTotalSizeAfterPadding = blockSize * numBlocks;
@@ -314,13 +314,13 @@ int main(int argc, char **argv) {
 
     std::vector<double> coeffsCor;
     {
-        cuars::ScopedTimer("ars.correlation()");
+        cudars::ScopedTimer("ars.correlation()");
         std::vector<double> tmpSrc;
         tmpSrc.assign(coeffsArsSrc, coeffsArsSrc + coeffsMatNumColsPadded);
         std::vector<double> tmpDst;
         tmpDst.assign(coeffsArsDst, coeffsArsDst + coeffsMatNumColsPadded);
-        cuars::computeFourierCorr(tmpSrc, tmpDst, coeffsCor);
-        cuars::findGlobalMaxBBFourier(coeffsCor, 0.0, M_PI, arsThetaToll, fourierTol, thetaMax, corrMax);
+        cudars::computeFourierCorr(tmpSrc, tmpDst, coeffsCor);
+        cudars::findGlobalMaxBBFourier(coeffsCor, 0.0, M_PI, arsThetaToll, fourierTol, thetaMax, corrMax);
         rotArs = thetaMax;
     }
 
@@ -340,12 +340,12 @@ int main(int argc, char **argv) {
 
     // Computes the rotated points,centroid, affine transf matrix between src and dst
     ArsImgTests::PointReaderWriter pointsRot(pointsSrc.points());
-    cuars::Vec2d centroidSrc = pointsSrc.computeCentroid();
-    cuars::Vec2d centroidDst = pointsDst.computeCentroid();
-    cuars::Affine2d rotSrcDst = ArsImgTests::PointReaderWriter::coordToTransform(0.0, 0.0, rotArs);
-    //    cuars::Vec2d translSrcDst = centroidDst - rotSrcDst * centroidSrc;
-    cuars::Vec2d translSrcDst;
-    cuars::vec2diff(translSrcDst, centroidDst, cuars::aff2TimesVec2WRV(rotSrcDst, centroidSrc));
+    cudars::Vec2d centroidSrc = pointsSrc.computeCentroid();
+    cudars::Vec2d centroidDst = pointsDst.computeCentroid();
+    cudars::Affine2d rotSrcDst = ArsImgTests::PointReaderWriter::coordToTransform(0.0, 0.0, rotArs);
+    //    cudars::Vec2d translSrcDst = centroidDst - rotSrcDst * centroidSrc;
+    cudars::Vec2d translSrcDst;
+    cudars::vec2diff(translSrcDst, centroidDst, cudars::aff2TimesVec2WRV(rotSrcDst, centroidSrc));
     //    std::cout << "centroidSrc " << centroidSrc.transpose() << "\n"
     //            << "rotSrcDst\n" << rotSrcDst.matrix() << "\n"
     //            << "translation: [" << translSrcDst.transpose() << "] rotation[deg] " << (180.0 / M_PI * rotArs) << "\n";
@@ -360,8 +360,8 @@ int main(int argc, char **argv) {
     rotTrue = pointsDst.getRotTheta() - pointsSrc.getRotTheta();
     std::cout << "\n***\npointsDst.getrotTheta() [deg]" << (180 / M_PI * pointsDst.getRotTheta())
             << ", pointsSrc.getrotTheta() [deg] " << (180.0 / M_PI * pointsSrc.getRotTheta()) << "\n";
-    std::cout << "rotTrue[deg] \t" << (180.0 / M_PI * rotTrue) << " \t" << (180.0 / M_PI * cuars::mod180(rotTrue)) << std::endl;
-    std::cout << "rotArs[deg] \t" << (180.0 / M_PI * rotArs) << " \t" << (180.0 / M_PI * cuars::mod180(rotArs)) << std::endl;
+    std::cout << "rotTrue[deg] \t" << (180.0 / M_PI * rotTrue) << " \t" << (180.0 / M_PI * cudars::mod180(rotTrue)) << std::endl;
+    std::cout << "rotArs[deg] \t" << (180.0 / M_PI * rotArs) << " \t" << (180.0 / M_PI * cudars::mod180(rotArs)) << std::endl;
 
     //Free CPU memory
     delete coeffsArsSrc;

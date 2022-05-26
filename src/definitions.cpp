@@ -19,7 +19,7 @@
 
 #include "cudars/definitions.h"
 
-namespace cuars
+namespace cudars
 {
 
     Affine2d::Affine2d()

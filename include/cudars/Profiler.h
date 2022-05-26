@@ -22,7 +22,7 @@
 #include <map>
 #include <chrono>
 
-namespace cuars {
+namespace cudars {
 
     // Declarations
     class Profiler;

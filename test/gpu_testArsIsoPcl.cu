@@ -29,8 +29,8 @@
 #include "cudars/mpeg7RW.h"
 
 int main(int argc, char **argv) {
-    cuars::AngularRadonSpectrum2d arsSrc;
-    cuars::AngularRadonSpectrum2d arsDst;
+    cudars::AngularRadonSpectrum2d arsSrc;
+    cudars::AngularRadonSpectrum2d arsDst;
     ArsImgTests::PointReaderWriter pointsSrc;
     ArsImgTests::PointReaderWriter pointsDst;
 
@@ -93,7 +93,7 @@ int main(int argc, char **argv) {
     //ARS parameters setting
     arsSrc.setARSFOrder(aiPms.arsIsoOrder);
     arsDst.setARSFOrder(aiPms.arsIsoOrder);
-    cuars::ArsKernelIso2dComputeMode pnebiMode = cuars::ArsKernelIso2dComputeMode::PNEBI_DOWNWARD;
+    cudars::ArsKernelIso2dComputeMode pnebiMode = cudars::ArsKernelIso2dComputeMode::PNEBI_DOWNWARD;
     arsSrc.setComputeMode(pnebiMode);
     arsDst.setComputeMode(pnebiMode);
 
@@ -115,7 +115,7 @@ int main(int argc, char **argv) {
     cudaEventCreate(&startSrc);
     cudaEventCreate(&stopSrc);
 
-    const cuars::VecVec2d& inputSrc = pointsSrc.points();
+    const cudars::VecVec2d& inputSrc = pointsSrc.points();
     initParallelizationParams(paip, aiPms.arsIsoOrder, inputSrc.size(), paip.blockSz, paip.chunkMaxSz); //cudarsIso.init()
     double* coeffsArsSrc = new double [paip.coeffsMatNumColsPadded];
     computeArsIsoGpu(paip, aiPms, inputSrc, coeffsArsSrc, startSrc, stopSrc, paip.gpu_srcExecTime); //cudarsIso.compute()
@@ -133,7 +133,7 @@ int main(int argc, char **argv) {
     cudaEventCreate(&startDst);
     cudaEventCreate(&stopDst);
 
-    const cuars::VecVec2d& inputDst = pointsDst.points();
+    const cudars::VecVec2d& inputDst = pointsDst.points();
     initParallelizationParams(paip, aiPms.arsIsoOrder, inputDst.size(), paip.blockSz, paip.chunkMaxSz); //cudarsIso.init()
     double* coeffsArsDst = new double [paip.coeffsMatNumColsPadded];
     computeArsIsoGpu(paip, aiPms, inputDst, coeffsArsDst, startDst, stopDst, paip.gpu_srcExecTime); //cudarsIso.compute()
@@ -152,13 +152,13 @@ int main(int argc, char **argv) {
 
     std::vector<double> coeffsCor;
     {
-        cuars::ScopedTimer("ars.correlation()");
+        cudars::ScopedTimer("ars.correlation()");
         std::vector<double> tmpSrc;
         tmpSrc.assign(coeffsArsSrc, coeffsArsSrc + paip.coeffsMatNumColsPadded);
         std::vector<double> tmpDst;
         tmpDst.assign(coeffsArsDst, coeffsArsDst + paip.coeffsMatNumColsPadded);
-        cuars::computeFourierCorr(tmpSrc, tmpDst, coeffsCor);
-        cuars::findGlobalMaxBBFourier(coeffsCor, 0.0, M_PI, aiPms.arsIsoThetaToll, fourierTol, thetaMax, corrMax);
+        cudars::computeFourierCorr(tmpSrc, tmpDst, coeffsCor);
+        cudars::findGlobalMaxBBFourier(coeffsCor, 0.0, M_PI, aiPms.arsIsoThetaToll, fourierTol, thetaMax, corrMax);
         rotArs = thetaMax;
     }
 
@@ -178,12 +178,12 @@ int main(int argc, char **argv) {
 
     // Computes the rotated points,centroid, affine transf matrix between src and dst
     ArsImgTests::PointReaderWriter pointsRot(pointsSrc.points());
-    cuars::Vec2d centroidSrc = pointsSrc.computeCentroid();
-    cuars::Vec2d centroidDst = pointsDst.computeCentroid();
-    cuars::Affine2d rotSrcDst = ArsImgTests::PointReaderWriter::coordToTransform(0.0, 0.0, rotArs);
-    //    cuars::Vec2d translSrcDst = centroidDst - rotSrcDst * centroidSrc;
-    cuars::Vec2d translSrcDst;
-    cuars::vec2diff(translSrcDst, centroidDst, cuars::aff2TimesVec2WRV(rotSrcDst, centroidSrc));
+    cudars::Vec2d centroidSrc = pointsSrc.computeCentroid();
+    cudars::Vec2d centroidDst = pointsDst.computeCentroid();
+    cudars::Affine2d rotSrcDst = ArsImgTests::PointReaderWriter::coordToTransform(0.0, 0.0, rotArs);
+    //    cudars::Vec2d translSrcDst = centroidDst - rotSrcDst * centroidSrc;
+    cudars::Vec2d translSrcDst;
+    cudars::vec2diff(translSrcDst, centroidDst, cudars::aff2TimesVec2WRV(rotSrcDst, centroidSrc));
     //    std::cout << "centroidSrc " << centroidSrc.transpose() << "\n"
     //            << "rotSrcDst\n" << rotSrcDst.matrix() << "\n"
     //            << "translation: [" << translSrcDst.transpose() << "] rotation[deg] " << (180.0 / M_PI * rotArs) << "\n";
@@ -198,8 +198,8 @@ int main(int argc, char **argv) {
     rotTrue = pointsDst.getRotTheta() - pointsSrc.getRotTheta();
     std::cout << "\n***\npointsDst.getrotTheta() [deg]" << (180 / M_PI * pointsDst.getRotTheta())
             << ", pointsSrc.getrotTheta() [deg] " << (180.0 / M_PI * pointsSrc.getRotTheta()) << "\n";
-    std::cout << "rotTrue[deg] \t" << (180.0 / M_PI * rotTrue) << " \t" << (180.0 / M_PI * cuars::mod180(rotTrue)) << std::endl;
-    std::cout << "rotArs[deg] \t" << (180.0 / M_PI * rotArs) << " \t" << (180.0 / M_PI * cuars::mod180(rotArs)) << std::endl;
+    std::cout << "rotTrue[deg] \t" << (180.0 / M_PI * rotTrue) << " \t" << (180.0 / M_PI * cudars::mod180(rotTrue)) << std::endl;
+    std::cout << "rotArs[deg] \t" << (180.0 / M_PI * rotArs) << " \t" << (180.0 / M_PI * cudars::mod180(rotArs)) << std::endl;
 
     //Free CPU memory
     delete coeffsArsSrc;

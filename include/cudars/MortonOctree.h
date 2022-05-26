@@ -11,7 +11,7 @@
 #include "definitions.h"
 #include "MortonSort.h"
 
-namespace cuars {
+namespace cudars {
 
     /**
      * Class MortonOctree is a data structure that stores scalar points in 

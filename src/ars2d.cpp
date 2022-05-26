@@ -21,7 +21,7 @@
 #include "cudars/Profiler.h"
 
 
-namespace cuars {
+namespace cudars {
 
     // --------------------------------------------------------
     // ARSF FUNCTIONS
@@ -194,7 +194,7 @@ namespace cuars {
 
         for (int i = 0; i < kernelNum; ++i) {
             for (int j = i + 1; j < kernelNum; ++j) {
-                cuars::ScopedTimer timer("ArsKernelIsotropic2d::computeFourier()");
+                cudars::ScopedTimer timer("ArsKernelIsotropic2d::computeFourier()");
                 isotropicKer_.init(means[i], means[j], sigma);
                 isotropicKer_.updateFourier(arsfOrder_, coeffs_, w);
 
@@ -223,7 +223,7 @@ namespace cuars {
     //        std::fill(coeffs_.begin(), coeffs_.end(), 0.0);
     //        for (int i = 0; i < kernelNum; ++i) {
     //            for (int j = i + 1; j < kernelNum; ++j) {
-    //                cuars::ScopedTimer timer("AnisotropicKernel::computeFourier()");
+    //                cudars::ScopedTimer timer("AnisotropicKernel::computeFourier()");
     //                nik.init(means[i], covars[i], means[j], covars[j]);
     //                nik.computeFourier(coeffsPartial);
     //

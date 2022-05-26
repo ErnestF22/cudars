@@ -18,7 +18,7 @@
  */
 #include "cudars/DisjointSet.h"
 
-namespace cuars {
+namespace cudars {
 
     DisjointSet::DisjointSet() : setNum_(0) {
     }

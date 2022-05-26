@@ -26,7 +26,7 @@
 #include "cudars/Grid.cuh"
 #include <rofl/common/peak_finder_d.h>
 
-namespace cuars
+namespace cudars
 {
     using Point = typename MakePt<Scalar, 2>::type; // for now we work with 2d
     using VectorPoint = thrust::host_vector<Point>;
@@ -35,15 +35,15 @@ namespace cuars
     using Counter = size_t;
 
     // using Grid2d = rofl::Grid<2, Counter, Index, rofl::detail::RasterIndexer<2, Index>, std::vector, std::allocator>;
-    using Grid2d = cuars::Grid;
+    using Grid2d = cudars::Grid;
     using Indices2d = std::array<Index, DIM>;
     using PeakFinder2d = rofl::PeakFinderD<2, Counter, Index, std::greater<Index>>;
 
     struct ArsTec2dParams
     {
-        cuars::Vec2d translMin, translMax, translGt;
+        cudars::Vec2d translMin, translMax, translGt;
         double translRes;
-        cuars::Indices2d gridSize, gridWin;
+        cudars::Indices2d gridSize, gridWin;
         bool adaptiveGrid;
         bool plot;
     };
@@ -334,7 +334,7 @@ namespace cuars
      * @param filename
      * @param factor
      */
-    void plotGrid2d(const ArsTec<cuars::Grid2d, Indices2d, PeakFinder2d, 2> &arsTec, const cuars::Vec2d &translMin, double translRes, const std::string &filename, double factor)
+    void plotGrid2d(const ArsTec<cudars::Grid2d, Indices2d, PeakFinder2d, 2> &arsTec, const cudars::Vec2d &translMin, double translRes, const std::string &filename, double factor)
     {
         Grid2d grid = arsTec.grid_;
         int dim0 = grid.dimensions()[0];
@@ -387,9 +387,9 @@ namespace cuars
     {
         VecVec2d translCandidates; //TODO: add translCandidates as member, and add its getter function
 
-        cuars::ScopedTimer translTimer("Ars Transl Timer");
+        cudars::ScopedTimer translTimer("Ars Transl Timer");
 
-        double rotPos = cuars::mod180(rot);
+        double rotPos = cudars::mod180(rot);
         double rotNeg = rotPos - M_PI;
         //    if (rot >= 0)
         //        rotOneeighty = rot - M_PI;
@@ -408,14 +408,14 @@ namespace cuars
                       << "Now computing translation assuming rot " << r * 180.0 / M_PI << std::endl;
             pointsSrc.applyTransform(0.0, 0.0, r);
 
-            ArsTec<Grid2d, cuars::Indices2d, cuars::PeakFinder2d, 2> translObj; // ArsTec 2D object
+            ArsTec<Grid2d, cudars::Indices2d, cudars::PeakFinder2d, 2> translObj; // ArsTec 2D object
 
             // translEstim.init(translMin, translRes, gridSize);
             // translEstim.setNonMaximaWindowDim(gridWin);
             translObj.init(translParams); // for now init is included
 
-            cuars::Vec2d translMinAfterRotation;
-            cuars::fillVec2d(translMinAfterRotation, pointsDst.xmin() - pointsSrc.xmax(), pointsDst.ymin() - pointsSrc.ymax());
+            cudars::Vec2d translMinAfterRotation;
+            cudars::fillVec2d(translMinAfterRotation, pointsDst.xmin() - pointsSrc.xmax(), pointsDst.ymin() - pointsSrc.ymax());
             //        std::cout << std::endl << "tmin [m]\n" << translMinAfterRotation << std::endl;
 
             // setTranslMin(translMinAfterRotation); //from Transleval class
@@ -423,8 +423,8 @@ namespace cuars
 
             if (translParams.adaptiveGrid)
             {
-                cuars::Vec2d translMaxAfterRotation;
-                cuars::fillVec2d(translMaxAfterRotation, pointsDst.xmax() - pointsSrc.xmin(), pointsDst.ymax() - pointsSrc.ymin());
+                cudars::Vec2d translMaxAfterRotation;
+                cudars::fillVec2d(translMaxAfterRotation, pointsDst.xmax() - pointsSrc.xmin(), pointsDst.ymax() - pointsSrc.ymin());
                 //            std::cout << std::endl << "tmax [m]\n" << translMaxAfterRotation << std::endl;
                 // setTranslMax(translMaxAfterRotation); //from Transleval class
                 translParams.translMax = translMaxAfterRotation;
@@ -443,14 +443,14 @@ namespace cuars
 
             std::cout << "Computing maxima:\n";
             // translEstim.computeMaxima(translCandidates); //TODO: adapt computeMaxima() for CUDA GPU parallelization
-            // cuars::computeMaxima<cuars::Grid2d, cuars::Indices2d, cuars::PeakFinder2d, 2>(translCandidates, grid, peakF, translMin, translRes);
+            // cudars::computeMaxima<cudars::Grid2d, cudars::Indices2d, cudars::PeakFinder2d, 2>(translCandidates, grid, peakF, translMin, translRes);
             translObj.computeMaxima(translCandidates); // TODO: adapt computeMaxima() for CUDA GPU parallelization
 
             std::cout << "Estimated translation values:" << std::endl;
             for (auto &pt : translCandidates)
             {
                 std::cout << "  [";
-                // cuars::printVec2d(pt);
+                // cudars::printVec2d(pt);
                 std::cout << pt.x << "\t" << pt.y;
                 std::cout << "]\n";
             }
@@ -479,7 +479,7 @@ namespace cuars
             else if (bestScore == 0)
             {
                 // translArs << 0.0f, 0.0f;
-                cuars::fillVec2d(translArs, 0.0f, 0.0f);
+                cudars::fillVec2d(translArs, 0.0f, 0.0f);
                 std::cerr << "No candidates found!" << std::endl;
             }
             pointsSrc.applyTransform(0.0, 0.0, -r);

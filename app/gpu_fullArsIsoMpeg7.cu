@@ -30,8 +30,8 @@
 namespace expfs = std::experimental::filesystem;
 
 int main(int argc, char **argv) {
-    cuars::AngularRadonSpectrum2d arsSrc;
-    cuars::AngularRadonSpectrum2d arsDst;
+    cudars::AngularRadonSpectrum2d arsSrc;
+    cudars::AngularRadonSpectrum2d arsDst;
     ArsImgTests::PointReaderWriter pointsSrc;
     ArsImgTests::PointReaderWriter pointsDst;
     TestParams tparams;
@@ -79,15 +79,15 @@ int main(int argc, char **argv) {
     params.getParam<double>("arsisoSigma", tparams.aiPms.arsIsoSigma, 1.0);
     params.getParam<double>("arsisoTollDeg", tparams.aiPms.arsIsoThetaToll, 0.5);
     tparams.aiPms.arsIsoThetaToll *= M_PI / 180.0;
-    //    params.getParam<unsigned int>("arsisoPnebiMode", tparams.arsIsoPnebiMode, cuars::ArsKernelIsotropic2d::ComputeMode::PNEBI_DOWNWARD);
+    //    params.getParam<unsigned int>("arsisoPnebiMode", tparams.arsIsoPnebiMode, cudars::ArsKernelIsotropic2d::ComputeMode::PNEBI_DOWNWARD);
 
 
     arsSrc.setARSFOrder(tparams.aiPms.arsIsoOrder);
     //    arsSrc.initLUT(0.0001);
     //    arsSrc.setComputeMode(ars::ArsKernelIsotropic2d::ComputeMode::PNEBI_LUT);
-    arsSrc.setComputeMode(cuars::ArsKernelIso2dComputeMode::PNEBI_DOWNWARD);
+    arsSrc.setComputeMode(cudars::ArsKernelIso2dComputeMode::PNEBI_DOWNWARD);
     arsDst.setARSFOrder(tparams.aiPms.arsIsoOrder);
-    arsDst.setComputeMode(cuars::ArsKernelIso2dComputeMode::PNEBI_DOWNWARD);
+    arsDst.setComputeMode(cudars::ArsKernelIso2dComputeMode::PNEBI_DOWNWARD);
 
 
     //parallelization parameters
@@ -189,7 +189,7 @@ int main(int argc, char **argv) {
         //    else if (rotTrue > M_PI) rotTrue -= M_PI;
         std::cout << " angle dst " << (180.0 / M_PI * pointsDst.getRotTheta()) << " [deg], src " << (180.0 / M_PI * pointsSrc.getRotTheta()) << " [deg]" << std::endl;
         std::cout << std::fixed << std::setprecision(2) << std::setw(10)
-                << "  rotTrue \t\t" << (180.0 / M_PI * rotTrue) << " deg\t\t" << (180.0 / M_PI * cuars::mod180(rotTrue)) << " deg [mod 180]\n" << std::endl;
+                << "  rotTrue \t\t" << (180.0 / M_PI * rotTrue) << " deg\t\t" << (180.0 / M_PI * cudars::mod180(rotTrue)) << " deg [mod 180]\n" << std::endl;
 
         outfile
                 << std::setw(20) << mpeg7io::getShortName(inputFilenames[comp.first]) << " "
@@ -202,20 +202,20 @@ int main(int argc, char **argv) {
                 << std::fixed << std::setprecision(1) << std::setw(6) << pointsDst.getNoiseSigma() << " "
                 << std::setw(6) << pointsDst.getNumOccl() << " "
                 << std::setw(6) << pointsDst.getNumRand() << " "
-                << "rotTrue" << std::fixed << std::setprecision(2) << std::setw(8) << (180.0 / M_PI * cuars::mod180(rotTrue)) << " ";
+                << "rotTrue" << std::fixed << std::setprecision(2) << std::setw(8) << (180.0 / M_PI * cudars::mod180(rotTrue)) << " ";
 
 
         if (tparams.arsIsoEnable) {
             //                    estimateRotationArsIso(pointsSrc.points(), pointsDst.points(), tparams, rotArsIso);
             std::cout << std::fixed << std::setprecision(2) << std::setw(10)
-                    << "  rotArsIso \t\t" << (180.0 / M_PI * rotArsIso) << " deg\t\t" << (180.0 / M_PI * cuars::mod180(rotArsIso)) << " deg [mod 180]\n";
-            outfile << std::setw(6) << "arsIso " << std::fixed << std::setprecision(2) << std::setw(6) << (180.0 / M_PI * cuars::mod180(rotArsIso)) << " ";
+                    << "  rotArsIso \t\t" << (180.0 / M_PI * rotArsIso) << " deg\t\t" << (180.0 / M_PI * cudars::mod180(rotArsIso)) << " deg [mod 180]\n";
+            outfile << std::setw(6) << "arsIso " << std::fixed << std::setprecision(2) << std::setw(6) << (180.0 / M_PI * cudars::mod180(rotArsIso)) << " ";
         }
         if (tparams.gpu_arsIsoEnable) {
             gpu_estimateRotationArsIso(pointsSrc.points(), pointsDst.points(), tparams, paiParams, rotArsIso_gpu);
             std::cout << std::fixed << std::setprecision(2) << std::setw(10)
-                    << "  gpu_rotArsIso \t" << (180.0 / M_PI * rotArsIso_gpu) << " deg\t\t" << (180.0 / M_PI * cuars::mod180(rotArsIso_gpu)) << " deg [mod 180]\n";
-            outfile << std::setw(6) << "gpu_arsIso " << std::fixed << std::setprecision(2) << std::setw(6) << (180.0 / M_PI * cuars::mod180(rotArsIso_gpu)) << " ";
+                    << "  gpu_rotArsIso \t" << (180.0 / M_PI * rotArsIso_gpu) << " deg\t\t" << (180.0 / M_PI * cudars::mod180(rotArsIso_gpu)) << " deg [mod 180]\n";
+            outfile << std::setw(6) << "gpu_arsIso " << std::fixed << std::setprecision(2) << std::setw(6) << (180.0 / M_PI * cudars::mod180(rotArsIso_gpu)) << " ";
         }
         if (tparams.extrainfoEnable) {
             srcNumPts = pointsSrc.points().size();

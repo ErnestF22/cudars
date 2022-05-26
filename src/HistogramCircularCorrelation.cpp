@@ -1,6 +1,6 @@
 #include "cudars/HistogramCircularCorrelation.h>
 
-namespace cuars {
+namespace cudars {
 
     HistogramCircularCorrelation::HistogramCircularCorrelation() {
     }

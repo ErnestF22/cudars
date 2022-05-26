@@ -26,21 +26,21 @@ struct ArsKernelAnisotropic2d_simpl {
 
     DataLut lut_;
 
-    void init(const cuars::Vec2d &mean1, const cuars::Mat2d &covar1, const cuars::Vec2d &mean2, const cuars::Mat2d &covar2) {
-        cuars::Vec2d mu12;
-        cuars::Mat2d sigma12;
+    void init(const cudars::Vec2d &mean1, const cudars::Mat2d &covar1, const cudars::Vec2d &mean2, const cudars::Mat2d &covar2) {
+        cudars::Vec2d mu12;
+        cudars::Mat2d sigma12;
         double a, b, lmax, lmin, c, s;
 
-        cuars::vec2diff(mu12, mean2, mean1);
+        cudars::vec2diff(mu12, mean2, mean1);
         //        muMod_ = mu12.norm();
-        muMod_ = cuars::vec2norm(mu12);
+        muMod_ = cudars::vec2norm(mu12);
         //        muAng_ = atan2(mu12.data_[1], mu12.data_[0]);
         muAng_ = atan2(mu12.y, mu12.x);
 
-        cuars::mat2dSum(sigma12, covar1, covar2);
+        cudars::mat2dSum(sigma12, covar1, covar2);
 
         // Diagonalizes sigma12
-        cuars::diagonalize(sigma12, lmin, lmax, sigmaAng_);
+        cudars::diagonalize(sigma12, lmin, lmax, sigmaAng_);
 
         //        a = 0.5 * (sigma12(1, 1) - sigma12(0, 0));
         //        b = 0.5 * (sigma12(0, 1) + sigma12(1, 0));
@@ -145,7 +145,7 @@ void ianigK() {
 }
 
 __host__
-void insertAnisotropicGaussians_Clang(int arsfOrder_, const cuars::VecVec2d& means, const cuars::VecMat2d& covars, const std::vector<double>& weights, std::vector<double>& coeffs_) {
+void insertAnisotropicGaussians_Clang(int arsfOrder_, const cudars::VecVec2d& means, const cudars::VecMat2d& covars, const std::vector<double>& weights, std::vector<double>& coeffs_) {
     ArsKernelAnisotropic2d_simpl nik;
     std::vector<double> coeffsPartial(arsfOrder_);
     int kernelNum = means.size();
@@ -166,7 +166,7 @@ void insertAnisotropicGaussians_Clang(int arsfOrder_, const cuars::VecVec2d& mea
     std::fill(coeffs_.begin(), coeffs_.end(), 0.0);
     for (int i = 0; i < kernelNum; ++i) {
         for (int j = i + 1; j < kernelNum; ++j) {
-            //            cuars::ScopedTimer timer("AnisotropicKernel::computeFourier()");
+            //            cudars::ScopedTimer timer("AnisotropicKernel::computeFourier()");
             nik.init(means[i], covars[i], means[j], covars[j]);
             nik.computeFourier(coeffsPartial);
 

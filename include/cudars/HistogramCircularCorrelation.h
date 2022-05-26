@@ -21,7 +21,7 @@
 
 #include <iostream>
 
-namespace cuars {
+namespace cudars {
 
     class HistogramCircularCorrelation {
     public:

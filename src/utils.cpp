@@ -20,7 +20,7 @@
 #include "cudars/utils.h"
 #include "cudars/definitions.h"
 
-namespace cuars
+namespace cudars
 {
 
     double mod180(double angle)
@@ -58,9 +58,9 @@ namespace cuars
         double lmin, lmax, theta;
 
         diagonalize(m, lmin, lmax, theta);
-        cuars::resetToZero(l);
-        cuars::setDiagonal(l, lmax, lmin);
-        cuars::make2dRotMat(v, theta);
+        cudars::resetToZero(l);
+        cudars::setDiagonal(l, lmax, lmin);
+        cudars::make2dRotMat(v, theta);
     }
 
     void saturateEigenvalues(Mat2d &covar, double sigmaMinSquare)
@@ -610,18 +610,18 @@ namespace cuars
             double sth = sin(angle);
             Affine2d tTmpCopy = t;
             // first row
-            t.data_[0 * cuars::Three + 0] = (tTmpCopy.data_[0 * cuars::Three + 0] * cth) - (tTmpCopy.data_[1 * cuars::Three + 0] * sth);
-            t.data_[0 * cuars::Three + 1] = (tTmpCopy.data_[0 * cuars::Three + 1] * cth) - (tTmpCopy.data_[1 * cuars::Three + 1] * sth);
-            t.data_[0 * cuars::Three + 2] = (tTmpCopy.data_[0 * cuars::Three + 2] * cth) - (tTmpCopy.data_[1 * cuars::Three + 2] * sth);
+            t.data_[0 * cudars::Three + 0] = (tTmpCopy.data_[0 * cudars::Three + 0] * cth) - (tTmpCopy.data_[1 * cudars::Three + 0] * sth);
+            t.data_[0 * cudars::Three + 1] = (tTmpCopy.data_[0 * cudars::Three + 1] * cth) - (tTmpCopy.data_[1 * cudars::Three + 1] * sth);
+            t.data_[0 * cudars::Three + 2] = (tTmpCopy.data_[0 * cudars::Three + 2] * cth) - (tTmpCopy.data_[1 * cudars::Three + 2] * sth);
             // second row
-            t.data_[1 * cuars::Three + 0] = (tTmpCopy.data_[0 * cuars::Three + 0] * sth) + (tTmpCopy.data_[1 * cuars::Three + 0] * cth);
-            t.data_[1 * cuars::Three + 1] = (tTmpCopy.data_[0 * cuars::Three + 1] * sth) + (tTmpCopy.data_[1 * cuars::Three + 1] * cth);
-            t.data_[1 * cuars::Three + 2] = (tTmpCopy.data_[0 * cuars::Three + 2] * sth) + (tTmpCopy.data_[1 * cuars::Three + 2] * cth);
+            t.data_[1 * cudars::Three + 0] = (tTmpCopy.data_[0 * cudars::Three + 0] * sth) + (tTmpCopy.data_[1 * cudars::Three + 0] * cth);
+            t.data_[1 * cudars::Three + 1] = (tTmpCopy.data_[0 * cudars::Three + 1] * sth) + (tTmpCopy.data_[1 * cudars::Three + 1] * cth);
+            t.data_[1 * cudars::Three + 2] = (tTmpCopy.data_[0 * cudars::Three + 2] * sth) + (tTmpCopy.data_[1 * cudars::Three + 2] * cth);
 
             // third (last) row should already be ok
-            //            t.data_[2 * cuars::Three + 0] = 0.0;
-            //            t.data_[2 * cuars::Three + 1] = 0.0;
-            //            t.data_[2 * cuars::Three + 2] = 1.0;
+            //            t.data_[2 * cudars::Three + 0] = 0.0;
+            //            t.data_[2 * cudars::Three + 1] = 0.0;
+            //            t.data_[2 * cudars::Three + 2] = 1.0;
 
             //            std::cout << "t after prerotation" << std::endl;
             //            std::cout << t;
@@ -637,9 +637,9 @@ namespace cuars
         if (t.isLastRowOK())
         {
             // just last column: the other two remain untouched
-            t.data_[0 * cuars::Three + 2] = t.data_[0 * cuars::Three + 2] + x; // += x
-            t.data_[1 * cuars::Three + 2] = t.data_[1 * cuars::Three + 2] + y; // += y
-            //            t.data_[2 * cuars::Three + 2] = 1.0;
+            t.data_[0 * cudars::Three + 2] = t.data_[0 * cudars::Three + 2] + x; // += x
+            t.data_[1 * cudars::Three + 2] = t.data_[1 * cudars::Three + 2] + y; // += y
+            //            t.data_[2 * cudars::Three + 2] = 1.0;
         }
         else
         {
@@ -652,9 +652,9 @@ namespace cuars
         if (t.isLastRowOK())
         {
             // just last column: the other two remain untouched
-            t.data_[0 * cuars::Three + 2] = t.data_[0 * cuars::Three + 2] + p.x; // += x
-            t.data_[1 * cuars::Three + 2] = t.data_[1 * cuars::Three + 2] + p.y; // += y
-            //            t.data_[2 * cuars::Three + 2] = 1.0;
+            t.data_[0 * cudars::Three + 2] = t.data_[0 * cudars::Three + 2] + p.x; // += x
+            t.data_[1 * cudars::Three + 2] = t.data_[1 * cudars::Three + 2] + p.y; // += y
+            //            t.data_[2 * cudars::Three + 2] = 1.0;
         }
         else
         {
@@ -669,22 +669,22 @@ namespace cuars
             // elements not mentioned are implicitly ok (or invariant if they are sum terms, because last rows are [0  0  1])
 
             // first column
-            out.data_[0 * cuars::Three + 0] = (a.at(0, 0) * b.at(0, 0)) + (a.at(0, 1) * b.at(1, 0)); // + a.at(0,2) * b.at(2,0)
-            out.data_[1 * cuars::Three + 0] = (a.at(1, 0) * b.at(0, 0)) + (a.at(1, 1) * b.at(1, 0)); // + a.at(1,2) * b.at(2,0)
-            //            out.data_[2 * cuars::Three + 0] = (a.at(2, 0) * b.at(0, 0)) + (a.at(2, 1) * b.at(1, 0)) + (a.at(2,2) * b.at(2,0));
-            out.data_[2 * cuars::Three + 0] = 0.0;
+            out.data_[0 * cudars::Three + 0] = (a.at(0, 0) * b.at(0, 0)) + (a.at(0, 1) * b.at(1, 0)); // + a.at(0,2) * b.at(2,0)
+            out.data_[1 * cudars::Three + 0] = (a.at(1, 0) * b.at(0, 0)) + (a.at(1, 1) * b.at(1, 0)); // + a.at(1,2) * b.at(2,0)
+            //            out.data_[2 * cudars::Three + 0] = (a.at(2, 0) * b.at(0, 0)) + (a.at(2, 1) * b.at(1, 0)) + (a.at(2,2) * b.at(2,0));
+            out.data_[2 * cudars::Three + 0] = 0.0;
 
             // second column
-            out.data_[0 * cuars::Three + 1] = (a.at(0, 0) * b.at(0, 1)) + (a.at(0, 1) * b.at(1, 1)); // + a.at(0,2) * b.at(2,1)
-            out.data_[1 * cuars::Three + 1] = (a.at(1, 0) * b.at(0, 1)) + (a.at(1, 1) * b.at(1, 1)); // + a.at(1,2) * b.at(2,1)
-            //            out.data_[2 * cuars::Three + 1] = (a.at(2, 0) * b.at(0, 1)) + (a.at(2, 1) * b.at(1, 1)) + (a.at(2,2) * b.at(2,1));
-            out.data_[2 * cuars::Three + 1] = 0.0;
+            out.data_[0 * cudars::Three + 1] = (a.at(0, 0) * b.at(0, 1)) + (a.at(0, 1) * b.at(1, 1)); // + a.at(0,2) * b.at(2,1)
+            out.data_[1 * cudars::Three + 1] = (a.at(1, 0) * b.at(0, 1)) + (a.at(1, 1) * b.at(1, 1)); // + a.at(1,2) * b.at(2,1)
+            //            out.data_[2 * cudars::Three + 1] = (a.at(2, 0) * b.at(0, 1)) + (a.at(2, 1) * b.at(1, 1)) + (a.at(2,2) * b.at(2,1));
+            out.data_[2 * cudars::Three + 1] = 0.0;
 
             // third column
-            out.data_[0 * cuars::Three + 2] = (a.at(0, 0) * b.at(0, 2)) + (a.at(0, 1) * b.at(1, 2)) + a.at(0,2) * b.at(2,2);
-            out.data_[1 * cuars::Three + 2] = (a.at(1, 0) * b.at(0, 2)) + (a.at(1, 1) * b.at(1, 2)) + a.at(1,2) * b.at(2,2);
-            //            out.data_[2 * cuars::Three + 2] = (a.at(2, 0) * b.at(0, 2)) + (a.at(2, 1) * b.at(1, 2)) + (a.at(2, 2) + b.at(2, 2));
-            out.data_[2 * cuars::Three + 2] = 1.0;
+            out.data_[0 * cudars::Three + 2] = (a.at(0, 0) * b.at(0, 2)) + (a.at(0, 1) * b.at(1, 2)) + a.at(0,2) * b.at(2,2);
+            out.data_[1 * cudars::Three + 2] = (a.at(1, 0) * b.at(0, 2)) + (a.at(1, 1) * b.at(1, 2)) + a.at(1,2) * b.at(2,2);
+            //            out.data_[2 * cudars::Three + 2] = (a.at(2, 0) * b.at(0, 2)) + (a.at(2, 1) * b.at(1, 2)) + (a.at(2, 2) + b.at(2, 2));
+            out.data_[2 * cudars::Three + 2] = 1.0;
         }
         else
         {
@@ -700,22 +700,22 @@ namespace cuars
             // elements not mentioned are implicitly ok (or invariant if they are sum terms, because last rows are [0  0  1])
 
             // first column
-            out.data_[0 * cuars::Three + 0] = (a.at(0, 0) * b.at(0, 0)) + (a.at(0, 1) * b.at(1, 0)); // + a.at(0,2) * b.at(2,0)
-            out.data_[1 * cuars::Three + 0] = (a.at(1, 0) * b.at(0, 0)) + (a.at(1, 1) * b.at(1, 0)); // + a.at(1,2) * b.at(2,0)
-            //            out.data_[2 * cuars::Three + 0] = (a.at(2, 0) * b.at(0, 0)) + (a.at(2, 1) * b.at(1, 0)) + (a.at(2,2) * b.at(2,0));
-            out.data_[2 * cuars::Three + 0] = 0.0;
+            out.data_[0 * cudars::Three + 0] = (a.at(0, 0) * b.at(0, 0)) + (a.at(0, 1) * b.at(1, 0)); // + a.at(0,2) * b.at(2,0)
+            out.data_[1 * cudars::Three + 0] = (a.at(1, 0) * b.at(0, 0)) + (a.at(1, 1) * b.at(1, 0)); // + a.at(1,2) * b.at(2,0)
+            //            out.data_[2 * cudars::Three + 0] = (a.at(2, 0) * b.at(0, 0)) + (a.at(2, 1) * b.at(1, 0)) + (a.at(2,2) * b.at(2,0));
+            out.data_[2 * cudars::Three + 0] = 0.0;
 
             // second column
-            out.data_[0 * cuars::Three + 1] = (a.at(0, 0) * b.at(0, 1)) + (a.at(0, 1) * b.at(1, 1)); // + a.at(0,2) * b.at(2,1)
-            out.data_[1 * cuars::Three + 1] = (a.at(1, 0) * b.at(0, 1)) + (a.at(1, 1) * b.at(1, 1)); // + a.at(1,2) * b.at(2,1)
-            //            out.data_[2 * cuars::Three + 1] = (a.at(2, 0) * b.at(0, 1)) + (a.at(2, 1) * b.at(1, 1)) + (a.at(2,2) * b.at(2,1));
-            out.data_[2 * cuars::Three + 1] = 0.0;
+            out.data_[0 * cudars::Three + 1] = (a.at(0, 0) * b.at(0, 1)) + (a.at(0, 1) * b.at(1, 1)); // + a.at(0,2) * b.at(2,1)
+            out.data_[1 * cudars::Three + 1] = (a.at(1, 0) * b.at(0, 1)) + (a.at(1, 1) * b.at(1, 1)); // + a.at(1,2) * b.at(2,1)
+            //            out.data_[2 * cudars::Three + 1] = (a.at(2, 0) * b.at(0, 1)) + (a.at(2, 1) * b.at(1, 1)) + (a.at(2,2) * b.at(2,1));
+            out.data_[2 * cudars::Three + 1] = 0.0;
 
             // third column
-            out.data_[0 * cuars::Three + 2] = (a.at(0, 0) * b.at(0, 2)) + (a.at(0, 1) * b.at(1, 2)) + a.at(0, 2); // + a.at(0,2) * b.at(2,2) = a.at(0,2) because b.at(2,2) = 1.0
-            out.data_[1 * cuars::Three + 2] = (a.at(1, 0) * b.at(0, 2)) + (a.at(1, 1) * b.at(1, 2)) + a.at(1, 2); // + a.at(1,2) * b.at(2,2) = a.at(1,2) because b.at(2,2) = 1.0
-            //            out.data_[2 * cuars::Three + 2] = (a.at(2, 0) * b.at(0, 2)) + (a.at(2, 1) * b.at(1, 2)) + (a.at(2, 2) + b.at(2, 2));
-            out.data_[2 * cuars::Three + 2] = 1.0;
+            out.data_[0 * cudars::Three + 2] = (a.at(0, 0) * b.at(0, 2)) + (a.at(0, 1) * b.at(1, 2)) + a.at(0, 2); // + a.at(0,2) * b.at(2,2) = a.at(0,2) because b.at(2,2) = 1.0
+            out.data_[1 * cudars::Three + 2] = (a.at(1, 0) * b.at(0, 2)) + (a.at(1, 1) * b.at(1, 2)) + a.at(1, 2); // + a.at(1,2) * b.at(2,2) = a.at(1,2) because b.at(2,2) = 1.0
+            //            out.data_[2 * cudars::Three + 2] = (a.at(2, 0) * b.at(0, 2)) + (a.at(2, 1) * b.at(1, 2)) + (a.at(2, 2) + b.at(2, 2));
+            out.data_[2 * cudars::Three + 2] = 1.0;
         }
         else
         {
@@ -742,9 +742,9 @@ namespace cuars
 
     // Quaternions, Euler Angles related
 
-    cuars::EulerAngles quatTo2dAngle(const double4 &q)
+    cudars::EulerAngles quatTo2dAngle(const double4 &q)
     {
-        cuars::EulerAngles angles;
+        cudars::EulerAngles angles;
 
         // roll (x-axis rotation)
         double sinr_cosp = 2 * (q.w * q.x + q.y * q.z);

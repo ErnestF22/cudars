@@ -71,10 +71,10 @@ namespace ArsImgTests {
 
         /** Constructor.
          */
-        PointReaderWriter(const cuars::VecVec2d& points);
+        PointReaderWriter(const cudars::VecVec2d& points);
         /**
          */
-        PointReaderWriter(const cuars::VecVec2d& points, const cuars::Affine2d& transf);
+        PointReaderWriter(const cudars::VecVec2d& points, const cudars::Affine2d& transf);
 
         /**
          * Destructor.
@@ -102,11 +102,11 @@ namespace ArsImgTests {
         /**
          * Basic reference getter to points vector
          */
-        const cuars::VecVec2d& points() const;
+        const cudars::VecVec2d& points() const;
 
         void reset();
 
-        void insertPoints(const cuars::VecVec2d& points);
+        void insertPoints(const cudars::VecVec2d& points);
 
         double xmin() const;
 
@@ -134,7 +134,7 @@ namespace ArsImgTests {
 
         double getRotTheta() const;
 
-        cuars::Affine2d getTransform() const;
+        cudars::Affine2d getTransform() const;
 
         double getNoiseSigma() const;
 
@@ -151,9 +151,9 @@ namespace ArsImgTests {
         // POINT TRANSFORMATION METHODS
         // --------------------------------------------------------
 
-        void findKNearest(const cuars::Vec2d& query, int k, std::vector<int>& indices, std::vector<double>& distances) const;
+        void findKNearest(const cudars::Vec2d& query, int k, std::vector<int>& indices, std::vector<double>& distances) const;
 
-        void computeContour(cuars::VecVec2d& contour) const;
+        void computeContour(cudars::VecVec2d& contour) const;
 
         // --------------------------------------------------------
         // POINT TRANSFORMATION METHODS
@@ -167,7 +167,7 @@ namespace ArsImgTests {
         /** Applies a transformation to all the points.
          * It composes transformation with previous transformation. 
          */
-        void applyTransform(const cuars::Affine2d& transf);
+        void applyTransform(const cudars::Affine2d& transf);
 
         /** Applies a transformation to all the points.
          * It composes transformation with previous transformation. 
@@ -193,11 +193,11 @@ namespace ArsImgTests {
 
         /** Computes the centroid.
          */
-        cuars::Vec2d computeCentroid() const;
+        cudars::Vec2d computeCentroid() const;
 
         /** Computes the covariance.
          */
-        cuars::Mat2d computeCovariance() const;
+        cudars::Mat2d computeCovariance() const;
 
         // --------------------------------------------------------
         // STATIC METHODS
@@ -205,16 +205,16 @@ namespace ArsImgTests {
 
         /** Coordinates [x,y,theta] to transform matrix
          */
-        static cuars::Affine2d coordToTransform(double x, double y, double theta);
+        static cudars::Affine2d coordToTransform(double x, double y, double theta);
 
         /** Transform matrix to coordinates.
          */
-        void transformToCoodinates(const cuars::Affine2d& transform, double& x, double& y, double& theta);
+        void transformToCoodinates(const cudars::Affine2d& transform, double& x, double& y, double& theta);
 
     private:
-        cuars::VecVec2d points_;
-        cuars::Vec2d min_;
-        cuars::Vec2d max_;
+        cudars::VecVec2d points_;
+        cudars::Vec2d min_;
+        cudars::Vec2d max_;
         std::random_device randDev_;
         std::mt19937 randGen_;
 
@@ -250,7 +250,7 @@ namespace ArsImgTests {
         /** Updates the data about the random transformation by composing previous transform 
          * with the given one. 
          */
-        void updateTransformInfo(const cuars::Affine2d & transform);
+        void updateTransformInfo(const cudars::Affine2d & transform);
 
         /**
          * Creates the FLANN data structure. 
@@ -264,10 +264,10 @@ namespace ArsImgTests {
 
         /**
          */
-        static bool ccw(const cuars::Vec2d& a, const cuars::Vec2d& b, const cuars::Vec2d & c) {
-            cuars::Vec2d ab, ac;
-            cuars::vec2diff(ab, b, a);
-            cuars::vec2diff(ac, c, a);
+        static bool ccw(const cudars::Vec2d& a, const cudars::Vec2d& b, const cudars::Vec2d & c) {
+            cudars::Vec2d ab, ac;
+            cudars::vec2diff(ab, b, a);
+            cudars::vec2diff(ac, c, a);
 
             return (ab.x * ac.y - ab.y * ac.x);
         }

@@ -51,28 +51,28 @@ double acesRanges[] = {50.00, 50.00, 50.00, 5.26, 5.21, 5.06, 5.01, 3.01, 2.94,
     2.39, 2.39, 2.39, 2.44};
 
 void rangeToPoint(double *ranges, int num, double angleMin, double angleRes,
-        cuars::VecVec2d &points);
+        cudars::VecVec2d &points);
 
-int readPoints(std::string filename, cuars::VecVec2d &points);
+int readPoints(std::string filename, cudars::VecVec2d &points);
 
-void plotEllipse(std::ostream &out, int idx, const cuars::Vec2d &mean,
-        const cuars::Mat2d &covar);
+void plotEllipse(std::ostream &out, int idx, const cudars::Vec2d &mean,
+        const cudars::Mat2d &covar);
 
-void plotEllipses(std::ostream &out, const cuars::VecVec2d &means,
-        const cuars::VecMat2d &covars);
+void plotEllipses(std::ostream &out, const cudars::VecVec2d &means,
+        const cudars::VecMat2d &covars);
 
 int main(int argc, char **argv) {
-    cuars::AngularRadonSpectrum2d ars1;
-    cuars::AngularRadonSpectrum2d ars2;
-    cuars::VecVec2d acesPoints, means;
-    cuars::VecMat2d covars, covarsUniform;
-    cuars::Mat2d covarUniform;
+    cudars::AngularRadonSpectrum2d ars1;
+    cudars::AngularRadonSpectrum2d ars2;
+    cudars::VecVec2d acesPoints, means;
+    cudars::VecMat2d covars, covarsUniform;
+    cudars::Mat2d covarUniform;
     std::vector<double> weights, weightsUniform;
     //ars::GaussianMixtureEstimatorScan gme;
-    cuars::GaussianMixtureEstimator *gme = nullptr;
-    cuars::GaussianMixtureEstimatorScan *gmeScan = nullptr;
-    cuars::GaussianMixtureEstimatorHierarchical *gmeHier = nullptr;
-    cuars::GaussianMixtureEstimatorMeanShift *gmeMean = nullptr;
+    cudars::GaussianMixtureEstimator *gme = nullptr;
+    cudars::GaussianMixtureEstimatorScan *gmeScan = nullptr;
+    cudars::GaussianMixtureEstimatorHierarchical *gmeHier = nullptr;
+    cudars::GaussianMixtureEstimatorMeanShift *gmeMean = nullptr;
     double distanceGap, distanceSplit, clusterDist, meanShiftTol, chi2conf, iseThresh,
             inlierPerc, gaussRes, sigmaMin, covarWidth, weightSum, lmin, lmax,
             theta, th;
@@ -112,9 +112,9 @@ int main(int argc, char **argv) {
         std::cout << "Default scan points" << std::endl;
         //rangeToPoint(acesRanges, 180, -0.5 * M_PI, M_PI / 180.0 * 1.0, rangeMax, acesPoints);
         rangeToPoint(acesRanges, 180, -0.5 * M_PI, M_PI / 180.0 * 1.0, acesPoints);
-        //        acesPoints.push_back(cuars::Vec2d::Zero());
-        cuars::Vec2d lastElem;
-        cuars::resetToZero(lastElem);
+        //        acesPoints.push_back(cudars::Vec2d::Zero());
+        cudars::Vec2d lastElem;
+        cudars::resetToZero(lastElem);
         acesPoints.push_back(lastElem);
     }
 
@@ -133,13 +133,13 @@ int main(int argc, char **argv) {
     //    std::cout << "mean2: " << mean2.transpose() << "\ncovar2\n" << covar2 << std::endl;
 
     if (clusterAlg == "scan") {
-        gmeScan = new cuars::GaussianMixtureEstimatorScan;
+        gmeScan = new cudars::GaussianMixtureEstimatorScan;
         gmeScan->setDistanceGap(distanceGap);
         gmeScan->setDistanceSplit(distanceSplit);
         gmeScan->setSigmaMin(sigmaMin);
         gme = gmeScan;
     } else if (clusterAlg == "hier") {
-        gmeHier = new cuars::GaussianMixtureEstimatorHierarchical;
+        gmeHier = new cudars::GaussianMixtureEstimatorHierarchical;
         gmeHier->setSigmaMin(sigmaMin);
         gmeHier->setCovarWidth(covarWidth);
         //		gmeHier->setChiConfidence(chi2conf);
@@ -148,7 +148,7 @@ int main(int argc, char **argv) {
         gmeHier->setCellSizeMax(gaussRes);
         gme = gmeHier;
     } else {
-        gmeMean = new cuars::GaussianMixtureEstimatorMeanShift;
+        gmeMean = new cudars::GaussianMixtureEstimatorMeanShift;
         gmeMean->setSigmaMin(sigmaMin);
         gme = gmeMean;
     }
@@ -157,13 +157,13 @@ int main(int argc, char **argv) {
     //    gme.setDistanceSplit(distanceSplit);
     //    gme.setSigmaMin(sigmaMin);
     {
-        cuars::ScopedTimer timer("GaussianMixtureEstimator::compute()");
+        cudars::ScopedTimer timer("GaussianMixtureEstimator::compute()");
         gme->compute(acesPoints);
     }
     std::cout << "\nFound GMM with " << gme->size() << " kernels:\n";
     weightSum = 0.0;
     for (int i = 0; i < gme->size(); ++i) {
-        cuars::diagonalize(gme->covariance(i), lmin, lmax, theta);
+        cudars::diagonalize(gme->covariance(i), lmin, lmax, theta);
         //        Mat2d tmp = gme->mean(i).transpose();
         std::cout << "---\n " << i << ": weight " << gme->weight(i) << ", "
                 //                << "mean [" << tmp << "], covar\n"
@@ -201,7 +201,7 @@ int main(int argc, char **argv) {
     covarsUniform.resize(acesPoints.size());
     weightsUniform.resize(acesPoints.size());
     //    covarUniform << sigmaMin * sigmaMin, 0.0, 0.0, sigmaMin * sigmaMin;
-    cuars::fillRowMajor(covarUniform, sigmaMin * sigmaMin, 0.0, 0.0, sigmaMin * sigmaMin);
+    cudars::fillRowMajor(covarUniform, sigmaMin * sigmaMin, 0.0, 0.0, sigmaMin * sigmaMin);
     std::fill(covarsUniform.begin(), covarsUniform.end(), covarUniform);
     double w = 1.0 / acesPoints.size();
     std::fill(weightsUniform.begin(), weightsUniform.end(), w);
@@ -213,16 +213,16 @@ int main(int argc, char **argv) {
 
     ars1.setARSFOrder(arsOrder);
     {
-        cuars::ScopedTimer timer("ArsKernelIsotropic2d::insertAnisotropicGaussian()");
+        cudars::ScopedTimer timer("ArsKernelIsotropic2d::insertAnisotropicGaussian()");
 
         ars1.insertAnisotropicGaussians(means, covars, weights);
     }
 
     ars2.setARSFOrder(arsOrder);
     ars2.initLUT(0.0001);
-    ars2.setComputeMode(cuars::ArsKernelIsotropic2d::ComputeMode::PNEBI_LUT);
+    ars2.setComputeMode(cudars::ArsKernelIsotropic2d::ComputeMode::PNEBI_LUT);
     {
-        cuars::ScopedTimer timer("ArsKernelIsotropic2d::insertIsotropicGaussians()");
+        cudars::ScopedTimer timer("ArsKernelIsotropic2d::insertIsotropicGaussians()");
 
         ars2.insertIsotropicGaussians(acesPoints, sigmaMin);
     }
@@ -254,15 +254,15 @@ int main(int argc, char **argv) {
     ARS_PRINT("called eval() many times");
 
     std::cout << "\n---\nEXECUTION TIMES:" << std::endl;
-    cuars::Profiler::getProfiler().printStats(std::cout);
+    cudars::Profiler::getProfiler().printStats(std::cout);
 
     delete gme;
     return 0;
 }
 
 void rangeToPoint(double *ranges, int num, double angleMin, double angleRes,
-        cuars::VecVec2d &points) {
-    cuars::Vec2d p;
+        cudars::VecVec2d &points) {
+    cudars::Vec2d p;
     for (int i = 0; i < num; ++i) {
         double a = angleMin + angleRes * i;
         //        p << ranges[i] * cos(a), ranges[i] * sin(a);
@@ -272,9 +272,9 @@ void rangeToPoint(double *ranges, int num, double angleMin, double angleRes,
     }
 }
 
-int readPoints(std::string filename, cuars::VecVec2d &points) {
+int readPoints(std::string filename, cudars::VecVec2d &points) {
     std::string line, comment;
-    cuars::Vec2d p;
+    cudars::Vec2d p;
     size_t pos;
     int count;
 
@@ -308,14 +308,14 @@ int readPoints(std::string filename, cuars::VecVec2d &points) {
     return count;
 }
 
-void plotEllipse(std::ostream &out, int idx, const cuars::Vec2d &mean,
-        const cuars::Mat2d &covar) {
+void plotEllipse(std::ostream &out, int idx, const cudars::Vec2d &mean,
+        const cudars::Mat2d &covar) {
     double lmin, lmax, angle;
     //    set object 1 ellipse center 1.5, 1  size 6, 12  angle 60 front fs empty bo 3
     //    plot '-' with points
     // Confidence 0.95 -> chi2 5.991 -> axis
 
-    cuars::diagonalize(covar, lmin, lmax, angle);
+    cudars::diagonalize(covar, lmin, lmax, angle);
     out << "set object " << idx << " ellipse center "
             //            << mean(0) << ", " << mean(1)
             << mean.x << ", " << mean.y
@@ -324,8 +324,8 @@ void plotEllipse(std::ostream &out, int idx, const cuars::Vec2d &mean,
             << " front fs empty bo 3\n";
 }
 
-void plotEllipses(std::ostream &out, const cuars::VecVec2d &means,
-        const cuars::VecMat2d &covars) {
+void plotEllipses(std::ostream &out, const cudars::VecVec2d &means,
+        const cudars::VecMat2d &covars) {
     for (int i = 0; i < means.size() && i < covars.size(); ++i) {
         plotEllipse(out, i, means[i], covars[i]);
     }

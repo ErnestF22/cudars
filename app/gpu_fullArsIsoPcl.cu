@@ -201,7 +201,7 @@ int main(int argc, char** argv) {
         std::cout << std::endl << "--- Reading input cloud DST ---" << std::endl;
         pointsDst.loadPcdAscii(inputFilenames[comp.second]);
         //apply random rotation to pointsDst
-        cuars::Affine2d aff2d(M_PI * rots[countPairs] / 180.0f, 0.0, 0.0); //putting all these translations to 0 for now
+        cudars::Affine2d aff2d(M_PI * rots[countPairs] / 180.0f, 0.0, 0.0); //putting all these translations to 0 for now
         pointsDst.applyTransform(aff2d); //this should also automatically update the internal rotTheta and transl members
 
         rotTrue = pointsDst.getRotTheta() - pointsSrc.getRotTheta();
@@ -214,27 +214,27 @@ int main(int argc, char** argv) {
 
         std::cout << " angle dst " << (180.0 / M_PI * pointsDst.getRotTheta()) << " [deg], src " << (180.0 / M_PI * pointsSrc.getRotTheta()) << " [deg]" << std::endl;
         std::cout << std::fixed << std::setprecision(2) << std::setw(10)
-                << "  rotTrue \t" << (180.0 / M_PI * rotTrue) << " deg\t\t" << (180.0 / M_PI * cuars::mod180(rotTrue)) << " deg [mod 180]\n";
+                << "  rotTrue \t" << (180.0 / M_PI * rotTrue) << " deg\t\t" << (180.0 / M_PI * cudars::mod180(rotTrue)) << " deg [mod 180]\n";
 
         outfile
                 << std::setw(12) << getPrefix(inputFilenames[comp.first]) << " "
                 << std::setw(6) << pointsSrc.points().size() << " "
                 << std::setw(12) << getPrefix(inputFilenames[comp.second]) << " "
                 << std::setw(6) << pointsDst.points().size() << " "
-                << "rotTrue" << std::fixed << std::setprecision(2) << std::setw(8) << (180.0 / M_PI * cuars::mod180(rotTrue)) << " ";
+                << "rotTrue" << std::fixed << std::setprecision(2) << std::setw(8) << (180.0 / M_PI * cudars::mod180(rotTrue)) << " ";
 
 
         if (tp.arsIsoEnable) {
             //            r.estimateRotationArsIso(rotArsIso);
             std::cout << std::fixed << std::setprecision(2) << std::setw(10)
-                    << "  rotArsIso \t" << (180.0 / M_PI * rotArsIso) << " deg\t\t" << (180.0 / M_PI * cuars::mod180(rotArsIso)) << " deg [mod 180]\n";
-            outfile << std::setw(6) << "arsIso " << std::fixed << std::setprecision(2) << std::setw(6) << (180.0 / M_PI * cuars::mod180(rotArsIso)) << " ";
+                    << "  rotArsIso \t" << (180.0 / M_PI * rotArsIso) << " deg\t\t" << (180.0 / M_PI * cudars::mod180(rotArsIso)) << " deg [mod 180]\n";
+            outfile << std::setw(6) << "arsIso " << std::fixed << std::setprecision(2) << std::setw(6) << (180.0 / M_PI * cudars::mod180(rotArsIso)) << " ";
         }
         if (tp.gpu_arsIsoEnable) {
             gpu_estimateRotationArsIso(pointsSrc.points(), pointsDst.points(), tp, paip, gpu_rotArsIso);
             std::cout << std::endl << std::fixed << std::setprecision(2) << std::setw(10)
-                    << "  gpu_rotArsIso \t" << (180.0 / M_PI * gpu_rotArsIso) << " deg\t\t" << (180.0 / M_PI * cuars::mod180(gpu_rotArsIso)) << " deg [mod 180]\n";
-            outfile << std::setw(6) << "gpu_arsIso " << std::fixed << std::setprecision(2) << std::setw(6) << (180.0 / M_PI * cuars::mod180(gpu_rotArsIso)) << " ";
+                    << "  gpu_rotArsIso \t" << (180.0 / M_PI * gpu_rotArsIso) << " deg\t\t" << (180.0 / M_PI * cudars::mod180(gpu_rotArsIso)) << " deg [mod 180]\n";
+            outfile << std::setw(6) << "gpu_arsIso " << std::fixed << std::setprecision(2) << std::setw(6) << (180.0 / M_PI * cudars::mod180(gpu_rotArsIso)) << " ";
         }
 
         if (tp.extrainfoEnable) {

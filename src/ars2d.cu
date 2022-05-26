@@ -184,13 +184,13 @@ __device__ void evaluatePnebiVectorGPU(int n, double x, double *pnebis, int pneb
             pnebis[k] = seqPrev;
         }
         // To avoid overflow!
-        if (seqCurr > cuars::BIG_NUM)
+        if (seqCurr > cudars::BIG_NUM)
         {
-            seqPrev *= cuars::SMALL_NUM;
-            seqCurr *= cuars::SMALL_NUM;
+            seqPrev *= cudars::SMALL_NUM;
+            seqCurr *= cudars::SMALL_NUM;
             for (int i = 0; i < pnebisSz; ++i)
             {
-                pnebis[i] *= cuars::SMALL_NUM;
+                pnebis[i] *= cudars::SMALL_NUM;
             }
             // std::cerr << __FILE__ << "," << __LINE__ << ": ANTI-OVERFLOW!" << std::endl;
         }
@@ -207,7 +207,7 @@ __device__ void evaluatePnebiVectorGPU(int n, double x, double *pnebis, int pneb
 // GLOBAL CUDA KERNELS
 // --------------------------------------------------------
 
-__global__ void iigDw(cuars::Vec2d *means, double sigma1, double sigma2, int numPts, int fourierOrder, int numColsPadded, cuars::ArsKernelIso2dComputeMode pnebiMode, double *coeffsMat)
+__global__ void iigDw(cudars::Vec2d *means, double sigma1, double sigma2, int numPts, int fourierOrder, int numColsPadded, cudars::ArsKernelIso2dComputeMode pnebiMode, double *coeffsMat)
 {
     //    a.insertIsotropicGaussians(points, sigma);
 
@@ -229,8 +229,8 @@ __global__ void iigDw(cuars::Vec2d *means, double sigma1, double sigma2, int num
             continue;
         }
 
-        cuars::Vec2d vecI = means[i];
-        cuars::Vec2d vecJ = means[j];
+        cudars::Vec2d vecI = means[i];
+        cudars::Vec2d vecJ = means[j];
 
         //            isotropicKer_.init(means[i], means[j], sigma);
         double dx, dy;
@@ -257,7 +257,7 @@ __global__ void iigDw(cuars::Vec2d *means, double sigma1, double sigma2, int num
         double weight = wNorm / sqrt(2.0 * M_PI * sigmaValSq);
 
         // updating Fourier coefficients (2 modes)
-        if (pnebiMode == cuars::ArsKernelIso2dComputeMode::PNEBI_DOWNWARD)
+        if (pnebiMode == cudars::ArsKernelIso2dComputeMode::PNEBI_DOWNWARD)
         {
             //                updateARSF2CoeffRecursDown(lambdaSqNorm, phi, w2, nFourier, coeffs);
 
@@ -315,7 +315,7 @@ __global__ void iigDw(cuars::Vec2d *means, double sigma1, double sigma2, int num
     }
 }
 
-__global__ void iigLut(cuars::Vec2d *means, double sigma1, double sigma2, int numPts, int numPtsAfterPadding, int fourierOrder, int numColsPadded, cuars::ArsKernelIso2dComputeMode pnebiMode, cuars::PnebiLUT &pnebiLUT, double *coeffsMat)
+__global__ void iigLut(cudars::Vec2d *means, double sigma1, double sigma2, int numPts, int numPtsAfterPadding, int fourierOrder, int numColsPadded, cudars::ArsKernelIso2dComputeMode pnebiMode, cudars::PnebiLUT &pnebiLUT, double *coeffsMat)
 {
     //    a.insertIsotropicGaussians(points, sigma);
 
@@ -335,8 +335,8 @@ __global__ void iigLut(cuars::Vec2d *means, double sigma1, double sigma2, int nu
         if (i >= numPts || j >= numPts || j <= i)
             continue;
 
-        cuars::Vec2d vecI = means[i];
-        cuars::Vec2d vecJ = means[j];
+        cudars::Vec2d vecI = means[i];
+        cudars::Vec2d vecJ = means[j];
 
         //            isotropicKer_.init(means[i], means[j], sigma);
         double dx, dy;
@@ -364,7 +364,7 @@ __global__ void iigLut(cuars::Vec2d *means, double sigma1, double sigma2, int nu
         double weight = wNorm / sqrt(2.0 * M_PI * sigmaValSq);
 
         // updating Fourier coefficients (2 modes)
-        if (pnebiMode == cuars::ArsKernelIso2dComputeMode::PNEBI_LUT)
+        if (pnebiMode == cudars::ArsKernelIso2dComputeMode::PNEBI_LUT)
         {
             printf("Method not fully implemented!\n");
             continue;
@@ -497,7 +497,7 @@ void updateParallelizationParams(ParlArsIsoParams &pp, int currChunkSz)
     // Parallelization parameters
     pp.currChunkSz = currChunkSz;
     // Fourier coefficients mega-matrix computation
-    const int gridTotalSize = cuars::sumNaturalsUpToN(pp.currChunkSz - 1); // total number of threads in grid Fourier coefficients grid - BEFORE PADDING
+    const int gridTotalSize = cudars::sumNaturalsUpToN(pp.currChunkSz - 1); // total number of threads in grid Fourier coefficients grid - BEFORE PADDING
     pp.gridTotalSize = gridTotalSize;
 
     const int numBlocks = floor(gridTotalSize / pp.blockSz) + 1; // number of blocks in grid (each block contains blockSize threads)
@@ -527,7 +527,7 @@ void updateParallelizationParams(ParlArsIsoParams &pp, int currChunkSz)
 
 //__host__
 
-void computeArsIsoGpu(ParlArsIsoParams &paip, ArsIsoParams &arsPms, const cuars::VecVec2d &points, double *coeffsArs, cudaEvent_t start, cudaEvent_t stop, double &execTime)
+void computeArsIsoGpu(ParlArsIsoParams &paip, ArsIsoParams &arsPms, const cudars::VecVec2d &points, double *coeffsArs, cudaEvent_t start, cudaEvent_t stop, double &execTime)
 {
 
     std::cout << "\n---Estimating Ars Iso---\n"
@@ -546,13 +546,13 @@ void computeArsIsoGpu(ParlArsIsoParams &paip, ArsIsoParams &arsPms, const cuars:
 
         updateParallelizationParams(paip, currChunkSz); // TODO: put chunkMaxSz as TestParams struct member?
 
-        cuars::Vec2d *kernelInput;
-        cudaMalloc((void **)&kernelInput, currChunkSz * sizeof(cuars::Vec2d));
-        //        cudaMemcpy(kernelInput, points.data(), numPtsAfterPadding * sizeof (cuars::Vec2d), cudaMemcpyHostToDevice);
+        cudars::Vec2d *kernelInput;
+        cudaMalloc((void **)&kernelInput, currChunkSz * sizeof(cudars::Vec2d));
+        //        cudaMemcpy(kernelInput, points.data(), numPtsAfterPadding * sizeof (cudars::Vec2d), cudaMemcpyHostToDevice);
         std::cout << "round " << i + 1 << "/" << paip.numChunks << " -> "
                   << "chunk-beg " << indicesStartEnd.first << " chunk-end " << indicesStartEnd.second << " --- chunk-size " << currChunkSz << std::endl;
-        cuars::VecVec2d dataChunk(points.begin() + indicesStartEnd.first, points.begin() + (indicesStartEnd.first + currChunkSz));
-        cudaMemcpy(kernelInput, dataChunk.data(), (dataChunk.size()) * sizeof(cuars::Vec2d), cudaMemcpyHostToDevice);
+        cudars::VecVec2d dataChunk(points.begin() + indicesStartEnd.first, points.begin() + (indicesStartEnd.first + currChunkSz));
+        cudaMemcpy(kernelInput, dataChunk.data(), (dataChunk.size()) * sizeof(cudars::Vec2d), cudaMemcpyHostToDevice);
 
         // Fourier matrix sum -> parallelization parameters
         std::cout << "Parallelization params:" << std::endl;
@@ -608,7 +608,7 @@ void gpu_estimateRotationArsIso(const ArsImgTests::PointReaderWriter &pointsSrc,
     cudaEventCreate(&startSrc);
     cudaEventCreate(&stopSrc);
 
-    const cuars::VecVec2d &inputSrc = pointsSrc.points();
+    const cudars::VecVec2d &inputSrc = pointsSrc.points();
     initParallelizationParams(paip, tp.aiPms.arsIsoOrder, inputSrc.size(), paip.blockSz, paip.chunkMaxSz); // cudarsIso.init()
     double *coeffsArsSrc = new double[paip.coeffsMatNumColsPadded];
     computeArsIsoGpu(paip, tp.aiPms, inputSrc, coeffsArsSrc, startSrc, stopSrc, paip.gpu_srcExecTime); // cudarsIso.compute()
@@ -624,7 +624,7 @@ void gpu_estimateRotationArsIso(const ArsImgTests::PointReaderWriter &pointsSrc,
     cudaEventCreate(&startDst);
     cudaEventCreate(&stopDst);
 
-    const cuars::VecVec2d &inputDst = pointsDst.points();
+    const cudars::VecVec2d &inputDst = pointsDst.points();
     initParallelizationParams(paip, tp.aiPms.arsIsoOrder, inputDst.size(), paip.blockSz, paip.chunkMaxSz); // cudarsIso.init()
     double *coeffsArsDst = new double[paip.coeffsMatNumColsPadded];
     computeArsIsoGpu(paip, tp.aiPms, inputDst, coeffsArsDst, startDst, stopDst, paip.gpu_dstExecTime); // cudarsIso.compute()
@@ -645,13 +645,13 @@ void gpu_estimateRotationArsIso(const ArsImgTests::PointReaderWriter &pointsSrc,
 
     std::vector<double> coeffsCor;
     {
-        cuars::ScopedTimer("ars.correlation()");
+        cudars::ScopedTimer("ars.correlation()");
         std::vector<double> tmpSrc;
         tmpSrc.assign(coeffsArsSrc, coeffsArsSrc + paip.coeffsMatNumColsPadded);
         std::vector<double> tmpDst;
         tmpDst.assign(coeffsArsDst, coeffsArsDst + paip.coeffsMatNumColsPadded);
-        cuars::computeFourierCorr(tmpSrc, tmpDst, coeffsCor);
-        cuars::findGlobalMaxBBFourier(coeffsCor, 0.0, M_PI, tp.aiPms.arsIsoThetaToll, fourierTol, thetaMax, corrMax);
+        cudars::computeFourierCorr(tmpSrc, tmpDst, coeffsCor);
+        cudars::findGlobalMaxBBFourier(coeffsCor, 0.0, M_PI, tp.aiPms.arsIsoThetaToll, fourierTol, thetaMax, corrMax);
         rotOut = thetaMax; //!! rotOut is passed to the function as reference
     }
 
@@ -676,12 +676,12 @@ void gpu_estimateRotationArsIso(const ArsImgTests::PointReaderWriter &pointsSrc,
 
     // Computes the rotated points,centroid, affine transf matrix between src and dst
     ArsImgTests::PointReaderWriter pointsRot(pointsSrc.points());
-    cuars::Vec2d centroidSrc = pointsSrc.computeCentroid();
-    cuars::Vec2d centroidDst = pointsDst.computeCentroid();
-    cuars::Affine2d rotSrcDst = ArsImgTests::PointReaderWriter::coordToTransform(0.0, 0.0, rotOut);
-    //    cuars::Vec2d translSrcDst = centroidDst - rotSrcDst * centroidSrc;
-    cuars::Vec2d translSrcDst;
-    cuars::vec2diff(translSrcDst, centroidDst, cuars::aff2TimesVec2WRV(rotSrcDst, centroidSrc));
+    cudars::Vec2d centroidSrc = pointsSrc.computeCentroid();
+    cudars::Vec2d centroidDst = pointsDst.computeCentroid();
+    cudars::Affine2d rotSrcDst = ArsImgTests::PointReaderWriter::coordToTransform(0.0, 0.0, rotOut);
+    //    cudars::Vec2d translSrcDst = centroidDst - rotSrcDst * centroidSrc;
+    cudars::Vec2d translSrcDst;
+    cudars::vec2diff(translSrcDst, centroidDst, cudars::aff2TimesVec2WRV(rotSrcDst, centroidSrc));
     //    std::cout << "centroidSrc " << centroidSrc.x << " \t" << centroidSrc.y << "\n"
     //            << "centroidDst " << centroidDst.x << " \t" << centroidDst.y << "\n"
     //            << "rotSrcDst\n" << rotSrcDst << "\n"
@@ -691,8 +691,8 @@ void gpu_estimateRotationArsIso(const ArsImgTests::PointReaderWriter &pointsSrc,
     //    double rotTrue = pointsDst.getRotTheta() - pointsSrc.getRotTheta();
     //    std::cout << "\n***\npointsDst.getrotTheta() [deg]" << (180 / M_PI * pointsDst.getRotTheta())
     //            << ", pointsSrc.getrotTheta() [deg] " << (180.0 / M_PI * pointsSrc.getRotTheta()) << "\n";
-    //    std::cout << "rotTrue[deg] \t" << (180.0 / M_PI * rotTrue) << " \t" << (180.0 / M_PI * cuars::mod180(rotTrue)) << std::endl;
-    //    std::cout << "rotArs[deg] \t" << (180.0 / M_PI * rotOut) << " \t" << (180.0 / M_PI * cuars::mod180(rotOut)) << std::endl;
+    //    std::cout << "rotTrue[deg] \t" << (180.0 / M_PI * rotTrue) << " \t" << (180.0 / M_PI * cudars::mod180(rotTrue)) << std::endl;
+    //    std::cout << "rotArs[deg] \t" << (180.0 / M_PI * rotOut) << " \t" << (180.0 / M_PI * cudars::mod180(rotOut)) << std::endl;
 
     // Free CPU memory
     delete coeffsArsSrc;
