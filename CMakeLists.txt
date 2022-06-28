@@ -145,7 +145,7 @@ set_target_properties(gpu_fullArsIsoPcl PROPERTIES CUDA_ARCHITECTURES "75")
 
 #####################################################################################
 
-### translation
+### translation - rofl grid
 
 add_executable(gpu_testConsensusTranslationEstimator test/gpu_testConsensusTranslationEstimator.cu)
 target_link_libraries(gpu_testConsensusTranslationEstimator  iso_cuars rofl_common ${PCL_LIBRARIES} -lstdc++fs)
@@ -159,3 +159,9 @@ target_compile_features(gpu_testArsIsoPoseMpeg7 PUBLIC cxx_std_11)
 set_target_properties(gpu_testArsIsoPoseMpeg7 PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
 set_target_properties(gpu_testArsIsoPoseMpeg7 PROPERTIES CUDA_ARCHITECTURES "75")
 
+### translation - Teaser TLS
+
+add_executable(testTlsScalarCons test/testTlsScalarCons.cu)
+target_link_libraries(testTlsScalarCons iso_cuars rofl_common ${PCL_LIBRARIES} -lstdc++fs)
+
+####################################################################################
