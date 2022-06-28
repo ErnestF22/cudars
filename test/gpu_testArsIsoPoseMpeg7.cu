@@ -165,7 +165,7 @@ int main(int argc, char **argv)
     if (translParams.translMode == cudars::TranslMode::GRID)
         cudars::computeArsTec2d(translArs, rotArs, pointsSrc, pointsDst, translParams);
     else if (translParams.translMode == cudars::TranslMode::TLS)
-        cudars::estimateTranslTls(translArs, pointsSrc, pointsDst, translParams);
+        cudars::estimateTranslTls(translArs, rotArs, pointsSrc, pointsDst, translParams);
 
     // std::cout << "translTrue:" << std::endl;
     cudars::printVec2d(translTrue, "translTrue");

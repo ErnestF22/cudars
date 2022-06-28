@@ -503,45 +503,96 @@ namespace cudars
         //!! TODO: set translMin, translMax and other params according to config that gave the better results
     }
 
-    void estimateTranslTls(Vec2d &translArs, ArsImgTests::PointReaderWriter &pointsSrc, ArsImgTests::PointReaderWriter &pointsDst, ArsTec2dParams &translParams)
+    void estimateTranslTls(Vec2d &translArs, double &rot, ArsImgTests::PointReaderWriter &pointsSrc, ArsImgTests::PointReaderWriter &pointsDst, ArsTec2dParams &translParams)
     {
         std::cout << "Estimating translation using Teaser-inspired TLS" << std::endl;
 
-        std::vector<double> valuesSrc, valuesDst, valuesDif;
-        std::vector<double> ranges;
-        double translTrue, range, translEst;
+        double rotPos = cudars::mod180(rot);
+        double rotNeg = rotPos - M_PI;
+        //    if (rot >= 0)
+        //        rotOneeighty = rot - M_PI;
+        //    else
+        //        rotOneeighty = rot + M_PI;
 
-        std::cout << "Computes candidates translations" << std::endl;
-        for (int i = 0; i < valuesSrc.size(); ++i)
+        std::vector<double> rots;
+        rots.push_back(rotPos);
+        rots.push_back(rotNeg);
+        std::vector<Vec2d> translPosNeg;
+
+        std::vector<double> relativeMeanDst;
+
+        for (double &r : rots)
         {
-            for (int j = 0; j < valuesDst.size(); ++j)
+            std::cout << std::endl
+                      << "Now computing translation assuming rot " << r * 180.0 / M_PI << std::endl;
+            pointsSrc.applyTransform(0.0, 0.0, r);
+
+            std::vector<double> valuesDif;
+            std::vector<double> ranges;
+            double range = 5.0; // range??
+            cudars::Vec2d translEst;
+
+            std::cout << "Computes candidates translations" << std::endl;
+            VecVec2d ptsSrc = pointsSrc.points(); // rotated
+            VecVec2d ptsDst = pointsDst.points();
+            for (int coord = 0; coord < 2; ++coord)
             {
-                valuesDif.push_back(valuesDst[j] - valuesSrc[i]);
-                ranges.push_back(range);
+
+                for (int i = 0; i < ptsSrc.size(); ++i)
+                {
+                    for (int j = 0; j < ptsDst.size(); ++j)
+                    {
+                        // TODO: formare il vettore valuesDif direttamente con x e y
+                        valuesDif.push_back(idxGetter(ptsDst[j], coord) - idxGetter(ptsSrc[i], coord));
+                        ranges.push_back(range);
+                    }
+                }
+                ROFL_VAR2(valuesDif.size(), ranges.size());
+
+                std::sort(valuesDif.begin(), valuesDif.end());
+
+                // std::ofstream filePlot(filenamePlot);
+                // if (!filePlot)
+                // {
+                //     ROFL_ERR("Cannot open file \"" << filenamePlot << "\"");
+                //     return -1;
+                // }
+                // filePlot << "plot '-' w p pt 7 ps 0.6\n";
+                // for (int i = 0; i < valuesDif.size(); ++i)
+                // {
+                //     filePlot << " " << valuesDif[i] << " 0.0\n";
+                // }
+                // filePlot << "e\n";
+
+                std::cout << "Performs histogram computation\n";
+                std::vector<bool> inliers;
+                // rofl::estimateTLSEstimation(valuesDif.begin(), valuesDif.end(),
+                //                             ranges.begin(), ranges.end(), translEst, inliers);
+                double t;
+                rofl::estimateTLSEstimation2(valuesDif, ranges, t, inliers);
+                idxSetter(translEst, coord, t);
             }
+            translPosNeg.push_back(translEst);
+
+            Vec2d srcCentroid = pointsSrc.computeCentroid();
+            Vec2d dstCentroid = pointsDst.computeCentroid();
+
+            relativeMeanDst.push_back(vec2norm(vec2diffWRV(vec2diffWRV(dstCentroid, srcCentroid), translEst)));
+
+            pointsSrc.applyTransform(0.0, 0.0, -r);
         }
-        ROFL_VAR2(valuesDif.size(), ranges.size());
 
-        std::sort(valuesDif.begin(), valuesDif.end());
-
-        // std::ofstream filePlot(filenamePlot);
-        // if (!filePlot)
-        // {
-        //     ROFL_ERR("Cannot open file \"" << filenamePlot << "\"");
-        //     return -1;
-        // }
-        // filePlot << "plot '-' w p pt 7 ps 0.6\n";
-        // for (int i = 0; i < valuesDif.size(); ++i)
-        // {
-        //     filePlot << " " << valuesDif[i] << " 0.0\n";
-        // }
-        // filePlot << "e\n";
-
-        std::cout << "Performs histogram computation\n";
-        std::vector<bool> inliers;
-        // rofl::estimateTLSEstimation(valuesDif.begin(), valuesDif.end(),
-        //                             ranges.begin(), ranges.end(), translEst, inliers);
-        rofl::estimateTLSEstimation2(valuesDif, ranges, translEst, inliers);
+        if (relativeMeanDst[0] < relativeMeanDst[1])
+        {
+            rot = rots[0];
+            translArs = translPosNeg[0];
+        }
+        else
+        {
+            // if (relativeMeanDst[0] < relativeMeanDst[1])
+            rot = rots[1];
+            translArs = translPosNeg[1];
+        }
     }
 
 } // end of namespace
