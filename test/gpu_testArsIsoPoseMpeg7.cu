@@ -29,6 +29,8 @@
 
 #include "cudars/mpeg7RW.h"
 
+void setupTranslMode(cudars::TranslMode &mode, const std::string modeStr);
+
 int main(int argc, char **argv)
 {
     cudars::AngularRadonSpectrum2d arsSrc;
@@ -51,7 +53,7 @@ int main(int argc, char **argv)
     std::string filenameArsCor;
     std::string filenameCovSrc;
     std::string filenameCovDst;
-    
+
     double rotTrue, rotArs;
     // cudars::VecVec2d translCandidates;
     cudars::Vec2d translTrue, translArs;
@@ -101,6 +103,9 @@ int main(int argc, char **argv)
     params.getParam<int>("blockSz", paiParams.blockSz, 256);
     params.getParam<int>("chunkMaxSz", paiParams.chunkMaxSz, 4096);
 
+    std::string translModeStr;
+    params.getParam<std::string>("translMode", translModeStr, "tls");
+    setupTranslMode(translParams.translMode, translModeStr);
     params.getParam<double>("translRes", translParams.translRes, 3.0);
     // params.getParamContainer("translMin", translMin.data(), translMin.data() + translMin.size(), "[-10.0,-10.0]", double(0.0), "[,]"); //TODO: adapt ParamContainer to Cuda types
     params.getParam<double>("translMin-x", translParams.translMin.x, 0);
@@ -157,7 +162,10 @@ int main(int argc, char **argv)
     std::cout << "rotTrue[deg] \t" << (180.0 / M_PI * rotTrue) << " \t" << (180.0 / M_PI * cudars::mod180(rotTrue)) << std::endl;
     std::cout << "rotArs[deg] \t" << (180.0 / M_PI * rotArs) << " \t" << (180.0 / M_PI * cudars::mod180(rotArs)) << std::endl;
 
-    cudars::computeArsTec2d(translArs, rotArs, pointsSrc, pointsDst, translParams);
+    if (translParams.translMode == cudars::TranslMode::GRID)
+        cudars::computeArsTec2d(translArs, rotArs, pointsSrc, pointsDst, translParams);
+    else if (translParams.translMode == cudars::TranslMode::TLS)
+        cudars::estimateTranslTls(translArs, pointsSrc, pointsDst, translParams);
 
     // std::cout << "translTrue:" << std::endl;
     cudars::printVec2d(translTrue, "translTrue");
@@ -166,4 +174,14 @@ int main(int argc, char **argv)
     cudars::printVec2d(translArs, "translArs");
 
     return 0;
+}
+
+void setupTranslMode(cudars::TranslMode &mode, const std::string modeStr)
+{
+    if (modeStr == "grid")
+        mode = cudars::TranslMode::GRID;
+    else if (modeStr == "tls")
+        mode = cudars::TranslMode::TLS;
+    else
+        std::cerr << "UNRECOGNIZED TRANSL MODE STRING!!" << std::endl;
 }

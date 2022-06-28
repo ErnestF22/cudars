@@ -25,6 +25,7 @@
 #include "cudars/definitions.h"
 #include "cudars/Grid.cuh"
 #include <rofl/common/peak_finder_d.h>
+#include <rofl/common/tls_scalar_consensus.h>
 
 namespace cudars
 {
@@ -39,9 +40,16 @@ namespace cudars
     using Indices2d = std::array<Index, DIM>;
     using PeakFinder2d = rofl::PeakFinderD<2, Counter, Index, std::greater<Index>>;
 
+    enum class TranslMode : unsigned int
+    {
+        GRID = 0, // corresponds to string "grid"
+        TLS = 1   // corresponds to string "tls"
+    };
+
     struct ArsTec2dParams
     {
         cudars::Vec2d translMin, translMax, translGt;
+        cudars::TranslMode translMode;
         double translRes;
         cudars::Indices2d gridSize, gridWin;
         bool adaptiveGrid;
@@ -493,6 +501,47 @@ namespace cudars
         // translDstExecTime = translSrcExecTime;
 
         //!! TODO: set translMin, translMax and other params according to config that gave the better results
+    }
+
+    void estimateTranslTls(Vec2d &translArs, ArsImgTests::PointReaderWriter &pointsSrc, ArsImgTests::PointReaderWriter &pointsDst, ArsTec2dParams &translParams)
+    {
+        std::cout << "Estimating translation using Teaser-inspired TLS" << std::endl;
+
+        std::vector<double> valuesSrc, valuesDst, valuesDif;
+        std::vector<double> ranges;
+        double translTrue, range, translEst;
+
+        std::cout << "Computes candidates translations" << std::endl;
+        for (int i = 0; i < valuesSrc.size(); ++i)
+        {
+            for (int j = 0; j < valuesDst.size(); ++j)
+            {
+                valuesDif.push_back(valuesDst[j] - valuesSrc[i]);
+                ranges.push_back(range);
+            }
+        }
+        ROFL_VAR2(valuesDif.size(), ranges.size());
+
+        std::sort(valuesDif.begin(), valuesDif.end());
+
+        // std::ofstream filePlot(filenamePlot);
+        // if (!filePlot)
+        // {
+        //     ROFL_ERR("Cannot open file \"" << filenamePlot << "\"");
+        //     return -1;
+        // }
+        // filePlot << "plot '-' w p pt 7 ps 0.6\n";
+        // for (int i = 0; i < valuesDif.size(); ++i)
+        // {
+        //     filePlot << " " << valuesDif[i] << " 0.0\n";
+        // }
+        // filePlot << "e\n";
+
+        std::cout << "Performs histogram computation\n";
+        std::vector<bool> inliers;
+        // rofl::estimateTLSEstimation(valuesDif.begin(), valuesDif.end(),
+        //                             ranges.begin(), ranges.end(), translEst, inliers);
+        rofl::estimateTLSEstimation2(valuesDif, ranges, translEst, inliers);
     }
 
 } // end of namespace
