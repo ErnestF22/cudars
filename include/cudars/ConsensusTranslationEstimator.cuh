@@ -577,10 +577,10 @@ namespace cudars
 
                 std::cout << "Performs histogram computation\n";
                 std::vector<bool> inliers;
-                // rofl::estimateTLSEstimation(valuesDif.begin(), valuesDif.end(),
+                // rofl::estimateTranslationTls(valuesDif.begin(), valuesDif.end(),
                 //                             ranges.begin(), ranges.end(), translEst, inliers);
                 double t;
-                rofl::estimateTLSEstimation(valuesDif, ranges, t, inliers);
+                rofl::estimateTranslationTls(valuesDif, ranges, t, inliers);
                 idxSetter(translEst, coord, t);
             }
             translPosNeg.push_back(translEst);
