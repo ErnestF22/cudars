@@ -159,6 +159,15 @@ target_compile_features(gpu_testArsIsoPoseMpeg7 PUBLIC cxx_std_11)
 set_target_properties(gpu_testArsIsoPoseMpeg7 PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
 set_target_properties(gpu_testArsIsoPoseMpeg7 PROPERTIES CUDA_ARCHITECTURES "75")
 
+####################################################################################
+ 
+add_executable(gpu_testArsIsoPosePcl test/gpu_testArsIsoPosePcl.cu)
+target_link_libraries(gpu_testArsIsoPosePcl  iso_cuars ${PCL_LIBRARIES} rofl_common -lstdc++fs -lboost_filesystem)
+
+target_compile_features(gpu_testArsIsoPosePcl PUBLIC cxx_std_11)
+set_target_properties(gpu_testArsIsoPosePcl PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
+set_target_properties(gpu_testArsIsoPosePcl PROPERTIES CUDA_ARCHITECTURES "75")
+
 ### translation - Teaser TLS
 
 add_executable(testTlsScalarCons test/testTlsScalarCons.cu)

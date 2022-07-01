@@ -105,7 +105,7 @@ int main(int argc, char** argv) {
     std::vector<bool> inliers;
     // rofl::estimateTLSEstimation(valuesDif.begin(), valuesDif.end(),
     //                             ranges.begin(), ranges.end(), translEst, inliers);
-    rofl::estimateTLSEstimation2(valuesDif, ranges, translEst, inliers);
+    rofl::estimateTLSEstimation(valuesDif, ranges, translEst, inliers);
     
 
     std::cout << "Estimated translation: " << translEst << std::endl;

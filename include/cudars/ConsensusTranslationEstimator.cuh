@@ -52,9 +52,20 @@ namespace cudars
         cudars::TranslMode translMode;
         double translRes;
         cudars::Indices2d gridSize, gridWin;
+        double translTlsRange;
         bool adaptiveGrid;
         bool plot;
     };
+
+    void setupTranslMode(TranslMode &mode, const std::string modeStr)
+    {
+        if (modeStr == "grid")
+            mode = TranslMode::GRID;
+        else if (modeStr == "tls")
+            mode = TranslMode::TLS;
+        else
+            std::cerr << "UNRECOGNIZED TRANSL MODE STRING!!" << std::endl;
+    }
 
     template <typename Grid, typename Indices, typename PeakFinder, size_t Dim, typename Scalar = double>
     struct ArsTec
@@ -529,7 +540,7 @@ namespace cudars
 
             std::vector<double> valuesDif;
             std::vector<double> ranges;
-            double range = 5.0; // range??
+            double range = translParams.translTlsRange; // range??
             cudars::Vec2d translEst;
 
             std::cout << "Computes candidates translations" << std::endl;
@@ -569,7 +580,7 @@ namespace cudars
                 // rofl::estimateTLSEstimation(valuesDif.begin(), valuesDif.end(),
                 //                             ranges.begin(), ranges.end(), translEst, inliers);
                 double t;
-                rofl::estimateTLSEstimation2(valuesDif, ranges, t, inliers);
+                rofl::estimateTLSEstimation(valuesDif, ranges, t, inliers);
                 idxSetter(translEst, coord, t);
             }
             translPosNeg.push_back(translEst);

@@ -1,3 +1,4 @@
+
 /**
  * CudARS: Angular Radon Spectrum - CUDA version
  * Copyright (C) 2017-2020 Dario Lodi Rizzini.
@@ -36,10 +37,6 @@ int main(int argc, char **argv)
     ArsImgTests::PointReaderWriter pointsSrc;
     ArsImgTests::PointReaderWriter pointsDst;
 
-    TestParams testParams;
-    ParlArsIsoParams paiParams;
-    cudars::ArsTec2dParams translParams;
-
     rofl::ParamMap params;
     std::string filenameCfg;
     std::string filenameSrc;
@@ -52,16 +49,15 @@ int main(int argc, char **argv)
     std::string filenameCovSrc;
     std::string filenameCovDst;
 
-    double rotTrue, rotArs;
-    // cudars::VecVec2d translCandidates;
-    cudars::Vec2d translTrue, translArs;
+    //    int arsOrder;
+    //    double arsSigma, arsThetaToll;
+    //    int blockSz, chunkMaxSz;
+    TestParams testParams;
+    ParlArsIsoParams paip;
+    cudars::ArsTec2dParams translParams;
 
-    // The variables below are for I/O related functionalities (plot, etc.) that are highly Eigen-based and are present in the CPU-only ArsImgTests...
-    // Maybe implement them later
-    //     double sampleRes, sampleAng;
-    //     int sampleNum;
-    //     bool saveOn;
-    //     bool saveCov;
+    double rotTrue, rotArs;
+    cudars::Vec2d translTrue, translArs;
 
     params.read(argc, argv);
     params.getParam<std::string>("cfg", filenameCfg, "");
@@ -84,9 +80,9 @@ int main(int argc, char **argv)
     // ArsIso params (CPU and GPU)
     params.getParam<bool>("arsisoEnable", testParams.arsIsoEnable, false);
     params.getParam<bool>("gpu_arsisoEnable", testParams.gpu_arsIsoEnable, true);
-    params.getParam<int>("arsisoOrder", testParams.aiPms.arsIsoOrder, 32);
-    params.getParam<double>("arsisoSigma", testParams.aiPms.arsIsoSigma, 1.0);
-    params.getParam<double>("arsisoTollDeg", testParams.aiPms.arsIsoThetaToll, 0.5);
+    params.getParam<int>("arsOrder", testParams.aiPms.arsIsoOrder, 20);
+    params.getParam<double>("arsSigma", testParams.aiPms.arsIsoSigma, 0.05);
+    params.getParam<double>("arsTollDeg", testParams.aiPms.arsIsoThetaToll, 0.5);
     testParams.aiPms.arsIsoThetaToll *= M_PI / 180.0;
     //    params.getParam<unsigned int>("arsisoPnebiMode", tp.arsIsoPnebiMode, cudars::ArsKernelIsotropic2d::ComputeMode::PNEBI_DOWNWARD);
 
@@ -98,8 +94,8 @@ int main(int argc, char **argv)
     arsDst.setComputeMode(cudars::ArsKernelIso2dComputeMode::PNEBI_DOWNWARD);
 
     // parallelization parameters
-    params.getParam<int>("blockSz", paiParams.blockSz, 256);
-    params.getParam<int>("chunkMaxSz", paiParams.chunkMaxSz, 4096);
+    params.getParam<int>("blockSz", paip.blockSz, 256);
+    params.getParam<int>("chunkMaxSz", paip.chunkMaxSz, 4096);
 
     std::string translModeStr;
     params.getParam<std::string>("translMode", translModeStr, "tls");
@@ -119,15 +115,11 @@ int main(int argc, char **argv)
     params.getParam<bool>("adaptive", translParams.adaptiveGrid, true);
     params.getParam<bool>("plot", translParams.plot, false);
 
-    std::cout << "\nParameter values:\n";
-    params.write(std::cout);
-    std::cout << std::endl;
-
     // Loads files and computes the rotation
     std::cout << "\n*****\nLoading file \"" << filenameSrc << "\"" << std::endl;
-    pointsSrc.load(filenameSrc);
+    pointsSrc.loadPcdAscii(filenameSrc);
     std::cout << "\n*****\nLoading file \"" << filenameDst << "\"" << std::endl;
-    pointsDst.load(filenameDst);
+    pointsDst.loadPcdAscii(filenameDst);
     std::cout << "  points src " << pointsSrc.points().size() << ", points dst " << pointsDst.points().size() << std::endl;
 
     int numPts = std::min<int>(pointsSrc.points().size(), pointsDst.points().size()); // the two should normally be equal
@@ -153,7 +145,7 @@ int main(int argc, char **argv)
               << transfSrcToDst << std::endl;
     translTrue = transfSrcToDst.translation();
 
-    gpu_estimateRotationArsIso(pointsSrc, pointsDst, testParams, paiParams, rotArs);
+    gpu_estimateRotationArsIso(pointsSrc, pointsDst, testParams, paip, rotArs);
 
     rotTrue = pointsDst.getRotTheta() - pointsSrc.getRotTheta();
     std::cout << "\n***\npointsDst.getrotTheta() [deg]" << (180 / M_PI * pointsDst.getRotTheta())
