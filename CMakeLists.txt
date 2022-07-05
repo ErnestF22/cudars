@@ -4,6 +4,13 @@ project(cudars LANGUAGES CXX CUDA)
 
 add_compile_options(-std=c++14)
 
+# Set the output directory for the build executables and libraries
+SET(cudars_RUNTIME_OUTPUT_DIRECTORY ${cudars_SOURCE_DIR}/bin CACHE PATH "Target for the binaries")
+SET(cudars_LIBRARY_OUTPUT_DIRECTORY ${cudars_SOURCE_DIR}/lib CACHE PATH "Target for the libraries")
+SET(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${cudars_LIBRARY_OUTPUT_DIRECTORY})
+SET(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${cudars_LIBRARY_OUTPUT_DIRECTORY})
+SET(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${cudars_RUNTIME_OUTPUT_DIRECTORY})
+
 set(CMAKE_BUILD_TYPE Debug)
 #set(CMAKE_CUDA_FLAGS_DEBUG "-g -G")
 #add_compile_options(-lineinfo)
@@ -46,7 +53,7 @@ endif()
 
 
 # Library files
-add_library(iso_cuars STATIC
+add_library(cudars STATIC
     src/ars2d.cpp
     src/ars2d.cu
     
@@ -62,7 +69,7 @@ add_library(iso_cuars STATIC
     src/mpeg7_io.cpp
 )
 
-add_library(ani_cuars STATIC
+add_library(cudars_ani STATIC
     src/ars2d.cpp
     src/ars2d.cu
     
@@ -84,13 +91,11 @@ add_library(ani_cuars STATIC
 
 
 
-
-
 ####################################################################################
 ### Isotropic cuArs
 
 add_executable(gpu_testIsotropicArs test/gpu_testIsotropicArs.cu )
-target_link_libraries(gpu_testIsotropicArs  iso_cuars rofl_common ${PCL_LIBRARIES})
+target_link_libraries(gpu_testIsotropicArs  cudars rofl_common ${PCL_LIBRARIES})
 
 #target_compile_features(gpu_testIsotropicArs PUBLIC cxx_std_11)
 set_target_properties(gpu_testIsotropicArs PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
@@ -99,7 +104,7 @@ set_target_properties(gpu_testIsotropicArs PROPERTIES CUDA_ARCHITECTURES "75")
 ####################################################################################
  
 add_executable(gpu_testArsIsoMpeg7 test/gpu_testArsIsoMpeg7.cu)
-target_link_libraries(gpu_testArsIsoMpeg7  iso_cuars ${PCL_LIBRARIES} rofl_common -lstdc++fs -lboost_filesystem)
+target_link_libraries(gpu_testArsIsoMpeg7  cudars ${PCL_LIBRARIES} rofl_common -lstdc++fs -lboost_filesystem)
 
 target_compile_features(gpu_testArsIsoMpeg7 PUBLIC cxx_std_11)
 set_target_properties(gpu_testArsIsoMpeg7 PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
@@ -108,7 +113,7 @@ set_target_properties(gpu_testArsIsoMpeg7 PROPERTIES CUDA_ARCHITECTURES "75")
 ####################################################################################
 
 add_executable(gpu_testArsIsoPcl test/gpu_testArsIsoPcl.cu)
-target_link_libraries(gpu_testArsIsoPcl  iso_cuars rofl_common ${PCL_LIBRARIES} -lstdc++fs)
+target_link_libraries(gpu_testArsIsoPcl  cudars rofl_common ${PCL_LIBRARIES} -lstdc++fs)
 
 target_compile_features(gpu_testArsIsoPcl PUBLIC cxx_std_11)
 set_target_properties(gpu_testArsIsoPcl PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
@@ -117,7 +122,7 @@ set_target_properties(gpu_testArsIsoPcl PROPERTIES CUDA_ARCHITECTURES "75")
 ####################################################################################
  
 add_executable(gpu_fullArsIsoMpeg7 app/gpu_fullArsIsoMpeg7.cu)
-target_link_libraries(gpu_fullArsIsoMpeg7  iso_cuars rofl_common ${PCL_LIBRARIES} -lstdc++fs)
+target_link_libraries(gpu_fullArsIsoMpeg7  cudars rofl_common ${PCL_LIBRARIES} -lstdc++fs)
 
 target_compile_features(gpu_fullArsIsoMpeg7 PUBLIC cxx_std_11)
 set_target_properties(gpu_fullArsIsoMpeg7 PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
@@ -126,7 +131,7 @@ set_target_properties(gpu_fullArsIsoMpeg7 PROPERTIES CUDA_ARCHITECTURES "75")
 #####################################################################################
 
 add_executable(gpu_fullArsIsoPcl app/gpu_fullArsIsoPcl.cu)
-target_link_libraries(gpu_fullArsIsoPcl  iso_cuars rofl_common ${PCL_LIBRARIES} -lstdc++fs)
+target_link_libraries(gpu_fullArsIsoPcl  cudars rofl_common ${PCL_LIBRARIES} -lstdc++fs)
 
 target_compile_features(gpu_fullArsIsoPcl PUBLIC cxx_std_11)
 set_target_properties(gpu_fullArsIsoPcl PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
@@ -137,7 +142,7 @@ set_target_properties(gpu_fullArsIsoPcl PROPERTIES CUDA_ARCHITECTURES "75")
 ### Anisotropic cuArs
 
 #add_executable(gpu_testAnisotropicArs test/gpu_testAnisotropicArs.cu )
-#target_link_libraries(gpu_testAnisotropicArs  ani_cuars rofl_common -lboost_iostreams -lboost_system -lboost_filesystem)
+#target_link_libraries(gpu_testAnisotropicArs  cudars_ani rofl_common -lboost_iostreams -lboost_system -lboost_filesystem)
 #
 ##target_compile_features(gpu_testAnisotropicArs PUBLIC cxx_std_11)
 #set_target_properties(gpu_testAnisotropicArs PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
@@ -148,12 +153,12 @@ set_target_properties(gpu_fullArsIsoPcl PROPERTIES CUDA_ARCHITECTURES "75")
 ### translation - rofl grid
 
 add_executable(gpu_testConsensusTranslationEstimator test/gpu_testConsensusTranslationEstimator.cu)
-target_link_libraries(gpu_testConsensusTranslationEstimator  iso_cuars rofl_common ${PCL_LIBRARIES} -lstdc++fs)
+target_link_libraries(gpu_testConsensusTranslationEstimator  cudars rofl_common ${PCL_LIBRARIES} -lstdc++fs)
 
 ####################################################################################
  
 add_executable(gpu_testArsIsoPoseMpeg7 test/gpu_testArsIsoPoseMpeg7.cu)
-target_link_libraries(gpu_testArsIsoPoseMpeg7  iso_cuars ${PCL_LIBRARIES} rofl_common -lstdc++fs -lboost_filesystem)
+target_link_libraries(gpu_testArsIsoPoseMpeg7  cudars ${PCL_LIBRARIES} rofl_common -lstdc++fs -lboost_filesystem)
 
 target_compile_features(gpu_testArsIsoPoseMpeg7 PUBLIC cxx_std_11)
 set_target_properties(gpu_testArsIsoPoseMpeg7 PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
@@ -162,7 +167,7 @@ set_target_properties(gpu_testArsIsoPoseMpeg7 PROPERTIES CUDA_ARCHITECTURES "75"
 ####################################################################################
  
 add_executable(gpu_testArsIsoPosePcl test/gpu_testArsIsoPosePcl.cu)
-target_link_libraries(gpu_testArsIsoPosePcl  iso_cuars ${PCL_LIBRARIES} rofl_common -lstdc++fs -lboost_filesystem)
+target_link_libraries(gpu_testArsIsoPosePcl  cudars ${PCL_LIBRARIES} rofl_common -lstdc++fs -lboost_filesystem)
 
 target_compile_features(gpu_testArsIsoPosePcl PUBLIC cxx_std_11)
 set_target_properties(gpu_testArsIsoPosePcl PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
@@ -171,6 +176,33 @@ set_target_properties(gpu_testArsIsoPosePcl PROPERTIES CUDA_ARCHITECTURES "75")
 ### translation - Teaser TLS
 
 add_executable(testTlsScalarCons test/testTlsScalarCons.cu)
-target_link_libraries(testTlsScalarCons iso_cuars rofl_common ${PCL_LIBRARIES} -lstdc++fs)
+target_link_libraries(testTlsScalarCons cudars rofl_common ${PCL_LIBRARIES} -lstdc++fs)
 
 ####################################################################################
+
+
+
+# add_library(cudars STATIC)
+# set_target_properties(cudars PROPERTIES PUBLIC_HEADER)
+# install(TARGETS cudars
+#         PUBLIC_HEADER
+#           DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/cudars
+# )
+
+INSTALL(TARGETS cudars 
+  RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX}/bin
+  LIBRARY DESTINATION ${CMAKE_INSTALL_PREFIX}/lib
+  ARCHIVE DESTINATION ${CMAKE_INSTALL_PREFIX}/lib
+)
+
+# Option "make install": copy headers
+FILE(GLOB headers "${CMAKE_CURRENT_SOURCE_DIR}/include/cudars/*.h")
+FILE(GLOB headers_3rdparty "${CMAKE_CURRENT_SOURCE_DIR}/include/cudars/thirdparty/*.h")
+INSTALL(FILES ${headers} DESTINATION ${CMAKE_INSTALL_PREFIX}/include/cudars/)
+INSTALL(FILES ${headers_3rdparty} DESTINATION ${CMAKE_INSTALL_PREFIX}/include/cudars/thirdparty/)
+
+# Option "make install": copy cmake script
+FILE(GLOB cmake_script "${CMAKE_CURRENT_SOURCE_DIR}/cmake_modules/cudarsConfig.cmake")
+message(STATUS "cmake_script " ${cmake_script})
+INSTALL(FILES ${cmake_script} DESTINATION ${CMAKE_INSTALL_PREFIX}/share/cudars/)
+
