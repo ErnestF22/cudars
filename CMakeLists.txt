@@ -53,7 +53,7 @@ endif()
 
 
 # Library files
-add_library(cudars STATIC
+add_library(cudars
     src/ars2d.cpp
     src/ars2d.cu
     
@@ -197,8 +197,10 @@ INSTALL(TARGETS cudars
 
 # Option "make install": copy headers
 FILE(GLOB headers "${CMAKE_CURRENT_SOURCE_DIR}/include/cudars/*.h")
+FILE(GLOB cuheaders "${CMAKE_CURRENT_SOURCE_DIR}/include/cudars/*.cuh")
 FILE(GLOB headers_3rdparty "${CMAKE_CURRENT_SOURCE_DIR}/include/cudars/thirdparty/*.h")
 INSTALL(FILES ${headers} DESTINATION ${CMAKE_INSTALL_PREFIX}/include/cudars/)
+INSTALL(FILES ${cuheaders} DESTINATION ${CMAKE_INSTALL_PREFIX}/include/cudars/)
 INSTALL(FILES ${headers_3rdparty} DESTINATION ${CMAKE_INSTALL_PREFIX}/include/cudars/thirdparty/)
 
 # Option "make install": copy cmake script
@@ -209,10 +211,10 @@ INSTALL(FILES ${cmake_script} DESTINATION ${CMAKE_INSTALL_PREFIX}/share/cudars/)
 # uninstall target
 if(NOT TARGET uninstall)
   configure_file(
-    "${CMAKE_CURRENT_SOURCE_DIR}/cmake_uninstall.cmake.in"
-    "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake"
+    "${CMAKE_CURRENT_SOURCE_DIR}/cmake_modules/cmake_uninstall.cmake.in"
+    "${CMAKE_CURRENT_BINARY_DIR}/cmake_modules/cmake_uninstall.cmake"
     IMMEDIATE @ONLY)
 
   add_custom_target(uninstall
-    COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake)
+    COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/cmake_modules/cmake_uninstall.cmake)
 endif()
