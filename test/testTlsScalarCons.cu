@@ -1,23 +1,25 @@
 /**
- * ROFL - RIMLab Open Factotum Library
- * Copyright (C) 2021 Dario Lodi Rizzini, Ernesto Fontana
+ * CudARS: Angular Radon Spectrum - CUDA version
+ * Copyright (C) 2017-2020 Dario Lodi Rizzini.
+ * Copyright (C) 2021- Dario Lodi Rizzini, Ernesto Fontana.
  *
- * ROFL is free software: you can redistribute it and/or modify
+ * CudARS is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * ROFL is distributed in the hope that it will be useful,
+ * CudARS is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public License
- * along with ROFL.  If not, see <http://www.gnu.org/licenses/>.
+ * along with CudARS.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include <rofl/common/macros.h>
-#include <rofl/common/param_map.h>
-#include <rofl/common/tls_scalar_consensus.h>
+
+
+
+#include "cudars/tls_scalar_consensus.cuh"
 
 #include <boost/version.hpp>
 #include <iostream>
@@ -105,7 +107,9 @@ int main(int argc, char** argv) {
     std::vector<bool> inliers;
     // rofl::estimateTranslationTls(valuesDif.begin(), valuesDif.end(),
     //                             ranges.begin(), ranges.end(), translEst, inliers);
-    rofl::estimateTranslationTls(valuesDif, ranges, translEst, inliers);
+    
+    // cudars::estimateTranslationTls(valuesDif, ranges, translEst, inliers);
+    estimateTranslationTls(valuesDif, ranges, translEst, inliers);
     
 
     std::cout << "Estimated translation: " << translEst << std::endl;

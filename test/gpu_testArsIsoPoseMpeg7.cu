@@ -27,6 +27,8 @@
 
 #include "cudars/ConsensusTranslationEstimator.cuh"
 
+#include "cudars/tls_scalar_consensus.cuh"
+
 #include "cudars/mpeg7RW.h"
 
 int main(int argc, char **argv)

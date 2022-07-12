@@ -23,9 +23,11 @@
 #include <fstream>
 #include <vector>
 #include "cudars/definitions.h"
-#include "cudars/Grid.cuh"
+
+#include "cudars/tls_scalar_consensus.cuh"
+
 #include <rofl/common/peak_finder_d.h>
-#include <rofl/common/tls_scalar_consensus.h>
+#include "cudars/Grid.cuh"
 
 namespace cudars
 {
@@ -580,7 +582,10 @@ namespace cudars
                 // rofl::estimateTranslationTls(valuesDif.begin(), valuesDif.end(),
                 //                             ranges.begin(), ranges.end(), translEst, inliers);
                 double t;
-                rofl::estimateTranslationTls(valuesDif, ranges, t, inliers);
+                
+                // cudars::estimateTranslationTls(valuesDif, ranges, t, inliers);
+                estimateTranslationTls(valuesDif, ranges, t, inliers);
+
                 idxSetter(translEst, coord, t);
             }
             translPosNeg.push_back(translEst);
