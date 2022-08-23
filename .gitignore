@@ -34,5 +34,6 @@
 .gitignore
 .vscode/
 build/
+bin/
 cfg/
 nbproject/
