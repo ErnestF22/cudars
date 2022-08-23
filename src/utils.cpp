@@ -18,7 +18,12 @@
 #include <ars/utils.h>
 #include <ars/definitions.h>
 
+
 namespace cuars {
+
+    double mod180(double angle) {
+        return (angle - floor(angle / M_PI) * M_PI);
+    }
 
     void diagonalize(const Mat2d& m, double& lmin, double& lmax, double& theta) {
         double a, b, c, s;
@@ -413,8 +418,10 @@ namespace cuars {
 
     void preTransfVec2(Vec2d& p, const Affine2d& t) {
         if (t.isLastRowOK()) {
-            p.x = (p.x * t.data_[0 * Three + 0]) + (p.y * t.data_[0 * Three + 1]) + (t.data_[0 * Three + 2]);
-            p.y = (p.x * t.data_[1 * Three + 0]) + (p.y * t.data_[1 * Three + 1]) + (t.data_[1 * Three + 2]);
+            double px = p.x;
+            double py = p.y;
+            p.x = (px * t.data_[0 * Three + 0]) + (py * t.data_[0 * Three + 1]) + (t.data_[0 * Three + 2]);
+            p.y = (px * t.data_[1 * Three + 0]) + (py * t.data_[1 * Three + 1]) + (t.data_[1 * Three + 2]);
             //p.z = 1.0;
         } else {
             printf("ERROR: Transf Matrix affine scale != 1\n");
@@ -537,6 +544,35 @@ namespace cuars {
             printf("ERROR: Transf Matrix last row != 0  0  1\n");
         }
         return result;
+    }
+
+    //Quaternions, Euler Angles related
+
+    cuars::EulerAngles quatTo2dAngle(const double4& q) {
+        cuars::EulerAngles angles;
+
+        // roll (x-axis rotation)
+        double sinr_cosp = 2 * (q.w * q.x + q.y * q.z);
+        double cosr_cosp = 1 - 2 * (q.x * q.x + q.y * q.y);
+        angles.roll = std::atan2(sinr_cosp, cosr_cosp);
+
+        // pitch (y-axis rotation)
+        double sinp = 2 * (q.w * q.y - q.z * q.x);
+        if (std::abs(sinp) >= 1)
+            angles.pitch = std::copysign(M_PI / 2, sinp); // use 90 degrees if out of range
+        else
+            angles.pitch = std::asin(sinp);
+
+        // yaw (z-axis rotation)
+        double siny_cosp = 2 * (q.w * q.z + q.x * q.y);
+        double cosy_cosp = 1 - 2 * (q.y * q.y + q.z * q.z);
+        angles.yaw = std::atan2(siny_cosp, cosy_cosp);
+
+        std::cout << "quat " << q.w << " " << q.x << " " << q.y << " " << q.z
+                << " -> "
+                << "roll " << angles.roll << " pitch " << angles.pitch << " yaw " << angles.yaw << std::endl;
+
+        return angles;
     }
 
 } // end of namespace

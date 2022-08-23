@@ -10,7 +10,8 @@
 #include <flann/flann.hpp>
 #include <flann/flann.h>
 //#include <pcl/kdtree/kdtree_flann.h>
-//
+
+//#include <pcl/pcl_base.h>
 //#include <pcl/io/pcd_io.h>
 //#include <pcl/point_cloud.h> 
 //#include <pcl/point_types.h>
@@ -24,14 +25,38 @@
 
 namespace ArsImgTests {
 
+    struct PcdHeader {
+        //        # .PCD v0.7 - Point Cloud Data file format
+        std::string firstLine;
+        //        VERSION 0.7
+        std::string version;
+        //        FIELDS x y z
+        std::string fields;
+        //        SIZE 4 4 4
+        std::string size;
+        //        TYPE F F F
+        std::string type;
+        //        COUNT 1 1 1
+        std::string count;
+        //        WIDTH 4724
+        int width;
+        //        HEIGHT 1
+        int height;
+        //        VIEWPOINT 0 0 0 1 0 0 0
+        std::string viewpoint;
+        //        POINTS 4724
+        int points;
+        //        DATA ascii
+        std::string data;
+    };
+
+
     std::pair<double, double> addInverval(const std::pair<double, double>& interv1, const std::pair<double, double>& interv2);
 
     /** Class to read, write and store point sets. 
      */
     class PointReaderWriter {
     public:
-
-
         /** Constructor.
          */
         PointReaderWriter();
@@ -68,13 +93,14 @@ namespace ArsImgTests {
 
         /** Loads points (and potential parameters) from pcd file.
          */
-        //        void loadCloudPoints(std::string cloudFilename);
+        int loadPcdAscii(std::string cloudFilename);
 
         /** Saves points (and potential parameters) from file.
          */
         void save(std::string filename);
 
         /**
+         * Basic reference getter to points vector
          */
         const cuars::VecVec2d& points() const;
 
@@ -115,6 +141,8 @@ namespace ArsImgTests {
         int getNumOccl() const;
 
         int getNumRand() const;
+
+        PcdHeader getPcdHeader() const;
 
 
         // --------------------------------------------------------
@@ -192,20 +220,35 @@ namespace ArsImgTests {
         double transl_x;
         double transl_y;
         double rot_theta;
+
+        int num_in; //mpeg7 dataset related
         double noise_sigma;
-        int num_in;
         int num_occl;
         int num_rand;
+
+        PcdHeader pcdHeader; //used when reading cloud from pcd file
 
         // Parameters for search
         flann::Index<flann::L2<double> >* flannIndexer_;
         flann::Matrix<double> flannPoints_;
         std::vector<double> pointsVec_;
 
+        /**
+         * Returns substring of input @param line, removing @param substrTBR from it;
+         * Result is stored in string out
+         * Made to be used when reading/parsing header of PCD file
+         */
+        void substrEoL(std::string& out, const std::string& line, const std::string& substrTBR);
+
+        /**
+         * Update transl_x, transl_y, rot_theta private members according to what the PCD header file "viewpoint" line says
+         */
+        void updateTransformInfoViewpoint();
+
         /** Updates the data about the random transformation by composing previous transform 
          * with the given one. 
          */
-        void updateTransformInfo(const cuars::Affine2d& transform);
+        void updateTransformInfo(const cuars::Affine2d & transform);
 
         /**
          * Creates the FLANN data structure. 
@@ -219,7 +262,7 @@ namespace ArsImgTests {
 
         /**
          */
-        static bool ccw(const cuars::Vec2d& a, const cuars::Vec2d& b, const cuars::Vec2d& c) {
+        static bool ccw(const cuars::Vec2d& a, const cuars::Vec2d& b, const cuars::Vec2d & c) {
             cuars::Vec2d ab, ac;
             cuars::vec2diff(ab, b, a);
             cuars::vec2diff(ac, c, a);

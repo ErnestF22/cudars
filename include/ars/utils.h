@@ -22,14 +22,28 @@
 
 #include <cmath>
 
+#define PRINT_DIM(X) std::cout << #X << " rows " << X.rows() << " cols " << X.cols() << std::endl;
+#define RAD2DEG(X) (180.0/M_PI*(X))
+
+
+
 namespace cuars {
 
+    /**
+     * Structure useful to keep track of min/max bounds of a 2D interval
+     */
     struct BoundInterval {
         double x0;
         double x1;
         double y0;
         double y1;
     };
+
+    /**
+     * Returns angle (radians) corresponding to equivalent of @param angle in range [0, M_PI] 
+     * from original ARS output range [-M_PI/2, M_PI/2]
+     */
+    double mod180(double angle);
 
     /**
      * Computes the diagonalization of the given positive definite matrix m. 
@@ -168,6 +182,12 @@ namespace cuars {
 
     Vec2d aff2TimesVec2WRV(const Affine2d& mAff, const Vec2d & p);
 
+    //Quaternions, Euler angles related
+
+    /**
+     * Credit to: https://en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles
+     */
+    cuars::EulerAngles quatTo2dAngle(const double4& q);
 
 
 } // end of namespace

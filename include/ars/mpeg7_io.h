@@ -13,13 +13,16 @@
 #ifndef MPEG7_IO_H
 #define MPEG7_IO_H
 
+#include <fstream>
 #include <glob.h>
 #include <experimental/filesystem>
+#include <unordered_map>
 #include "boost/date_time/posix_time/posix_time.hpp"
 
 
 
 namespace mpeg7io {
+    namespace expfs = std::experimental::filesystem;
 
     // ----------------------------------------------
     // I/O OPERATIONS
@@ -36,6 +39,18 @@ namespace mpeg7io {
     /** Generates a filename dependent on date and time.
      */
     std::string generateStampedString(const std::string prefix = "", const std::string postfix = "");
+
+    void findComparisonPair(const std::vector<std::string>& inputFilenames, std::vector<std::pair<int, int> >& comPairs);
+
+    void filterComparisonPair(std::string resumeFilename, std::ostream& outputfile,
+            const std::vector<std::string>& inputFilenames, std::vector<std::pair<int, int> >& inputPairs,
+            std::vector<std::pair<int, int> >& outputPairs);
+
+    std::string getPrefix(std::string filename);
+
+    std::string getShortName(std::string filename);
+
+    std::string getLeafDirectory(std::string filename);
 
 }
 
