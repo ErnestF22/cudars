@@ -409,7 +409,7 @@ namespace cudars
      * @param pointsDst
      * @param translParams
      */
-    void computeArsTec2d(Vec2d &translArs, const double &rot, ArsImgTests::PointReaderWriter &pointsSrc, ArsImgTests::PointReaderWriter &pointsDst, ArsTec2dParams &translParams)
+    void computeArsTec2d(Vec2d &translArs, const double &rot, CudarsImgTests::PointReaderWriter &pointsSrc, CudarsImgTests::PointReaderWriter &pointsDst, ArsTec2dParams &translParams)
     {
         VecVec2d translCandidates; // TODO: add translCandidates as member, and add its getter function
 
@@ -516,7 +516,7 @@ namespace cudars
         //!! TODO: set translMin, translMax and other params according to config that gave the better results
     }
 
-    void estimateTranslTls(Vec2d &translArs, double &rot, ArsImgTests::PointReaderWriter &pointsSrc, ArsImgTests::PointReaderWriter &pointsDst, ArsTec2dParams &translParams)
+    void estimateTranslTls(Vec2d &translArs, double &rot, CudarsImgTests::PointReaderWriter &pointsSrc, CudarsImgTests::PointReaderWriter &pointsDst, ArsTec2dParams &translParams)
     {
         std::cout << "Estimating translation using Teaser-inspired TLS" << std::endl;
 
