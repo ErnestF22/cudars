@@ -1,3 +1,4 @@
+#include <vector>
 #include <algorithm>
 
 #include <pcl/point_cloud.h>
@@ -6,6 +7,9 @@
 #include <Eigen/Dense>
 #include <Eigen/SVD>
 #include <eigen3/unsupported/Eigen/CXX11/Tensor>
+
+#define TWO_ 2
+#define THREE_ 3
 
 template<typename T>
 using  MatrixType = Eigen::Matrix<T,Eigen::Dynamic, Eigen::Dynamic>;
@@ -25,7 +29,10 @@ auto Matrix_to_Tensor(const MatrixType<Scalar> &matrix, Dims... dims)
 }
 
 
-void procrustes_umeyama(Eigen::Affine3f& transfOut, const pcl::PointCloud<pcl::PointXYZ>::Ptr cloudA, const pcl::PointCloud<pcl::PointXYZ>::Ptr cloudB, int dim);
+void procrustes_umeyama3f(Eigen::Affine3f& transfOut, const pcl::PointCloud<pcl::PointXYZ>::Ptr cloudA, const pcl::PointCloud<pcl::PointXYZ>::Ptr cloudB);
+
+void procrustes_umeyama2f(Eigen::Affine2f& transfOut, const pcl::PointCloud<pcl::PointXY>::Ptr cloudA, const pcl::PointCloud<pcl::PointXY>::Ptr cloudB);
+
 
 // function transf_out = procrustes_umeyama(a,b, dim)
 //     % Least squares estimation of transformation parameters between two
