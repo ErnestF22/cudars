@@ -91,8 +91,8 @@ int main(int argc, char **argv)
 
     const double rotArs = 0.0; //this is a Dummy example
 
-    ArsImgTests::PointReaderWriter src(pointsSrc);
-    ArsImgTests::PointReaderWriter dst(pointsDst);
+    CudarsImgTests::PointReaderWriter src(pointsSrc);
+    CudarsImgTests::PointReaderWriter dst(pointsDst);
 
     cudars::computeArsTec2d(translArs, rotArs, src, dst, translParams);
 

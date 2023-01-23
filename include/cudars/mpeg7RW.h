@@ -1,5 +1,5 @@
-#ifndef POINT_READER_WRITER_H
-#define POINT_READER_WRITER_H
+#ifndef CUDARS_POINT_READER_WRITER_H
+#define CUDARS_POINT_READER_WRITER_H
 
 #include <iostream>
 #include <fstream>
@@ -13,7 +13,7 @@
 
 //#include <pcl/pcl_base.h>
 //#include <pcl/io/pcd_io.h>
-//#include <pcl/point_cloud.h> 
+//#include <pcl/point_cloud.h>
 //#include <pcl/point_types.h>
 
 #include "definitions.h"
@@ -21,11 +21,14 @@
 
 #include <rofl/common/param_map.h>
 
-#define POINT_READER_WRITER_GET(TYPE,X) TYPE get##X() const { return (X); }
+#define POINT_READER_WRITER_GET(TYPE, X) \
+    TYPE get##X() const { return (X); }
 
-namespace ArsImgTests {
+namespace CudarsImgTests
+{
 
-    struct PcdHeader {
+    struct PcdHeader
+    {
         //        # .PCD v0.7 - Point Cloud Data file format
         std::string firstLine;
         //        VERSION 0.7
@@ -50,44 +53,43 @@ namespace ArsImgTests {
         std::string data;
     };
 
+    std::pair<double, double> addInverval(const std::pair<double, double> &interv1, const std::pair<double, double> &interv2);
 
-    std::pair<double, double> addInverval(const std::pair<double, double>& interv1, const std::pair<double, double>& interv2);
-
-    /** Class to read, write and store point sets. 
+    /** Class to read, write and store point sets.
      */
-    class PointReaderWriter {
+    class PointReaderWriter
+    {
     public:
         /** Constructor.
          */
         PointReaderWriter();
 
-        /** Contructor with the possibility to read parameters from 
+        /** Contructor with the possibility to read parameters from
          */
-        PointReaderWriter(std::istream& in);
+        PointReaderWriter(std::istream &in);
 
         /** Constructor.
          */
-        PointReaderWriter(const PointReaderWriter& prw);
+        PointReaderWriter(const PointReaderWriter &prw);
 
         /** Constructor.
          */
-        PointReaderWriter(const cudars::VecVec2d& points);
+        PointReaderWriter(const cudars::VecVec2d &points);
         /**
          */
-        PointReaderWriter(const cudars::VecVec2d& points, const cudars::Affine2d& transf);
+        PointReaderWriter(const cudars::VecVec2d &points, const cudars::Affine2d &transf);
+
+        /** Destructor.
+         */
+        virtual ~PointReaderWriter();
 
         /**
-         * Destructor.
          */
-        ~PointReaderWriter();
-
-        /**
-         */
-        void swap(PointReaderWriter& prw);
+        void swap(PointReaderWriter &prw);
 
         /** Loads points (and potential parameters) from file.
-         * If some parameters are defined in the comments of the point file, 
-         * the current parameters are overwritten. 
+         * If some parameters are defined in the comments of the point file,
+         * the current parameters are overwritten.
          */
         int load(std::string filename);
 
@@ -102,11 +104,11 @@ namespace ArsImgTests {
         /**
          * Basic reference getter to points vector
          */
-        const cudars::VecVec2d& points() const;
+        const cudars::VecVec2d &points() const;
 
         void reset();
 
-        void insertPoints(const cudars::VecVec2d& points);
+        void insertPoints(const cudars::VecVec2d &points);
 
         double xmin() const;
 
@@ -146,14 +148,13 @@ namespace ArsImgTests {
 
         PcdHeader getPcdHeader() const;
 
-
         // --------------------------------------------------------
         // POINT TRANSFORMATION METHODS
         // --------------------------------------------------------
 
-        void findKNearest(const cudars::Vec2d& query, int k, std::vector<int>& indices, std::vector<double>& distances) const;
+        void findKNearest(const cudars::Vec2d &query, int k, std::vector<int> &indices, std::vector<double> &distances) const;
 
-        void computeContour(cudars::VecVec2d& contour) const;
+        void computeContour(cudars::VecVec2d &contour) const;
 
         // --------------------------------------------------------
         // POINT TRANSFORMATION METHODS
@@ -165,17 +166,17 @@ namespace ArsImgTests {
         void applyRandTransform(double translationMax, double rotMin, double rotMax);
 
         /** Applies a transformation to all the points.
-         * It composes transformation with previous transformation. 
+         * It composes transformation with previous transformation.
          */
-        void applyTransform(const cudars::Affine2d& transf);
+        void applyTransform(const cudars::Affine2d &transf);
 
         /** Applies a transformation to all the points.
-         * It composes transformation with previous transformation. 
+         * It composes transformation with previous transformation.
          */
         void applyTransform(double x, double y, double theta);
 
-        /** Applies occlusion to points for a given occlusion percentage (this percentage 
-         * is only a desired target). 
+        /** Applies occlusion to points for a given occlusion percentage (this percentage
+         * is only a desired target).
          */
         void applyOcclusion(double occlPerc = 0.15);
 
@@ -209,7 +210,7 @@ namespace ArsImgTests {
 
         /** Transform matrix to coordinates.
          */
-        void transformToCoodinates(const cudars::Affine2d& transform, double& x, double& y, double& theta);
+        void transformToCoodinates(const cudars::Affine2d &transform, double &x, double &y, double &theta);
 
     private:
         cudars::VecVec2d points_;
@@ -218,20 +219,20 @@ namespace ArsImgTests {
         std::random_device randDev_;
         std::mt19937 randGen_;
 
-        // Parameters read/written to files 
+        // Parameters read/written to files
         double transl_x;
         double transl_y;
         double rot_theta;
 
-        int num_in; //mpeg7 dataset related
+        int num_in; // mpeg7 dataset related
         double noise_sigma;
         int num_occl;
         int num_rand;
 
-        PcdHeader pcdHeader; //used when reading cloud from pcd file
+        PcdHeader pcdHeader; // used when reading cloud from pcd file
 
         // Parameters for search
-        flann::Index<flann::L2<double> >* flannIndexer_;
+        flann::Index<flann::L2<double>> *flannIndexer_;
         flann::Matrix<double> flannPoints_;
         std::vector<double> pointsVec_;
 
@@ -240,31 +241,32 @@ namespace ArsImgTests {
          * Result is stored in string out
          * Made to be used when reading/parsing header of PCD file
          */
-        void substrEoL(std::string& out, const std::string& line, const std::string& substrTBR);
+        void substrEoL(std::string &out, const std::string &line, const std::string &substrTBR);
 
         /**
          * Update transl_x, transl_y, rot_theta private members according to what the PCD header file "viewpoint" line says
          */
         void updateTransformInfoViewpoint();
 
-        /** Updates the data about the random transformation by composing previous transform 
-         * with the given one. 
+        /** Updates the data about the random transformation by composing previous transform
+         * with the given one.
          */
-        void updateTransformInfo(const cudars::Affine2d & transform);
+        void updateTransformInfo(const cudars::Affine2d &transform);
 
         /**
-         * Creates the FLANN data structure. 
+         * Creates the FLANN data structure.
          */
         void initFlann();
 
         /**
-         * Deallocates FLANN data structure. 
+         * Deallocates FLANN data structure.
          */
         void clearFlann();
 
         /**
          */
-        static bool ccw(const cudars::Vec2d& a, const cudars::Vec2d& b, const cudars::Vec2d & c) {
+        static bool ccw(const cudars::Vec2d &a, const cudars::Vec2d &b, const cudars::Vec2d &c)
+        {
             cudars::Vec2d ab, ac;
             cudars::vec2diff(ab, b, a);
             cudars::vec2diff(ac, c, a);
@@ -273,6 +275,6 @@ namespace ArsImgTests {
         }
     };
 
-} // end of namespace 
+} // end of namespace
 
-#endif
+#endif /*CUDARS_POINT_READER_WRITER_H*/

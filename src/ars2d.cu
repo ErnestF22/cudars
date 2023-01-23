@@ -601,7 +601,7 @@ void computeArsIsoGpu(ParlArsIsoParams &paip, ArsIsoParams &arsPms, const cudars
     execTime = millisecondsExecTime;
 }
 
-void gpu_estimateRotationArsIso(const ArsImgTests::PointReaderWriter &pointsSrc, const ArsImgTests::PointReaderWriter &pointsDst, TestParams &tp, ParlArsIsoParams &paip, double &rotOut)
+void gpu_estimateRotationArsIso(const CudarsImgTests::PointReaderWriter &pointsSrc, const CudarsImgTests::PointReaderWriter &pointsDst, TestParams &tp, ParlArsIsoParams &paip, double &rotOut)
 {
     // ARS SRC -> preparation for kernel calls and kernel calls
     cudaEvent_t startSrc, stopSrc; // timing using CUDA events
@@ -675,10 +675,10 @@ void gpu_estimateRotationArsIso(const ArsImgTests::PointReaderWriter &pointsSrc,
               << "ROT OUT " << rotOut << std::endl;
 
     // Computes the rotated points,centroid, affine transf matrix between src and dst
-    ArsImgTests::PointReaderWriter pointsRot(pointsSrc.points());
+    CudarsImgTests::PointReaderWriter pointsRot(pointsSrc.points());
     cudars::Vec2d centroidSrc = pointsSrc.computeCentroid();
     cudars::Vec2d centroidDst = pointsDst.computeCentroid();
-    cudars::Affine2d rotSrcDst = ArsImgTests::PointReaderWriter::coordToTransform(0.0, 0.0, rotOut);
+    cudars::Affine2d rotSrcDst = CudarsImgTests::PointReaderWriter::coordToTransform(0.0, 0.0, rotOut);
     //    cudars::Vec2d translSrcDst = centroidDst - rotSrcDst * centroidSrc;
     cudars::Vec2d translSrcDst;
     cudars::vec2diff(translSrcDst, centroidDst, cudars::aff2TimesVec2WRV(rotSrcDst, centroidSrc));

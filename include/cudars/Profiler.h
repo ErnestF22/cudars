@@ -6,7 +6,7 @@
  * it under the terms of the GNU Lesser General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * LIRE is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
@@ -22,7 +22,8 @@
 #include <map>
 #include <chrono>
 
-namespace cudars {
+namespace cudars
+{
 
     // Declarations
     class Profiler;
@@ -32,27 +33,32 @@ namespace cudars {
      * Class Profiler collects the statistics about the execution time.
      * It is implemented as a Singleton.
      */
-    class Profiler {
+    class Profiler
+    {
     public:
-
         /**
          * Struct for storing time stats.
          */
-        struct MeasureStatistic {
+        struct MeasureStatistic
+        {
             double timeAvg;
             double timeVar;
             double timeMin;
             double timeMax;
             size_t count;
 
-            MeasureStatistic(double time) :
-            timeAvg(time), timeVar(0.0), timeMin(time), timeMax(time), count(1) {
+            MeasureStatistic(double time) : timeAvg(time), timeVar(0.0), timeMin(time), timeMax(time), count(1)
+            {
             }
 
-            double getVariance() const {
-                if (count > 1) {
+            double getVariance() const
+            {
+                if (count > 1)
+                {
                     return (timeAvg / (count - 1));
-                } else {
+                }
+                else
+                {
                     return 0.0;
                 }
             }
@@ -61,7 +67,8 @@ namespace cudars {
         /**
          * Returns the only instance of profiler.
          */
-        static inline Profiler& getProfiler() {
+        static inline Profiler &getProfiler()
+        {
             static Profiler profiler;
             return profiler;
         }
@@ -103,14 +110,15 @@ namespace cudars {
         /**
          * Default constructor as private member of the class.
          */
-        Profiler() :
-        stats_() {
+        Profiler() : stats_()
+        {
         }
 
         /**
          * Default destructor.
          */
-        ~Profiler() {
+        ~Profiler()
+        {
         }
 
         /**
@@ -127,7 +135,8 @@ namespace cudars {
     /**
      * ScopedTimer measures the time elapsed from constructor to the invocation of destructor.
      */
-    class ScopedTimer {
+    class ScopedTimer
+    {
     public:
         typedef std::chrono::steady_clock timer_type;
         //        typedef std::chrono::high_resolution_clock timer_type;
@@ -150,11 +159,10 @@ namespace cudars {
 
     protected:
         std::string label_;
-        //std::chrono::time_point<std::chrono::high_resolution_clock> timeStart_;
+        // std::chrono::time_point<std::chrono::high_resolution_clock> timeStart_;
         std::chrono::time_point<timer_type> timeStart_;
     };
 
 } // end of namespace
 
 #endif /* PROFILER_H */
-

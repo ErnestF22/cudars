@@ -31,8 +31,8 @@
 int main(int argc, char **argv) {
     cudars::AngularRadonSpectrum2d arsSrc;
     cudars::AngularRadonSpectrum2d arsDst;
-    ArsImgTests::PointReaderWriter pointsSrc;
-    ArsImgTests::PointReaderWriter pointsDst;
+    CudarsImgTests::PointReaderWriter pointsSrc;
+    CudarsImgTests::PointReaderWriter pointsDst;
 
 
     rofl::ParamMap params;
@@ -339,10 +339,10 @@ int main(int argc, char **argv) {
 
 
     // Computes the rotated points,centroid, affine transf matrix between src and dst
-    ArsImgTests::PointReaderWriter pointsRot(pointsSrc.points());
+    CudarsImgTests::PointReaderWriter pointsRot(pointsSrc.points());
     cudars::Vec2d centroidSrc = pointsSrc.computeCentroid();
     cudars::Vec2d centroidDst = pointsDst.computeCentroid();
-    cudars::Affine2d rotSrcDst = ArsImgTests::PointReaderWriter::coordToTransform(0.0, 0.0, rotArs);
+    cudars::Affine2d rotSrcDst = CudarsImgTests::PointReaderWriter::coordToTransform(0.0, 0.0, rotArs);
     //    cudars::Vec2d translSrcDst = centroidDst - rotSrcDst * centroidSrc;
     cudars::Vec2d translSrcDst;
     cudars::vec2diff(translSrcDst, centroidDst, cudars::aff2TimesVec2WRV(rotSrcDst, centroidSrc));

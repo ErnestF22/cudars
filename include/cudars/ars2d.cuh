@@ -209,4 +209,4 @@ void computeArsIsoGpu(ParlArsIsoParams &paip, ArsIsoParams &arsPms, const cudars
  * @param paip
  * @param rotOut
  */
-void gpu_estimateRotationArsIso(const ArsImgTests::PointReaderWriter &pointsSrc, const ArsImgTests::PointReaderWriter &pointsDst, TestParams &tp, ParlArsIsoParams &paip, double &rotOut);
+void gpu_estimateRotationArsIso(const CudarsImgTests::PointReaderWriter &pointsSrc, const CudarsImgTests::PointReaderWriter &pointsDst, TestParams &tp, ParlArsIsoParams &paip, double &rotOut);

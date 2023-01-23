@@ -125,7 +125,7 @@ int main(int argc, char** argv) {
 
 
     // Computation
-    //ArsImgTests::glob(inputGlob, inputFilenames);
+    //CudarsImgTests::glob(inputGlob, inputFilenames);
     std::cout << std::endl;
     mpeg7io::getDirectoryFiles(inputGlob, inputFilenames);
     std::cout << "\nFilenames:\n";
@@ -211,8 +211,8 @@ int main(int argc, char** argv) {
         //        std::cout << "[" << countPairs + 1 << "/" << outPairs.size() << "]\n" << "  * \"" << inputFilenames[comp.first] << "\"\n    \"" << inputFilenames[comp.second] << "\"" << std::endl;
         std::cout << std::endl << "[" << countPairs + 1 << "/" << outPairs.size() << "]" << std::endl;
 
-        ArsImgTests::PointReaderWriter pointsSrc;
-        ArsImgTests::PointReaderWriter pointsDst;
+        CudarsImgTests::PointReaderWriter pointsSrc;
+        CudarsImgTests::PointReaderWriter pointsDst;
 
         std::cout << "--- Reading input cloud SRC ---" << std::endl;
         pointsSrc.loadPcdAscii(inputFilenames[comp.first]);

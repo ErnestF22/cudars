@@ -35,8 +35,8 @@ int main(int argc, char **argv)
 {
     cudars::AngularRadonSpectrum2d arsSrc;
     cudars::AngularRadonSpectrum2d arsDst;
-    ArsImgTests::PointReaderWriter pointsSrc;
-    ArsImgTests::PointReaderWriter pointsDst;
+    CudarsImgTests::PointReaderWriter pointsSrc;
+    CudarsImgTests::PointReaderWriter pointsDst;
 
     TestParams testParams;
     ParlArsIsoParams paiParams;

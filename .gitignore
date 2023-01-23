@@ -35,5 +35,5 @@
 .vscode/
 build/
 bin/
-cfg/
 nbproject/
+run/
