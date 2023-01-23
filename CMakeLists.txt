@@ -178,6 +178,11 @@ set_target_properties(gpu_testArsIsoPosePcl PROPERTIES CUDA_ARCHITECTURES "75")
 add_executable(testTlsScalarCons test/testTlsScalarCons.cu)
 target_link_libraries(testTlsScalarCons cudars rofl_common ${PCL_LIBRARIES} -lstdc++fs)
 
+### translation - Procrustes Umeyama
+
+add_executable(testProcrustes src/procrustes_umeyama.cpp test/testProcrustes.cpp)
+target_link_libraries(testProcrustes ${PCL_LIBRARIES})
+
 ####################################################################################
 
 
