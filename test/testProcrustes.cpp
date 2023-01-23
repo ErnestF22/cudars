@@ -52,7 +52,7 @@ int main (int argc, char **argv) {
     // START OF 2D TEST
     pcl::PointCloud<pcl::PointXY>::Ptr clA(new pcl::PointCloud<pcl::PointXY>), clB(new pcl::PointCloud<pcl::PointXY>);
     int dim = 2;
-    Eigen::Affine2f transf;
+    Eigen::Affine2d transf;
     pcl::PointXY aA;
     aA.x = 0.0; aA.y = 0.0;
     clA->push_back(aA);
