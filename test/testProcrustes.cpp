@@ -27,7 +27,7 @@
 int main (int argc, char **argv) {
     pcl::PointCloud<pcl::PointXYZ>::Ptr clA(new pcl::PointCloud<pcl::PointXYZ>), clB(new pcl::PointCloud<pcl::PointXYZ>);
     int dim = 3;
-    Eigen::Affine3d transf;
+    Eigen::Affine3f transf;
 
     pcl::PointXYZ aS(pcl::PointXYZ(0,0,0));
     clA->push_back(aS);

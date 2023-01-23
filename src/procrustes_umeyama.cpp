@@ -1,10 +1,11 @@
 #include "cudars/procrustes_umeyama.h"
 
-void procrustes_umeyama(Eigen::Affine3d& transfOut, const pcl::PointCloud<pcl::PointXYZ>::Ptr cloudA, const pcl::PointCloud<pcl::PointXYZ>::Ptr cloudB, int dim) {
-    transfOut = Eigen::Affine3d::Identity();
+void procrustes_umeyama(Eigen::Affine3f &transfOut, const pcl::PointCloud<pcl::PointXYZ>::Ptr cloudA, const pcl::PointCloud<pcl::PointXYZ>::Ptr cloudB, int dim)
+{
+    transfOut = Eigen::Affine3f::Identity();
 
-    size_t m = dim; 
-    size_t n = std::min<size_t>(cloudA->size(), cloudB->size()); //TODO: fix when size(cloudA)!=size(cloudB)
+    size_t m = dim;
+    size_t n = std::min<size_t>(cloudA->size(), cloudB->size()); // TODO: fix when size(cloudA)!=size(cloudB)
 
     // if dim == 2
     //     transf_out = rigidtform2d(0, [0,0]);
@@ -15,7 +16,6 @@ void procrustes_umeyama(Eigen::Affine3d& transfOut, const pcl::PointCloud<pcl::P
     //     return;
     // end
 
-
     Eigen::MatrixXf clAMat = cloudA->getMatrixXfMap();
     Eigen::MatrixXf clBMat = cloudB->getMatrixXfMap();
 
@@ -23,25 +23,26 @@ void procrustes_umeyama(Eigen::Affine3d& transfOut, const pcl::PointCloud<pcl::P
 
     Eigen::JacobiSVD<Eigen::MatrixXf> svd1;
     svd1.compute(svd1InputMat);
-    Eigen::MatrixXf u1=svd1.matrixU();
-    Eigen::MatrixXf v1=svd1.matrixU();
+    Eigen::MatrixXf u1 = svd1.matrixU();
+    Eigen::MatrixXf v1 = svd1.matrixU();
 
     Eigen::Matrix3f s_min = Eigen::Matrix3f::Identity();
-    if (svd1InputMat.determinant() < 0) 
-        s_min(dim,dim) = -1;
+    if (svd1InputMat.determinant() < 0)
+        s_min(dim, dim) = -1;
 
-         
-    Eigen::FullPivLU<Eigen::Matrix3f> luDecomp(svd1InputMat);
+    //Note: for floating values matrices, you might get more accurate results with Eigen::ColPivHouseholderQR< MatrixType >
+    Eigen::FullPivLU<Eigen::Matrix3f> luDecomp(svd1InputMat); // needed to compute rank
     auto rank_abt = luDecomp.rank();
-    if ((int) rank_abt < m - 1)
+    if ((int)rank_abt < m - 1)
         std::cerr << "Error: rank(a*b') < dim - 1 -> returning eye transf" << std::endl;
     return;
-    
+
     Eigen::Matrix3f R1 = Eigen::Matrix3f::Identity();
-    if (rank_abt == m-1){
+    if (rank_abt == m - 1)
+    {
         Eigen::Matrix3f s_argmin = Eigen::Matrix3f::Identity();
         if (u1.determinant() * v1.determinant() == -1)
-            s_argmin(dim,dim) = -1;
+            s_argmin(dim, dim) = -1;
         Eigen::MatrixXf R1 = u1 * s_argmin * v1.transpose();
     }
     else if (rank_abt == m)
@@ -49,51 +50,62 @@ void procrustes_umeyama(Eigen::Affine3d& transfOut, const pcl::PointCloud<pcl::P
 
     // TODO: add computation of minimum value of mean squared error
 
-    Eigen::Vector3f a_centroid = clAMat.rowwise().mean(); //mu_x
-    Eigen::Vector3f b_centroid = clBMat.rowwise().mean(); //mu_y
+    Eigen::Vector3f a_centroid = clAMat.rowwise().mean(); // mu_x
+    Eigen::Vector3f b_centroid = clBMat.rowwise().mean(); // mu_y
 
-    
-//     a_centroid_vec = repmat(a_centroid,1,n);
-//     diff_a = a - a_centroid_vec;
-//     a_sqnorm = (vecnorm(diff_a,2,1)).^2;    
-//     sigma_a = sum(a_sqnorm) / n; %sigma_x
+    Eigen::MatrixXf a_centroid_vec(clAMat.colwise().replicate(n));
+    Eigen::MatrixXf diff_a = clAMat - a_centroid_vec;
+    Eigen::MatrixXf a_sqnorm = diff_a.colwise().squaredNorm();
+    float sigma_a = a_sqnorm.sum() / n; // sigma_x
 
-//     b_centroid_vec = repmat(b_centroid,1,n);
-//     diff_b = b - b_centroid_vec;
-//     b_sqnorm = (vecnorm(diff_b,2,1)).^2;    
-//     sigma_b = sum(b_sqnorm) / n; %sigma_y
+    Eigen::MatrixXf b_centroid_vec(clBMat.colwise().replicate(n));
+    Eigen::MatrixXf diff_b = clBMat - b_centroid_vec;
+    Eigen::MatrixXf b_sqnorm = diff_b.colwise().squaredNorm();
+    float sigma_b = b_sqnorm.sum() / n; // sigma_y
 
-//     sigma_xy_complete = zeros(dim,dim,n); %Sigma_xy
-//     for ii = 1:n
-//         sigma_xy_complete(:,:,ii) = diff_b(:,ii) * diff_a(:,ii)';
-//     end
-//     sigma_xy = sum(sigma_xy_complete, 3) ./ n;
+    Eigen::Tensor<float, 3> sigma_xy_complete(dim, dim, n); // Sigma_xy
+    sigma_xy_complete.setZero();
+    for (int i = 0; i < n; ++i) {
+        //MATLAB equivalent:
+        //sigma_xy_complete.block<dim,dim,n>(0,0,i) = diff_b.col(i) * diff_a.col(ii).transpose();
 
-//     [u_sigma_xy,d_sigma_xy,v_sigma_xy] = svd(sigma_xy);
+        Eigen::Vector3f dAi = diff_a.col(i);
+        Eigen::Vector3f dBi = diff_b.col(i);
+        Eigen::Matrix3f tmp = dAi * dBi.transpose();
+        
+        Eigen::Tensor<float, 3,3> tmpTens;
+        tmpTens.setZero();
+        // sigma_xy_complete.chip(i,2) = tmpTens;        
+    }
+    Eigen::Tensor<float, 2> sigma_xy_tensor = sigma_xy_complete.cumsum(3);
+    Eigen::MatrixXf sigma_xy = Tensor_to_Matrix(sigma_xy_tensor, dim, dim);
 
-//     rank_sigma_xy = rank(sigma_xy)
-//     if rank_sigma_xy < m - 1
-//         disp("Error: rank(sigma_xy) < dim - 1 -> returning eye() transf");
-//         return;
-//     end
+    Eigen::JacobiSVD<Eigen::MatrixXf> svd_sigma_xy;
+    svd_sigma_xy.compute(sigma_xy);
 
-//     s_sigma_xy = eye(dim);
-//     if det(sigma_xy) < 0
-//         s_sigma_xy (dim,dim) = -1;
-//     end    
-//     if rank_sigma_xy == m-1
-//         if det(u_sigma_xy) * det(v_sigma_xy) == -1 
-//             s_sigma_xy(dim,dim) = -1;
-//         end
-//     end
-    
+    Eigen::FullPivLU<Eigen::Matrix3f> sigma_xy_decomp(sigma_xy); // needed to compute rank
+    auto rank_sigma_xy = sigma_xy_decomp.rank();
+    if ((int)rank_sigma_xy < m - 1) {
+        std::cerr << "Error: rank(sigma_xy) < dim - 1 -> returning eye() transf" << std::endl;
+        return;
+    }
 
-//     R2 = u_sigma_xy * s_sigma_xy * v_sigma_xy'
-//     c = trace(d_sigma_xy * s_sigma_xy) / sigma_a
-//     transl = b_centroid - c * R2 * a_centroid
-    
-//     transf_out.R = R2;
-//     transf_out.Translation = transl;
+    Eigen::MatrixXf u_sigma_xy = svd_sigma_xy.matrixU();
+    Eigen::MatrixXf d_sigma_xy = Eigen::DiagonalMatrix<float, 3>(svd_sigma_xy.singularValues()); //called S in Eigen documentation
+    Eigen::MatrixXf v_sigma_xy = svd_sigma_xy.matrixV();
 
+    Eigen::Matrix3f s_sigma_xy = Eigen::Matrix3f::Identity();
+    if (sigma_xy.determinant() < 0)
+        s_sigma_xy(dim, dim) = -1;
+    if ((int)rank_sigma_xy == m - 1)
+        if (u_sigma_xy.determinant() * v_sigma_xy.determinant() == -1)
+            s_sigma_xy(dim, dim) = -1;
 
+    Eigen::Matrix3f R2 = u_sigma_xy * s_sigma_xy * v_sigma_xy.transpose();
+    float c = (d_sigma_xy * s_sigma_xy).trace() / sigma_a;
+    Eigen::Vector3f transl = b_centroid - c * R2 * a_centroid;
+
+    transfOut.linear() = R2;
+    transfOut.translation() = transl;
+    // transfOut.makeAffine();
 }
