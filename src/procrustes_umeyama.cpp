@@ -4,6 +4,8 @@ void procrustes_umeyama(Eigen::Affine3f &transfOut, const pcl::PointCloud<pcl::P
 {
     transfOut = Eigen::Affine3f::Identity();
 
+    assert (cloudA->size() == cloudB->size());
+
     size_t m = dim;
     size_t n = std::min<size_t>(cloudA->size(), cloudB->size()); // TODO: fix when size(cloudA)!=size(cloudB)
 
@@ -21,17 +23,16 @@ void procrustes_umeyama(Eigen::Affine3f &transfOut, const pcl::PointCloud<pcl::P
 
     Eigen::MatrixXf svd1InputMat = clAMat * clBMat.transpose();
 
-    Eigen::JacobiSVD<Eigen::MatrixXf> svd1;
-    svd1.compute(svd1InputMat);
+    Eigen::JacobiSVD<Eigen::MatrixXf> svd1(svd1InputMat, Eigen::ComputeFullU | Eigen::ComputeFullV);
     Eigen::MatrixXf u1 = svd1.matrixU();
-    Eigen::MatrixXf v1 = svd1.matrixU();
+    Eigen::MatrixXf v1 = svd1.matrixV();
 
     Eigen::Matrix3f s_min = Eigen::Matrix3f::Identity();
     if (svd1InputMat.determinant() < 0)
         s_min(dim, dim) = -1;
 
     //Note: for floating values matrices, you might get more accurate results with Eigen::ColPivHouseholderQR< MatrixType >
-    Eigen::FullPivLU<Eigen::Matrix3f> luDecomp(svd1InputMat); // needed to compute rank
+    Eigen::FullPivLU<Eigen::MatrixXf> luDecomp(svd1InputMat); // needed to compute rank
     auto rank_abt = luDecomp.rank();
     if ((int)rank_abt < m - 1)
         std::cerr << "Error: rank(a*b') < dim - 1 -> returning eye transf" << std::endl;
@@ -71,17 +72,15 @@ void procrustes_umeyama(Eigen::Affine3f &transfOut, const pcl::PointCloud<pcl::P
 
         Eigen::Vector3f dAi = diff_a.col(i);
         Eigen::Vector3f dBi = diff_b.col(i);
-        Eigen::Matrix3f tmp = dAi * dBi.transpose();
+        Eigen::MatrixXf tmp = dAi * dBi.transpose(); //this is actually a Matrix3f, but conversion function takes MatrixXf as input
         
-        Eigen::Tensor<float, 3,3> tmpTens;
-        tmpTens.setZero();
-        // sigma_xy_complete.chip(i,2) = tmpTens;        
+        Eigen::Tensor<float, 3> tmpTens = Matrix_to_Tensor(tmp, 3,3);
+        sigma_xy_complete.chip(i,2) = tmpTens;        
     }
     Eigen::Tensor<float, 2> sigma_xy_tensor = sigma_xy_complete.cumsum(3);
     Eigen::MatrixXf sigma_xy = Tensor_to_Matrix(sigma_xy_tensor, dim, dim);
 
-    Eigen::JacobiSVD<Eigen::MatrixXf> svd_sigma_xy;
-    svd_sigma_xy.compute(sigma_xy);
+    Eigen::JacobiSVD<Eigen::MatrixXf> svd_sigma_xy(sigma_xy, Eigen::ComputeFullU | Eigen::ComputeFullV);
 
     Eigen::FullPivLU<Eigen::Matrix3f> sigma_xy_decomp(sigma_xy); // needed to compute rank
     auto rank_sigma_xy = sigma_xy_decomp.rank();

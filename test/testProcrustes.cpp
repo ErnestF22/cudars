@@ -37,11 +37,11 @@ int main (int argc, char **argv) {
     clA->push_back(cS);
 
     pcl::PointXYZ aD(pcl::PointXYZ(0,0,0));
-    clA->push_back(aD);
+    clB->push_back(aD);
     pcl::PointXYZ bD(pcl::PointXYZ(-1,0,0));
-    clA->push_back(bD);
+    clB->push_back(bD);
     pcl::PointXYZ cD(pcl::PointXYZ(0,2,0));
-    clA->push_back(cD);
+    clB->push_back(cD);
 
     procrustes_umeyama(transf, clA, clB, dim);
 
