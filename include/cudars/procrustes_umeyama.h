@@ -29,9 +29,9 @@ auto Matrix_to_Tensor(const MatrixType<Scalar> &matrix, Dims... dims)
 }
 
 
-void procrustes_umeyama3f(Eigen::Affine3f& transfOut, const pcl::PointCloud<pcl::PointXYZ>::Ptr cloudA, const pcl::PointCloud<pcl::PointXYZ>::Ptr cloudB);
+void procrustes_umeyama3d(Eigen::Affine3d& transfOut, const pcl::PointCloud<pcl::PointXYZ>::Ptr cloudA, const pcl::PointCloud<pcl::PointXYZ>::Ptr cloudB);
 
-void procrustes_umeyama2f(Eigen::Affine2d& transfOut, const pcl::PointCloud<pcl::PointXY>::Ptr cloudA, const pcl::PointCloud<pcl::PointXY>::Ptr cloudB);
+void procrustes_umeyama2d(Eigen::Affine2d& transfOut, const pcl::PointCloud<pcl::PointXY>::Ptr cloudA, const pcl::PointCloud<pcl::PointXY>::Ptr cloudB);
 
 
 // function transf_out = procrustes_umeyama(a,b, dim)

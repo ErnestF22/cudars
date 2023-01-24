@@ -1,8 +1,8 @@
 #include "cudars/procrustes_umeyama.h"
 
-void procrustes_umeyama3f(Eigen::Affine3f &transfOut, const pcl::PointCloud<pcl::PointXYZ>::Ptr cloudA, const pcl::PointCloud<pcl::PointXYZ>::Ptr cloudB)
+void procrustes_umeyama3d(Eigen::Affine3d &transfOut, const pcl::PointCloud<pcl::PointXYZ>::Ptr cloudA, const pcl::PointCloud<pcl::PointXYZ>::Ptr cloudB)
 {
-    transfOut = Eigen::Affine3f::Identity();
+    transfOut = Eigen::Affine3d::Identity();
 
     assert(cloudA->size() == cloudB->size());
 
@@ -12,18 +12,18 @@ void procrustes_umeyama3f(Eigen::Affine3f &transfOut, const pcl::PointCloud<pcl:
 
     // // cloudA->points.erase(cloudA->points.end() - 1);
     // // cloudB->points.erase(cloudB->points.end() - 1);
-    // Eigen::MatrixXf clAMat = cloudA->getMatrixXfMap();
-    // Eigen::MatrixXf clBMat = cloudB->getMatrixXfMap();
+    // Eigen::MatrixXd clAMat = cloudA->getMatrixXdMap();
+    // Eigen::MatrixXd clBMat = cloudB->getMatrixXdMap();
     // clAMat = clAMat.block<3,3>(0,0);
     // clBMat = clBMat.block<3,3>(0,0);
-    Eigen::MatrixXf clAMat(m, n);
-    Eigen::MatrixXf clBMat(m, n);
+    Eigen::MatrixXd clAMat(m, n);
+    Eigen::MatrixXd clBMat(m, n);
 
     for (int i = 0; i < n; ++i)
     {
-        Eigen::Vector3f ptA;
+        Eigen::Vector3d ptA;
         ptA << cloudA->at(i).x, cloudA->at(i).y, cloudA->at(i).z;
-        Eigen::Vector3f ptB;
+        Eigen::Vector3d ptB;
         ptB << cloudB->at(i).x, cloudB->at(i).y, cloudB->at(i).z;
         clAMat.col(i) = ptA;
         clBMat.col(i) = ptB;
@@ -37,18 +37,18 @@ void procrustes_umeyama3f(Eigen::Affine3f &transfOut, const pcl::PointCloud<pcl:
     std::cout << "clBMat" << std::endl
               << clBMat << std::endl;
 
-    Eigen::MatrixXf svd1InputMat = clAMat * clBMat.transpose();
+    Eigen::MatrixXd svd1InputMat = clAMat * clBMat.transpose();
 
-    Eigen::JacobiSVD<Eigen::MatrixXf> svd1(svd1InputMat, Eigen::ComputeFullU | Eigen::ComputeFullV);
-    Eigen::MatrixXf u1 = svd1.matrixU();
-    Eigen::MatrixXf v1 = svd1.matrixV();
+    Eigen::JacobiSVD<Eigen::MatrixXd> svd1(svd1InputMat, Eigen::ComputeThinU | Eigen::ComputeThinV);
+    Eigen::MatrixXd u1 = svd1.matrixU();
+    Eigen::MatrixXd v1 = svd1.matrixV();
 
-    Eigen::Matrix3f s_min = Eigen::Matrix3f::Identity();
+    Eigen::Matrix3d s_min = Eigen::Matrix3d::Identity();
     if (svd1InputMat.determinant() < 0)
         s_min(2, 2) = -1;
 
     // Note: for floating values matrices, you might get more accurate results with Eigen::ColPivHouseholderQR< MatrixType >
-    Eigen::ColPivHouseholderQR<Eigen::MatrixXf> luDecomp(svd1InputMat); // needed to compute rank
+    Eigen::ColPivHouseholderQR<Eigen::MatrixXd> luDecomp(svd1InputMat); // needed to compute rank
     auto rank_abt = luDecomp.rank();
     if ((int)rank_abt < m - 1)
     {
@@ -56,10 +56,10 @@ void procrustes_umeyama3f(Eigen::Affine3f &transfOut, const pcl::PointCloud<pcl:
         return;
     }
 
-    Eigen::Matrix3f R1 = Eigen::Matrix3f::Identity();
+    Eigen::Matrix3d R1 = Eigen::Matrix3d::Identity();
     if (rank_abt == m - 1)
     {
-        Eigen::Matrix3f s_argmin = Eigen::Matrix3f::Identity();
+        Eigen::Matrix3d s_argmin = Eigen::Matrix3d::Identity();
         if (u1.determinant() * v1.determinant() == -1)
             s_argmin(2, 2) = -1;
         R1 = u1 * s_argmin * v1.transpose();
@@ -69,31 +69,31 @@ void procrustes_umeyama3f(Eigen::Affine3f &transfOut, const pcl::PointCloud<pcl:
 
     // TODO: add computation of minimum value of mean squared error
 
-    Eigen::Vector3f a_centroid = clAMat.rowwise().mean(); // mu_x
-    Eigen::Vector3f b_centroid = clBMat.rowwise().mean(); // mu_y
+    Eigen::Vector3d a_centroid = clAMat.rowwise().mean(); // mu_x
+    Eigen::Vector3d b_centroid = clBMat.rowwise().mean(); // mu_y
 
-    Eigen::MatrixXf a_centroid_repmat(a_centroid.rowwise().replicate(n));
-    Eigen::MatrixXf diff_a = clAMat - a_centroid_repmat;
-    Eigen::MatrixXf a_sqnorm = diff_a.colwise().squaredNorm();
-    float sigma_a = a_sqnorm.sum() / n; // sigma_x
+    Eigen::MatrixXd a_centroid_repmat(a_centroid.rowwise().replicate(n));
+    Eigen::MatrixXd diff_a = clAMat - a_centroid_repmat;
+    Eigen::MatrixXd a_sqnorm = diff_a.colwise().squaredNorm();
+    double sigma_a = a_sqnorm.sum() / n; // sigma_x
 
-    Eigen::MatrixXf b_centroid_repmat(b_centroid.rowwise().replicate(n));
-    Eigen::MatrixXf diff_b = clBMat - b_centroid_repmat;
-    Eigen::MatrixXf b_sqnorm = diff_b.colwise().squaredNorm();
-    float sigma_b = b_sqnorm.sum() / n; // sigma_y
+    Eigen::MatrixXd b_centroid_repmat(b_centroid.rowwise().replicate(n));
+    Eigen::MatrixXd diff_b = clBMat - b_centroid_repmat;
+    Eigen::MatrixXd b_sqnorm = diff_b.colwise().squaredNorm();
+    double sigma_b = b_sqnorm.sum() / n; // sigma_y
 
-    Eigen::Tensor<float, THREE_> sigma_xy_complete(m, m, n); // Sigma_xy
+    Eigen::Tensor<double, THREE_> sigma_xy_complete(m, m, n); // Sigma_xy
     sigma_xy_complete.setZero();
     for (int i = 0; i < n; ++i)
     {
         // MATLAB equivalent:
         // sigma_xy_complete.block<dim,dim,n>(0,0,i) = diff_b.col(i) * diff_a.col(ii).transpose();
 
-        Eigen::Vector3f dAi = diff_a.col(i);
-        Eigen::Vector3f dBi = diff_b.col(i);
-        Eigen::MatrixXf tmp = dBi * dAi.transpose(); // this is actually a Matrix2f, but conversion function takes MatrixXf as input
+        Eigen::Vector3d dAi = diff_a.col(i);
+        Eigen::Vector3d dBi = diff_b.col(i);
+        Eigen::MatrixXd tmp = dBi * dAi.transpose(); // this is actually a Matrix2f, but conversion function takes MatrixXd as input
 
-        Eigen::Tensor<float, TWO_> tmpTens = Matrix_to_Tensor(tmp, THREE_, THREE_);
+        Eigen::Tensor<double, TWO_> tmpTens = Matrix_to_Tensor(tmp, THREE_, THREE_);
         sigma_xy_complete.chip(i, 2) = tmpTens;
 
         std::cout << "i " << i << std::endl;
@@ -105,7 +105,8 @@ void procrustes_umeyama3f(Eigen::Affine3f &transfOut, const pcl::PointCloud<pcl:
                   << tmpTens << std::endl;
         std::cout << std::endl;
     }
-    Eigen::Tensor<float, 2> sigma_xy_tensor(m, m);
+    Eigen::Tensor<double, 2> sigma_xy_tensor(m, m);
+    sigma_xy_tensor.setZero();
     // built-in version
     // std::cout << std::endl << "sigma_xy_tensor" << sigma_xy_tensor << std::endl;
     // std::array<int, 3> two_dims{{3,3}};
@@ -115,9 +116,9 @@ void procrustes_umeyama3f(Eigen::Affine3f &transfOut, const pcl::PointCloud<pcl:
     {
         sigma_xy_tensor += sigma_xy_complete.chip(i, 2);
     }
-    Eigen::MatrixXf sigma_xy = Tensor_to_Matrix(sigma_xy_tensor, m, m);
+    Eigen::MatrixXd sigma_xy = Tensor_to_Matrix(sigma_xy_tensor, m, m) / n;
 
-    Eigen::ColPivHouseholderQR<Eigen::Matrix3f> sigma_xy_decomp(sigma_xy); // needed to compute rank
+    Eigen::ColPivHouseholderQR<Eigen::Matrix3d> sigma_xy_decomp(sigma_xy); // needed to compute rank
     auto rank_sigma_xy = sigma_xy_decomp.rank();
     if ((int)rank_sigma_xy < m - 1)
     {
@@ -125,30 +126,44 @@ void procrustes_umeyama3f(Eigen::Affine3f &transfOut, const pcl::PointCloud<pcl:
         return;
     }
 
-    Eigen::JacobiSVD<Eigen::MatrixXf> svd_sigma_xy(sigma_xy, Eigen::ComputeFullU | Eigen::ComputeFullV);
+    std::cout << "sigma_xy_tensor " << std::endl
+              << sigma_xy_tensor << std::endl; // this still needs normalization!
+    std::cout << "sigma_xy " << std::endl
+              << sigma_xy << std::endl;
 
-    Eigen::MatrixXf u_sigma_xy = svd_sigma_xy.matrixU();
-    //svd.singularValues().asDiagonal()
-    Eigen::MatrixXf d_sigma_xy = Eigen::DiagonalMatrix<float, THREE_>(svd_sigma_xy.singularValues()); // called S in Eigen documentation
-    Eigen::MatrixXf v_sigma_xy = svd_sigma_xy.matrixV();
+    Eigen::JacobiSVD<Eigen::MatrixXd> svd_sigma_xy(sigma_xy, Eigen::ComputeThinU | Eigen::ComputeThinV);
 
-    Eigen::Matrix3f s_sigma_xy = Eigen::Matrix3f::Identity();
+    Eigen::MatrixXd u_sigma_xy = svd_sigma_xy.matrixU();
+    Eigen::MatrixXd d_sigma_xy = svd_sigma_xy.singularValues().asDiagonal(); // called S in Eigen documentation
+    Eigen::MatrixXd v_sigma_xy = svd_sigma_xy.matrixV();
+
+    
+
+    Eigen::Matrix3d s_sigma_xy = Eigen::Matrix3d::Identity();
     if (sigma_xy.determinant() < 0)
         s_sigma_xy(2, 2) = -1;
     if ((int)rank_sigma_xy == m - 1)
         if (u_sigma_xy.determinant() * v_sigma_xy.determinant() == -1)
             s_sigma_xy(2, 2) = -1;
 
-    Eigen::Matrix3f R2 = u_sigma_xy * s_sigma_xy * v_sigma_xy.transpose();
-    float c = (d_sigma_xy * s_sigma_xy).trace() / sigma_a;
-    Eigen::Vector3f transl = b_centroid - c * R2 * a_centroid;
+    std::cout << "u_sigma_xy " << std::endl
+              << u_sigma_xy << std::endl;
+    // Eigen::DiagonalMatrix<double, THREE_>(svd_sigma_xy.singularValues())
+     std::cout << "s_sigma_xy " << std::endl
+              << s_sigma_xy << std::endl;
+     std::cout << "v_sigma_xy " << std::endl
+              << v_sigma_xy << std::endl;            
+
+    Eigen::Matrix3d R2 = u_sigma_xy * s_sigma_xy * v_sigma_xy.transpose();
+    double c = (d_sigma_xy * s_sigma_xy).trace() / sigma_a;
+    Eigen::Vector3d transl = b_centroid - c * R2 * a_centroid;
 
     transfOut.linear() = R2;
     transfOut.translation() = transl;
-    // transfOut.makeAffine();
+    transfOut.makeAffine();
 }
 
-void procrustes_umeyama2f(Eigen::Affine2d &transfOut, const pcl::PointCloud<pcl::PointXY>::Ptr cloudA, const pcl::PointCloud<pcl::PointXY>::Ptr cloudB)
+void procrustes_umeyama2d(Eigen::Affine2d &transfOut, const pcl::PointCloud<pcl::PointXY>::Ptr cloudA, const pcl::PointCloud<pcl::PointXY>::Ptr cloudB)
 {
     transfOut = Eigen::Affine2d::Identity();
 
@@ -181,7 +196,7 @@ void procrustes_umeyama2f(Eigen::Affine2d &transfOut, const pcl::PointCloud<pcl:
 
     Eigen::MatrixXd svd1InputMat = clAMat * clBMat.transpose();
 
-    Eigen::JacobiSVD<Eigen::MatrixXd> svd1(svd1InputMat, Eigen::ComputeFullU | Eigen::ComputeFullV);
+    Eigen::JacobiSVD<Eigen::MatrixXd> svd1(svd1InputMat, Eigen::ComputeThinU | Eigen::ComputeThinV);
     Eigen::MatrixXd u1 = svd1.matrixU();
     Eigen::MatrixXd v1 = svd1.matrixV();
 
@@ -216,17 +231,34 @@ void procrustes_umeyama2f(Eigen::Affine2d &transfOut, const pcl::PointCloud<pcl:
 
     Eigen::Vector2d a_centroid = clAMat.rowwise().mean(); // mu_x
     Eigen::Vector2d b_centroid = clBMat.rowwise().mean(); // mu_y
+    std::cout << "a_centroid " << std::endl
+              << a_centroid << std::endl;
 
     Eigen::MatrixXd a_centroid_repmat(a_centroid.rowwise().replicate(n));
-    std::cout << "a_centroid_repmat rows " << a_centroid_repmat.rows() << " cols " << a_centroid_repmat.cols() << std::endl;
+    // std::cout << "a_centroid_repmat rows " << a_centroid_repmat.rows() << " cols " << a_centroid_repmat.cols() << std::endl;
+    // std::cout << std::endl << "a_centroid_repmat " << std::endl << a_centroid_repmat << std::endl;
     Eigen::MatrixXd diff_a = clAMat - a_centroid_repmat;
+    // std::cout << std::endl << "diff_a " << std::endl << diff_a << std::endl;
     Eigen::MatrixXd a_sqnorm = diff_a.colwise().squaredNorm();
+    // std::cout << std::endl << "a_sqnorm " << std::endl << a_sqnorm << std::endl;
     double sigma_a = a_sqnorm.sum() / n; // sigma_x
+    // std::cout << "sigma_a " << sigma_a << std::endl;
 
     Eigen::MatrixXd b_centroid_repmat(b_centroid.rowwise().replicate(n));
+    // std::cout << "b_centroid_repmat rows " << b_centroid_repmat.rows() << " cols " << b_centroid_repmat.cols() << std::endl;
+    std::cout << std::endl
+              << "b_centroid_repmat " << std::endl
+              << b_centroid_repmat << std::endl;
     Eigen::MatrixXd diff_b = clBMat - b_centroid_repmat;
+    std::cout << std::endl
+              << "diff_b " << std::endl
+              << diff_b << std::endl;
     Eigen::MatrixXd b_sqnorm = diff_b.colwise().squaredNorm();
+    std::cout << std::endl
+              << "b_sqnorm " << std::endl
+              << b_sqnorm << std::endl;
     double sigma_b = b_sqnorm.sum() / n; // sigma_y
+    std::cout << "sigma_b " << sigma_b << std::endl;
 
     Eigen::Tensor<double, THREE_> sigma_xy_complete(m, m, n); // Sigma_xy
     sigma_xy_complete.setZero();
@@ -243,15 +275,24 @@ void procrustes_umeyama2f(Eigen::Affine2d &transfOut, const pcl::PointCloud<pcl:
         sigma_xy_complete.chip(i, 2) = tmpTens;
 
         std::cout << "i " << i << std::endl;
+        std::cout << "dAi " << std::endl
+                  << dAi << std::endl;
+        std::cout << "dBi " << std::endl
+                  << dBi << std::endl;
         std::cout << "tmp " << std::endl
                   << tmp << std::endl;
-        std::cout << "sigma_xy_complete.chip(i, 2) " << std::endl
-                  << sigma_xy_complete.chip(i, 2) << std::endl;
+        // std::cout << "sigma_xy_complete.chip(i, 2) " << std::endl
+        //           << sigma_xy_complete.chip(i, 2) << std::endl;
+        std::cout << "sigma_xy_complete " << std::endl
+                  << sigma_xy_complete << std::endl;
         std::cout << "tmpTens " << std::endl
                   << tmpTens << std::endl;
         std::cout << std::endl;
     }
+    std::cout << "sigma_xy_complete " << std::endl
+              << sigma_xy_complete << std::endl;
     Eigen::Tensor<double, 2> sigma_xy_tensor(2, 2);
+    sigma_xy_tensor.setZero(); //!!
     // built-in version
     // std::cout << std::endl << "sigma_xy_tensor" << sigma_xy_tensor << std::endl;
     // std::array<int, 3> two_dims{{2,2}};
@@ -259,11 +300,15 @@ void procrustes_umeyama2f(Eigen::Affine2d &transfOut, const pcl::PointCloud<pcl:
     // hand-made version
     for (int i = 0; i < n; ++i)
     {
-        sigma_xy_tensor += sigma_xy_complete.chip(i, 2);
+        sigma_xy_tensor += sigma_xy_complete.chip(i, 2); // this still needs normalization!
     }
-    Eigen::MatrixXd sigma_xy = Tensor_to_Matrix(sigma_xy_tensor, m, m);
+    std::cout << "sigma_xy_tensor " << std::endl
+              << sigma_xy_tensor << std::endl; // this still needs normalization!
+    Eigen::MatrixXd sigma_xy = Tensor_to_Matrix(sigma_xy_tensor, m, m) / n;
+    std::cout << "sigma_xy " << std::endl
+              << sigma_xy << std::endl;
 
-    Eigen::JacobiSVD<Eigen::MatrixXd> svd_sigma_xy(sigma_xy, Eigen::ComputeFullU | Eigen::ComputeFullV);
+    Eigen::JacobiSVD<Eigen::MatrixXd> svd_sigma_xy(sigma_xy, Eigen::ComputeThinU | Eigen::ComputeThinV);
 
     Eigen::FullPivLU<Eigen::Matrix2d> sigma_xy_decomp(sigma_xy); // needed to compute rank
     auto rank_sigma_xy = sigma_xy_decomp.rank();
@@ -274,8 +319,8 @@ void procrustes_umeyama2f(Eigen::Affine2d &transfOut, const pcl::PointCloud<pcl:
     }
 
     Eigen::MatrixXd u_sigma_xy = svd_sigma_xy.matrixU();
-    //svd.singularValues().asDiagonal()
-    Eigen::MatrixXd d_sigma_xy = Eigen::DiagonalMatrix<double, TWO_>(svd_sigma_xy.singularValues()); // called S in Eigen documentation
+    // Eigen::DiagonalMatrix<double, TWO_>(svd_sigma_xy.singularValues())
+    Eigen::MatrixXd d_sigma_xy = svd_sigma_xy.singularValues().asDiagonal(); // called S in Eigen documentation
     Eigen::MatrixXd v_sigma_xy = svd_sigma_xy.matrixV();
 
     Eigen::Matrix2d s_sigma_xy = Eigen::Matrix2d::Identity();
