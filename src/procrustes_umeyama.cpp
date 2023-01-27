@@ -1,6 +1,6 @@
 #include "cudars/procrustes_umeyama.h"
 
-void procrustes_umeyama3d(Eigen::Affine3d &transfOut, const pcl::PointCloud<pcl::PointXYZ>::Ptr cloudA, const pcl::PointCloud<pcl::PointXYZ>::Ptr cloudB)
+void procrustesUmeyama3d(Eigen::Affine3d &transfOut, const pcl::PointCloud<pcl::PointXYZ>::Ptr cloudA, const pcl::PointCloud<pcl::PointXYZ>::Ptr cloudB)
 {
     transfOut = Eigen::Affine3d::Identity();
 
@@ -161,7 +161,7 @@ void procrustes_umeyama3d(Eigen::Affine3d &transfOut, const pcl::PointCloud<pcl:
     transfOut.makeAffine();
 }
 
-void procrustes_umeyama2d(Eigen::Affine2d &transfOut, const pcl::PointCloud<pcl::PointXY>::Ptr cloudA, const pcl::PointCloud<pcl::PointXY>::Ptr cloudB)
+void procrustesUmeyama2d(Eigen::Affine2d &transfOut, const pcl::PointCloud<pcl::PointXY>::Ptr cloudA, const pcl::PointCloud<pcl::PointXY>::Ptr cloudB)
 {
     transfOut = Eigen::Affine2d::Identity();
 

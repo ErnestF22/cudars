@@ -84,7 +84,7 @@ int main(int argc, char **argv)
 
         clB->push_back(pcl::PointXYZ(ptsAiTransf(0), ptsAiTransf(1), ptsAiTransf(2)));
     }
-    procrustes_umeyama3d(transf, clA, clB);
+    procrustesUmeyama3d(transf, clA, clB);
     // END OF 3D TEST
 
     // START OF 2D TEST
@@ -109,7 +109,7 @@ int main(int argc, char **argv)
     // pcl::PointXY cB;
     // cB.x = 0.0; cB.y = 2.0;
     // clB->push_back(cB);
-    // procrustes_umeyama2d(transf, clA, clB);
+    // procrustesUmeyama2d(transf, clA, clB);
     // END OF 2D TEST
 
     std::cout << "transfOut" << std::endl

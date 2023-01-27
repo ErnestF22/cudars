@@ -65,6 +65,8 @@ add_library(cudars
     src/BBOptimizer1d.cpp
     src/Profiler.cpp
 
+    src/procrustes_umeyama.cpp
+
     src/mpeg7RW.cpp
     src/mpeg7_io.cpp
 )
@@ -180,8 +182,8 @@ target_link_libraries(testTlsScalarCons cudars rofl_common ${PCL_LIBRARIES} -lst
 
 ### translation - Procrustes Umeyama
 
-add_executable(testProcrustes src/procrustes_umeyama.cpp test/testProcrustes.cpp)
-target_link_libraries(testProcrustes ${PCL_LIBRARIES})
+add_executable(testProcrustes test/testProcrustes.cpp)
+target_link_libraries(testProcrustes cudars ${PCL_LIBRARIES})
 
 ####################################################################################
 
