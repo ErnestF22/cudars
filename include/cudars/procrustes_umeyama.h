@@ -1,3 +1,6 @@
+#ifndef CUDARS_PROCRUSTES_UMEYAMA_H_
+#define CUDARS_PROCRUSTES_UMEYAMA_H_
+
 #include <vector>
 #include <algorithm>
 
@@ -135,3 +138,5 @@ void procrustesUmeyama2d(Eigen::Affine2d& transfOut, const pcl::PointCloud<pcl::
 //     transf_out.Translation = transl;
 
 // end
+
+#endif /*CUDARS_PROCRUSTES_UMEYAMA_H_*/
