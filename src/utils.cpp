@@ -506,6 +506,11 @@ namespace cudars
         return sqrt(v.x * v.x + v.y * v.y);
     }
 
+    double vec2squarednorm(const Vec2d &v)
+    {
+        return (v.x * v.x + v.y * v.y);
+    }
+
     void vec2sum(Vec2d &result, const Vec2d &a, const Vec2d &b)
     {
         result.x = a.x + b.x;

@@ -171,6 +171,8 @@ namespace cudars
 
     double vec2norm(const Vec2d &v);
 
+    double vec2squarednorm(const Vec2d &v);
+
     void vec2sum(Vec2d &result, const Vec2d &a, const Vec2d &b);
 
     Vec2d vec2sumWRV(const Vec2d &a, const Vec2d &b);

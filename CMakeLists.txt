@@ -65,8 +65,6 @@ add_library(cudars
     src/BBOptimizer1d.cpp
     src/Profiler.cpp
 
-    src/procrustes_umeyama.cpp
-
     src/mpeg7RW.cpp
     src/mpeg7_io.cpp
 )
@@ -180,10 +178,10 @@ set_target_properties(gpu_testArsIsoPosePcl PROPERTIES CUDA_ARCHITECTURES "75")
 add_executable(testTlsScalarCons test/testTlsScalarCons.cu)
 target_link_libraries(testTlsScalarCons cudars rofl_common ${PCL_LIBRARIES} -lstdc++fs)
 
-### translation - Procrustes Umeyama
+### translation - B&B Transl
 
-add_executable(testProcrustes test/testProcrustes.cpp)
-target_link_libraries(testProcrustes cudars ${PCL_LIBRARIES})
+add_executable(gpu_testBBTransl test/gpu_testBBTransl.cu src/BBTranslation.cpp)
+target_link_libraries(gpu_testBBTransl cudars rofl_common ${PCL_LIBRARIES} -lstdc++fs)
 
 ####################################################################################
 
