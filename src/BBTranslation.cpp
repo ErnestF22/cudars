@@ -105,7 +105,8 @@ namespace cudars
         // ARS_VARIABLE4(lower_, upper_, len, mid);
         for (int is = 0; is < ptsSrc.size(); ++is)
         {
-            srcTransl = ptsSrc[is] + mid;
+            // srcTransl = ptsSrc[is] + mid;
+            vec2sum(srcTransl, ptsSrc[is], mid);
             inlierFoundLower = false;
             inlierFoundUpper = false;
             // ARS_VAR1(srcTransl.transpose());
@@ -158,7 +159,9 @@ namespace cudars
         Box boxCur(translMin_, translMax_, ptsSrc_, ptsDst_, eps_);
         prioqueue.push(boxCur);
         scoreOpt = prioqueue.top().upper_;
-        translOpt = 0.5 * (boxCur.min_ + boxCur.max_);
+        // translOpt = 0.5 * (boxCur.min_ + boxCur.max_);
+        vec2sum(translOpt, boxCur.min_, boxCur.max_);
+        scalarMul(translOpt, 0.5);
         ARS_VARIABLE2(boxCur, scoreOpt);
         iterNum = 0;
         while (!prioqueue.empty() && iterNum < numMaxIter_)
@@ -187,13 +190,17 @@ namespace cudars
                         // ARS_VARIABLE4(j, d, (1 << d), j & (1 << d));
                         if (j & (1 << d))
                         {
-                            boxSplitMin(d) = 0.5 * (boxCur.min_(d) + boxCur.max_(d));
-                            boxSplitMax(d) = boxCur.max_(d);
+                            // boxSplitMin(d) = 0.5 * (boxCur.min_(d) + boxCur.max_(d));
+                            idxSetter(boxSplitMin, d, 0.5 * (idxGetter(boxCur.min_,d) + idxGetter(boxCur.max_,d)));
+                            // boxSplitMax(d) = boxCur.max_(d);
+                            idxSetter(boxSplitMax, d, idxGetter(boxCur.max_, d));
                         }
                         else
                         {
-                            boxSplitMin(d) = boxCur.min_(d);
-                            boxSplitMax(d) = 0.5 * (boxCur.min_(d) + boxCur.max_(d));
+                            // boxSplitMin(d) = boxCur.min_(d);
+                            idxSetter(boxSplitMin, d, idxGetter(boxCur.min_, d));
+                            // boxSplitMax(d) = 0.5 * (boxCur.min_(d) + boxCur.max_(d));
+                            idxSetter(boxSplitMax, d, 0.5 * (idxGetter(boxCur.min_,d) + idxGetter(boxCur.max_,d)));
                         }
                         // ARS_VARIABLE2(boxSplitMin(d), boxSplitMax(d));
                     }
@@ -205,8 +212,8 @@ namespace cudars
                         scoreOpt = boxNew.upper_;
                         // translOpt = 0.5 * (boxNew.min_ + boxNew.max_);
                         translOpt = scalarMulWRV(vec2sumWRV(boxNew.min_, boxNew.max_), 0.5);
-                        ARS_PRINT("UPDATE optimum " << scoreOpt << " in "
-                                                    << translOpt.transpose());
+                        // ARS_PRINT("UPDATE optimum " << scoreOpt << " in "
+                        //                             << translOpt.transpose());
                     }
 
                     if (boxNew.lower_ < scoreOpt)
@@ -217,7 +224,7 @@ namespace cudars
             }
             iterNum++;
         }
-        ARS_PRINT("OPTIMUM " << scoreOpt << " in " << translOpt.transpose());
+        // ARS_PRINT("OPTIMUM " << scoreOpt << " in " << translOpt.transpose());
     }
 
     void BBTranslation::setTranslMinMax(const cudars::Vec2d &translMin,
@@ -225,7 +232,7 @@ namespace cudars
     {
         translMin_ = translMin;
         translMax_ = translMax;
-        ARS_VARIABLE2(translMin_.transpose(), translMax_.transpose())
+        // ARS_VARIABLE2(translMin_.transpose(), translMax_.transpose())
     }
 
     void BBTranslation::setResolution(const double r)
@@ -246,8 +253,14 @@ namespace cudars
     void BBTranslation::setPts(const cudars::VecVec2d &ptsS,
                                const cudars::VecVec2d &ptsD)
     {
-        ptsSrc_ = ptsS;
-        ptsDst_ = ptsD;
+        // ptsSrc_ = ptsS;
+        ptsSrc_.clear();
+        for (int i=0; i<ptsS.size(); ++i)
+            ptsSrc_.push_back(ptsS[i]);
+        // ptsDst_ = ptsD;
+        ptsDst_.clear();
+        for (int i=0; i<ptsD.size(); ++i)
+            ptsDst_.push_back(ptsD[i]);
     }
 
     void BBTranslation::setEps(const double eps) {

@@ -108,9 +108,9 @@ namespace cudars
         Vec2d translMax_;
 
         // ars::VecVec2d ptsSrc_;
-        Vec2d ptsSrc_;
+        VecVec2d ptsSrc_;
         // ars::VecVec2d ptsDst_;
-        Vec2d ptsDst_;
+        VecVec2d ptsDst_;
 
         double res_;
         double eps_;
