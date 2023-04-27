@@ -66,9 +66,9 @@ int main(int argc, char **argv)
     cudars::Vec2d translOut;
     translEstim.compute(translOut);
 
-    std::cout << "translOut " << std::endl;
+    std::cout << std::endl << "translOut";
     cudars::printVec2d(translOut);
-    std::cout << " translTrue " << std::endl;
+    std::cout << std::endl << "translTrue";
     cudars::printVec2d(transfTrue.translation());
 
     return 0;
