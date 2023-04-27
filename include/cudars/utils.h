@@ -191,6 +191,14 @@ namespace cudars
 
     Vec2d row2VecTimesMat2WRV(const Vec2d &v, const Mat2d &m);
 
+    void maxCoeff(double& maxVal, const Vec2d &v);
+
+    double maxCoeffWRV(const Vec2d &v);
+
+    void maxCoeff(const Mat2d &v);
+
+    double maxCoeffWRV(const Mat2d &v);
+
     // affine matrices related
 
     void preTransfVec2(Vec2d &p, const Affine2d &t);

@@ -99,7 +99,8 @@ namespace cudars
         double dist, len;
         bool inlierFoundUpper, inlierFoundLower;
 
-        len = 0.5 * (max_ - min_).maxCoeff(); // Half of Infinity norm
+        // len = 0.5 * (max_ - min_).maxCoeff(); // Half of Infinity norm
+        len = 0.5 * maxCoeffWRV(vec2diffWRV(max_, min_)); // Half of Infinity norm
         lower_ = (double)ptsSrc.size();
         upper_ = (double)ptsSrc.size();
         // ARS_VARIABLE4(lower_, upper_, len, mid);
@@ -181,7 +182,8 @@ namespace cudars
             }
 
             // Splits the current box into 2^DIM parts
-            if ((boxCur.max_ - boxCur.min_).maxCoeff() > res_)
+            // if ((boxCur.max_ - boxCur.min_).maxCoeff() > res_)
+            if (maxCoeffWRV(vec2diffWRV(boxCur.max_, boxCur.min_)) > res_)
             {
                 for (int j = 0; j < SPLIT_NUM; ++j)
                 {

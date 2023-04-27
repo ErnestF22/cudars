@@ -589,6 +589,42 @@ namespace cudars
         return result;
     }
 
+    void maxCoeff(double& maxVal, const Vec2d &v) {
+        if(v.x>=v.y)
+            maxVal = v.x;
+        else
+            maxVal = v.y;
+    }
+
+    double maxCoeffWRV(const Vec2d &v) {
+        if(v.x>=v.y)
+            return v.x;
+        else
+            return v.y;
+    }
+
+    void maxCoeff(double& maxVal, const Mat2d &v) {
+        if(v.x>=v.y && v.x>=v.z && v.x>=v.w)
+            maxVal = v.x;
+        else if(v.y>=v.x && v.y>=v.z && v.y>=v.w)
+            maxVal = v.y;
+        else if(v.z>=v.x && v.z>=v.y && v.z>=v.w)
+            maxVal = v.z;
+        else
+            maxVal = v.w;
+    }
+
+    double maxCoeffWRV(const Mat2d &v) {
+        if(v.x>=v.y && v.x>=v.z && v.x>=v.w)
+            return v.x;
+        else if(v.y>=v.x && v.y>=v.z && v.y>=v.w)
+            return v.y;
+        else if(v.z>=v.x && v.z>=v.y && v.z>=v.w)
+            return v.z;
+        else
+            return v.w;
+    }
+
     // affine matrices related
 
     void preTransfVec2(Vec2d &p, const Affine2d &t)
