@@ -180,6 +180,9 @@ target_link_libraries(testTlsScalarCons cudars rofl_common ${PCL_LIBRARIES} -lst
 
 ### translation - B&B Transl
 
+add_executable(testBBTransl test/testBBTransl.cpp src/BBTranslation.cpp)
+target_link_libraries(testBBTransl cudars rofl_common ${PCL_LIBRARIES} -lstdc++fs)
+
 add_executable(gpu_testBBTransl test/gpu_testBBTransl.cu src/BBTranslation.cpp)
 target_link_libraries(gpu_testBBTransl cudars rofl_common ${PCL_LIBRARIES} -lstdc++fs)
 
