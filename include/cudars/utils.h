@@ -191,6 +191,18 @@ namespace cudars
 
     Vec2d row2VecTimesMat2WRV(const Vec2d &v, const Mat2d &m);
 
+    void cwiseAbs(Vec2d &vOut, const Vec2d &vIn);
+
+    void cwiseAbsWRV(Vec2d &v);
+
+    Vec2d cwiseAbsWRV(const Vec2d &v);
+
+    void cwiseAbs(Mat2d &vOut, const Mat2d &vIn);
+
+    void cwiseAbsWRV(Mat2d &v);
+
+    Mat2d cwiseAbsWRV(const Mat2d &v);
+
     void maxCoeff(double& maxVal, const Vec2d &v);
 
     double maxCoeffWRV(const Vec2d &v);

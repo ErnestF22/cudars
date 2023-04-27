@@ -589,6 +589,38 @@ namespace cudars
         return result;
     }
 
+    void cwiseAbsWRV(Vec2d &vOut, const Vec2d &vIn) {
+        vOut.x = fabs(vIn.x);
+        vOut.y = fabs(vIn.y);
+    }
+
+    void cwiseAbsWRV(Vec2d &v) {
+        v.x = fabs(v.x);
+        v.y = fabs(v.y);
+    }
+
+    Vec2d cwiseAbsWRV(const Vec2d &v) {
+        return make_double2(fabs(v.x), fabs(v.y));
+    }
+
+    void cwiseAbsWRV(Mat2d &vOut, const Mat2d &vIn) {
+        vOut.x = fabs(vIn.x);
+        vOut.y = fabs(vIn.y);
+        vOut.z = fabs(vIn.z);
+        vOut.w = fabs(vIn.w);
+    }
+
+    void cwiseAbsWRV(Mat2d &v) {
+        v.x = fabs(v.x);
+        v.y = fabs(v.y);
+        v.z = fabs(v.z);
+        v.w = fabs(v.w);
+    }
+
+    Mat2d cwiseAbsWRV(const Mat2d &v) {
+        return make_double4(fabs(v.x), fabs(v.y), fabs(v.z), fabs(v.w));
+    }
+
     void maxCoeff(double& maxVal, const Vec2d &v) {
         if(v.x>=v.y)
             maxVal = v.x;

@@ -114,7 +114,8 @@ namespace cudars
             for (int id = 0; id < ptsDst.size() && !(inlierFoundLower && inlierFoundUpper); ++id)
             {
                 // dist = (ptsDst[id] - srcTransl).norm();
-                dist = (ptsDst[id] - srcTransl).cwiseAbs().maxCoeff(); // Infinity norm
+                // dist = (ptsDst[id] - srcTransl).cwiseAbs().maxCoeff(); // Infinity norm
+                dist = maxCoeffWRV(cwiseAbsWRV(vec2diffWRV(ptsDst[id], srcTransl))); // Infinity norm
                 // ARS_VARIABLE4(ptsDst[id].transpose(), dist, dist < eps_, dist < eps_ + len);
                 if (dist < eps_)
                 {
@@ -134,7 +135,9 @@ namespace cudars
 
     std::ostream &operator<<(std::ostream &out, const Box &box)
     {
-        out << "min [" << box.min_.transpose() << "] max [" << box.max_.transpose()
+        // out << "min [" << box.min_.transpose() << "] max [" << box.max_.transpose()
+        //     << "] lower " << box.lower_ << " upper " << box.upper_;
+        out << "min [" << box.min_.x << " " << box.min_.y << "] max [" << box.max_.x << " " << box.max_.y
             << "] lower " << box.lower_ << " upper " << box.upper_;
         return out;
     }
