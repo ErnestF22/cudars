@@ -17,7 +17,6 @@ namespace cudars
                             const Vec2d &boxMin,
                             const Vec2d &boxMax);
 
-
     std::ostream &operator<<(std::ostream &out, const Box &box);
 
     class BBTranslation
@@ -73,7 +72,7 @@ namespace cudars
         void setEps(const double eps);
 
         /**
-         * @brief Set max number of iteration before B&B alg stops 
+         * @brief Set max number of iteration before B&B alg stops
          */
         void setNumMaxIterations(const int nmi);
 

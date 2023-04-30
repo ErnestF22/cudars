@@ -66,9 +66,11 @@ int main(int argc, char **argv)
     cudars::Vec2d translOut;
     translEstim.compute(translOut);
 
-    std::cout << std::endl << "translOut";
+    std::cout << std::endl
+              << "translOut";
     cudars::printVec2d(translOut);
-    std::cout << std::endl << "translTrue";
+    std::cout << std::endl
+              << "translTrue";
     cudars::printVec2d(transfTrue.translation());
 
     return 0;
@@ -90,13 +92,13 @@ void findBoundingBox(const cudars::VecVec2d &pts,
             // {
             //     ptMax(d) = pts[i](d);
             // }
-            if (i == 0 || cudars::idxGetter(pts[i],d) < cudars::idxGetter(ptMin,d))
+            if (i == 0 || cudars::idxGetter(pts[i], d) < cudars::idxGetter(ptMin, d))
             {
                 cudars::idxSetter(ptMin, d, cudars::idxGetter(pts[i], d));
             }
-            if (i == 0 || cudars::idxGetter(pts[i],d) > cudars::idxGetter(ptMax, d))
+            if (i == 0 || cudars::idxGetter(pts[i], d) > cudars::idxGetter(ptMax, d))
             {
-                cudars::idxSetter(ptMax, d, cudars::idxGetter(pts[i],d));
+                cudars::idxSetter(ptMax, d, cudars::idxGetter(pts[i], d));
             }
         }
     }
