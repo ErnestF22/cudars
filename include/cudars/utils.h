@@ -93,6 +93,34 @@ namespace cudars
      */
     int sumNaturalsUpToN(int n);
 
+    /**
+     * @brief Box struct used in BBTransl 
+     */
+    struct Box
+    {
+        Vec2d min_;
+        Vec2d max_;
+        double lower_;
+        double upper_;
+        double eps_;
+
+        Box(const Vec2d &min, const Vec2d &max, const double eps);
+
+        Box(const Vec2d &min,
+            const Vec2d &max,
+            const VecVec2d &ptsSrc,
+            const VecVec2d &ptsDst,
+            const double eps);
+
+        virtual ~Box();
+
+        void computeBoundsNaive(const VecVec2d &ptsSrc,
+                                const VecVec2d &ptsDst);
+
+        void computeBoundsInlier(const VecVec2d &ptsSrc,
+                                 const VecVec2d &ptsDst);
+    };
+
     // --------------------------------------------------------
     // Below: Vec2d and Mat2d util functions (simpler reimplementation of basic Eigen functions)
     // --------------------------------------------------------
