@@ -110,6 +110,33 @@ namespace cudars
         return result;
     }
 
+    double distancePointBox(const Vec2d &p,
+                            const Vec2d &boxMin,
+                            const Vec2d &boxMax)
+    {
+        double dist = 0.0;
+        double len;
+        for (int d = 0; d < 2; ++d)
+        {
+            // if (boxMin(d) <= p(d) && p(d) <= boxMax(d))
+            if (idxGetter(boxMin, d) <= idxGetter(p, d) && idxGetter(p, d) <= idxGetter(boxMax, d))
+            {
+                len = 0.0;
+            }
+            // else if (p(d) < boxMin(d))
+            else if (idxGetter(p, d) < idxGetter(boxMin, d))
+            {
+                len = idxGetter(boxMin, d) - idxGetter(p, d);
+            }
+            else
+            {
+                len = idxGetter(p, d) - idxGetter(boxMax, d);
+            }
+            dist += len * len;
+        }
+        return dist;
+    }
+
     // --------------------------------------------------------
     // Below: Vec2d and Mat2d util functions (simpler reimplementation of basic Eigen functions)
     // --------------------------------------------------------
@@ -131,7 +158,7 @@ namespace cudars
         printf("%s\n%f\t%f\n", name, vec.x, vec.y); // printf mat2d
     }
 
-    double idxGetter(const Vec2d &vec, int idx)
+    __host__ __device__ double idxGetter(const Vec2d &vec, int idx)
     {
         double retval = 0.0;
         switch (idx)
@@ -143,12 +170,12 @@ namespace cudars
             retval = vec.y;
             break;
         default:
-            std::cout << "Bad idx getter (vec)!" << std::endl;
+            printf("Bad idx getter (vec)!\n");
         }
         return retval; // TODO: maybe try to return directly from switch cases
     }
 
-    double idxGetter(const Mat2d &vec, int idx)
+    __host__ __device__ double idxGetter(const Mat2d &vec, int idx)
     {
         double retval = 0.0;
         switch (idx)
@@ -166,12 +193,12 @@ namespace cudars
             retval = vec.z;
             break;
         default:
-            std::cout << "Bad idx getter (mat)!" << std::endl;
+            printf("Bad idx getter (mat)!\n");
         }
         return retval;
     }
 
-    void idxSetter(Vec2d &vec, int idx, double val)
+    __host__ __device__ void idxSetter(Vec2d &vec, int idx, double val)
     {
         switch (idx)
         {
@@ -182,11 +209,11 @@ namespace cudars
             vec.y = val;
             break;
         default:
-            std::cout << "Bad idx setter (vec)!" << std::endl;
+            printf("Bad idx setter (vec)!\n");
         }
     }
 
-    void idxSetter(Mat2d &vec, int idx, double val)
+    __host__ __device__ void idxSetter(Mat2d &vec, int idx, double val)
     {
         switch (idx)
         {
@@ -203,17 +230,17 @@ namespace cudars
             vec.z = val;
             break;
         default:
-            std::cout << "Bad idx setter (mat)!" << std::endl;
+            printf("Bad idx setter (mat)!\n");
         }
     }
 
-    void resetToZero(Vec2d &vec)
+    __host__ __device__ void resetToZero(Vec2d &vec)
     {
         vec.x = 0.0;
         vec.y = 0.0;
     }
 
-    void resetToZero(Mat2d &mtx)
+    __host__ __device__ void resetToZero(Mat2d &mtx)
     {
         mtx.w = 0.0;
         mtx.x = 0.0;
@@ -221,7 +248,7 @@ namespace cudars
         mtx.z = 0.0;
     }
 
-    void setToIdentity(Mat2d &mtx)
+    __host__ __device__ void setToIdentity(Mat2d &mtx)
     {
         //        data_[0 * Two + 0] = 1.0; // = data[0]
         //        data_[0 * Two + 1] = 0.0; // = data[1]
@@ -233,7 +260,7 @@ namespace cudars
         mtx.z = 1.0;
     }
 
-    void setDiagonal(Mat2d &mtx, double a11, double a22)
+    __host__ __device__ void setDiagonal(Mat2d &mtx, double a11, double a22)
     {
         mtx.w = a11;
         mtx.x = 0.0;
@@ -241,7 +268,7 @@ namespace cudars
         mtx.z = a22;
     }
 
-    void make2dRotMat(Mat2d &mtx, double theta)
+    __host__ __device__ void make2dRotMat(Mat2d &mtx, double theta)
     {
         double cth = cos(theta); // avoiding useless function calling
         double sth = sin(theta);
@@ -251,13 +278,13 @@ namespace cudars
         mtx.z = cth;
     }
 
-    void fillVec2d(Vec2d &vec, double x, double y)
+    __host__ __device__ void fillVec2d(Vec2d &vec, double x, double y)
     {
         vec.x = x;
         vec.y = y;
     }
 
-    void fillRowMajor(Mat2d &mtx, double a, double b, double c, double d)
+    __host__ __device__ void fillRowMajor(Mat2d &mtx, double a, double b, double c, double d)
     {
         mtx.w = a;
         mtx.x = b;
@@ -265,13 +292,13 @@ namespace cudars
         mtx.z = d;
     }
 
-    void scalarMul(Vec2d &vec, double d)
+    __host__ __device__ void scalarMul(Vec2d &vec, double d)
     {
         vec.x *= d;
         vec.y *= d;
     }
 
-    Vec2d scalarMulWRV(const Vec2d &vec, double d)
+    __host__ __device__ Vec2d scalarMulWRV(const Vec2d &vec, double d)
     {
         Vec2d res;
 
@@ -281,7 +308,7 @@ namespace cudars
         return res;
     }
 
-    void scalarMul(Mat2d &mtx, double d)
+    __host__ __device__ void scalarMul(Mat2d &mtx, double d)
     {
         mtx.w *= d;
         mtx.x *= d;
@@ -289,7 +316,7 @@ namespace cudars
         mtx.z *= d;
     }
 
-    Mat2d scalarMulWRV(const Mat2d &mtx, double d)
+    __host__ __device__ Mat2d scalarMulWRV(const Mat2d &mtx, double d)
     {
         Mat2d res;
 
@@ -301,7 +328,7 @@ namespace cudars
         return res;
     }
 
-    void scalarDiv(Vec2d &vec, double d)
+    __host__ __device__ void scalarDiv(Vec2d &vec, double d)
     {
         if (d == 0)
             assert(false);
@@ -310,7 +337,7 @@ namespace cudars
         vec.y /= d;
     }
 
-    Vec2d scalarDivWRV(const Vec2d &vec, double d)
+    __host__ __device__ Vec2d scalarDivWRV(const Vec2d &vec, double d)
     {
         if (d == 0)
             assert(false);
@@ -335,7 +362,7 @@ namespace cudars
         printf("%s\n%f\t%f\n%f\t%f\n", name, mtx.w, mtx.x, mtx.y, mtx.z); // printf mat2d
     }
 
-    void scalarDiv(Mat2d &mtx, double d)
+    __host__ __device__ void scalarDiv(Mat2d &mtx, double d)
     {
         if (d == 0)
             assert(false);
@@ -346,7 +373,7 @@ namespace cudars
         mtx.z /= d;
     }
 
-    Mat2d scalarDivWRV(const Mat2d &mtx, double d)
+    __host__ __device__ Mat2d scalarDivWRV(const Mat2d &mtx, double d)
     {
         if (d == 0)
             assert(false);
@@ -361,14 +388,14 @@ namespace cudars
         return res;
     }
 
-    void transpose(Mat2d &mtx)
+    __host__ __device__ void transpose(Mat2d &mtx)
     {
         double tmp = mtx.x;
         mtx.x = mtx.y;
         mtx.y = tmp;
     }
 
-    Mat2d transposeWRV(const Mat2d &mtx)
+    __host__ __device__ Mat2d transposeWRV(const Mat2d &mtx)
     {
         Mat2d res;
         res.w = mtx.w;
@@ -378,19 +405,19 @@ namespace cudars
         return res;
     }
 
-    double mat2dDeterminant(const Mat2d &mtx)
+    __host__ __device__ double mat2dDeterminant(const Mat2d &mtx)
     {
         //        return data_[0 * Two + 0] * data_[1 * Two + 1] - data_[0 * Two + 1] * data_[1 * Two + 0];
         return mtx.w * mtx.z - mtx.x * mtx.y;
     }
 
-    double mat2dTrace(const Mat2d &mtx)
+    __host__ __device__ double mat2dTrace(const Mat2d &mtx)
     {
         //        return data_[0 * Two + 0] + data_[1 * Two + 1];
         return mtx.w + mtx.z;
     }
 
-    void mat2dInvert(Mat2d &mtx)
+    __host__ __device__ void mat2dInvert(Mat2d &mtx)
     {
         double detInv = 1.0 / mat2dDeterminant(mtx);
 
@@ -405,7 +432,7 @@ namespace cudars
         mtx.z = aOrig * detInv;
     }
 
-    Mat2d mat2dInverse(const Mat2d &mtx)
+    __host__ __device__ Mat2d mat2dInverse(const Mat2d &mtx)
     {
         double detInv = 1.0 / mat2dDeterminant(mtx);
 
@@ -424,7 +451,7 @@ namespace cudars
         return r;
     }
 
-    void mat2dSum(Mat2d &resultMtx, const Mat2d &aMtx, const Mat2d &bMtx)
+    __host__ __device__ void mat2dSum(Mat2d &resultMtx, const Mat2d &aMtx, const Mat2d &bMtx)
     {
         resultMtx.w = aMtx.w + bMtx.w;
         resultMtx.x = aMtx.x + bMtx.x;
@@ -432,7 +459,7 @@ namespace cudars
         resultMtx.z = aMtx.z * bMtx.z;
     }
 
-    Mat2d mat2dSumWRV(const Mat2d &aMtx, const Mat2d &bMtx)
+    __host__ __device__ Mat2d mat2dSumWRV(const Mat2d &aMtx, const Mat2d &bMtx)
     {
         Mat2d resultMtx;
         resultMtx.w = aMtx.w + bMtx.w;
@@ -442,7 +469,7 @@ namespace cudars
         return resultMtx;
     }
 
-    void mat2dDiff(Mat2d &resultMtx, const Mat2d &aMtx, const Mat2d &bMtx)
+    __host__ __device__ void mat2dDiff(Mat2d &resultMtx, const Mat2d &aMtx, const Mat2d &bMtx)
     {
         resultMtx.w = aMtx.w - bMtx.w;
         resultMtx.x = aMtx.x - bMtx.x;
@@ -450,7 +477,7 @@ namespace cudars
         resultMtx.z = aMtx.z - bMtx.z;
     }
 
-    Mat2d mat2dDiffWRV(const Mat2d &aMtx, const Mat2d &bMtx)
+    __host__ __device__ Mat2d mat2dDiffWRV(const Mat2d &aMtx, const Mat2d &bMtx)
     {
         Mat2d resultMtx;
         resultMtx.w = aMtx.w - bMtx.w;
@@ -460,7 +487,7 @@ namespace cudars
         return resultMtx;
     }
 
-    void mat2dPlusEq(Mat2d &resultMtx, const Mat2d &aMtx)
+    __host__ __device__ void mat2dPlusEq(Mat2d &resultMtx, const Mat2d &aMtx)
     {
         resultMtx.w += aMtx.w;
         resultMtx.x += aMtx.x;
@@ -468,7 +495,7 @@ namespace cudars
         resultMtx.z += aMtx.z;
     }
 
-    void mat2dProd(Mat2d &resultMtx, const Mat2d &aMtx, const Mat2d &bMtx)
+    __host__ __device__ void mat2dProd(Mat2d &resultMtx, const Mat2d &aMtx, const Mat2d &bMtx)
     {
         resultMtx.w = aMtx.w * bMtx.w + aMtx.x * bMtx.y;
         resultMtx.x = aMtx.w * bMtx.x + aMtx.x * bMtx.z;
@@ -476,7 +503,7 @@ namespace cudars
         resultMtx.z = aMtx.y * bMtx.x + aMtx.z * bMtx.z;
     }
 
-    Mat2d mat2dProdWRV(const Mat2d &aMtx, const Mat2d &bMtx)
+    __host__ __device__ Mat2d mat2dProdWRV(const Mat2d &aMtx, const Mat2d &bMtx)
     {
         Mat2d resultMtx;
         resultMtx.w = aMtx.w * bMtx.w + aMtx.x * bMtx.y;
@@ -486,7 +513,7 @@ namespace cudars
         return resultMtx;
     }
 
-    void threeMats2dProd(Mat2d &resultMtx, const Mat2d &aMtx, const Mat2d &bMtx, const Mat2d &cMtx)
+    __host__ __device__ void threeMats2dProd(Mat2d &resultMtx, const Mat2d &aMtx, const Mat2d &bMtx, const Mat2d &cMtx)
     {
         Mat2d tmp;
 
@@ -501,23 +528,23 @@ namespace cudars
         mat2dProd(resultMtx, tmp, cCopy);
     }
 
-    double vec2norm(const Vec2d &v)
+    __host__ __device__ double vec2norm(const Vec2d &v)
     {
         return sqrt(v.x * v.x + v.y * v.y);
     }
 
-    double vec2squarednorm(const Vec2d &v)
+    __host__ __device__ double vec2squarednorm(const Vec2d &v)
     {
         return (v.x * v.x + v.y * v.y);
     }
 
-    void vec2sum(Vec2d &result, const Vec2d &a, const Vec2d &b)
+    __host__ __device__ void vec2sum(Vec2d &result, const Vec2d &a, const Vec2d &b)
     {
         result.x = a.x + b.x;
         result.y = a.y + b.y;
     }
 
-    Vec2d vec2sumWRV(const Vec2d &a, const Vec2d &b)
+    __host__ __device__ Vec2d vec2sumWRV(const Vec2d &a, const Vec2d &b)
     {
         Vec2d result;
         result.x = a.x + b.x;
@@ -525,19 +552,19 @@ namespace cudars
         return result;
     }
 
-    void vec2dPlusEq(Vec2d &result, const Vec2d &v)
+    __host__ __device__ void vec2dPlusEq(Vec2d &result, const Vec2d &v)
     {
         result.x += v.x;
         result.y += v.y;
     }
 
-    void vec2diff(Vec2d &result, const Vec2d &a, const Vec2d &b)
+    __host__ __device__ void vec2diff(Vec2d &result, const Vec2d &a, const Vec2d &b)
     {
         result.x = a.x - b.x;
         result.y = a.y - b.y;
     }
 
-    Vec2d vec2diffWRV(const Vec2d &a, const Vec2d &b)
+    __host__ __device__ Vec2d vec2diffWRV(const Vec2d &a, const Vec2d &b)
     {
         Vec2d result;
         result.x = a.x - b.x;
@@ -545,12 +572,12 @@ namespace cudars
         return result;
     }
 
-    double vec2dotProduct(const Vec2d &a, const Vec2d &b)
+    __host__ __device__ double vec2dotProduct(const Vec2d &a, const Vec2d &b)
     {
         return a.x * b.x + a.y * b.y;
     }
 
-    void vec2outerProduct(Mat2d &result, const Vec2d &a, const Vec2d &b)
+    __host__ __device__ void vec2outerProduct(Mat2d &result, const Vec2d &a, const Vec2d &b)
     {
         result.w = a.x * b.x;
         result.x = a.y * b.x;
@@ -558,7 +585,7 @@ namespace cudars
         result.z = a.y * b.y;
     }
 
-    Mat2d vec2outerProductWRV(const Vec2d &a, const Vec2d &b)
+    __host__ __device__ Mat2d vec2outerProductWRV(const Vec2d &a, const Vec2d &b)
     {
         Mat2d result;
 
@@ -570,7 +597,7 @@ namespace cudars
         return result;
     }
 
-    Vec2d row2VecTimesMat2WRV(const Vec2d &v, const Mat2d &m)
+    __host__ __device__ Vec2d row2VecTimesMat2WRV(const Vec2d &v, const Mat2d &m)
     {
         Vec2d result;
         result.x = (v.x * m.w) + (v.y * m.y);
@@ -581,7 +608,7 @@ namespace cudars
         return result;
     }
 
-    Vec2d mat2dTimesVec2dWRV(const Mat2d &m, const Vec2d &v)
+    __host__ __device__ Vec2d mat2dTimesVec2dWRV(const Mat2d &m, const Vec2d &v)
     {
         Vec2d result;
         result.x = (m.w * v.x) + (m.x * v.y);
@@ -589,69 +616,79 @@ namespace cudars
         return result;
     }
 
-    void cwiseAbsWRV(Vec2d &vOut, const Vec2d &vIn) {
+    __host__ __device__ void cwiseAbsWRV(Vec2d &vOut, const Vec2d &vIn)
+    {
         vOut.x = fabs(vIn.x);
         vOut.y = fabs(vIn.y);
     }
 
-    void cwiseAbsWRV(Vec2d &v) {
+    __host__ __device__ void cwiseAbsWRV(Vec2d &v)
+    {
         v.x = fabs(v.x);
         v.y = fabs(v.y);
     }
 
-    Vec2d cwiseAbsWRV(const Vec2d &v) {
+    __host__ __device__ Vec2d cwiseAbsWRV(const Vec2d &v)
+    {
         return make_double2(fabs(v.x), fabs(v.y));
     }
 
-    void cwiseAbsWRV(Mat2d &vOut, const Mat2d &vIn) {
+    __host__ __device__ void cwiseAbsWRV(Mat2d &vOut, const Mat2d &vIn)
+    {
         vOut.x = fabs(vIn.x);
         vOut.y = fabs(vIn.y);
         vOut.z = fabs(vIn.z);
         vOut.w = fabs(vIn.w);
     }
 
-    void cwiseAbsWRV(Mat2d &v) {
+    __host__ __device__ void cwiseAbsWRV(Mat2d &v)
+    {
         v.x = fabs(v.x);
         v.y = fabs(v.y);
         v.z = fabs(v.z);
         v.w = fabs(v.w);
     }
 
-    Mat2d cwiseAbsWRV(const Mat2d &v) {
+    __host__ __device__ Mat2d cwiseAbsWRV(const Mat2d &v)
+    {
         return make_double4(fabs(v.x), fabs(v.y), fabs(v.z), fabs(v.w));
     }
 
-    void maxCoeff(double& maxVal, const Vec2d &v) {
-        if(v.x>=v.y)
+    __host__ __device__ void maxCoeff(double &maxVal, const Vec2d &v)
+    {
+        if (v.x >= v.y)
             maxVal = v.x;
         else
             maxVal = v.y;
     }
 
-    double maxCoeffWRV(const Vec2d &v) {
-        if(v.x>=v.y)
+    __host__ __device__ double maxCoeffWRV(const Vec2d &v)
+    {
+        if (v.x >= v.y)
             return v.x;
         else
             return v.y;
     }
 
-    void maxCoeff(double& maxVal, const Mat2d &v) {
-        if(v.x>=v.y && v.x>=v.z && v.x>=v.w)
+    __host__ __device__ void maxCoeff(double &maxVal, const Mat2d &v)
+    {
+        if (v.x >= v.y && v.x >= v.z && v.x >= v.w)
             maxVal = v.x;
-        else if(v.y>=v.x && v.y>=v.z && v.y>=v.w)
+        else if (v.y >= v.x && v.y >= v.z && v.y >= v.w)
             maxVal = v.y;
-        else if(v.z>=v.x && v.z>=v.y && v.z>=v.w)
+        else if (v.z >= v.x && v.z >= v.y && v.z >= v.w)
             maxVal = v.z;
         else
             maxVal = v.w;
     }
 
-    double maxCoeffWRV(const Mat2d &v) {
-        if(v.x>=v.y && v.x>=v.z && v.x>=v.w)
+    __host__ __device__ double maxCoeffWRV(const Mat2d &v)
+    {
+        if (v.x >= v.y && v.x >= v.z && v.x >= v.w)
             return v.x;
-        else if(v.y>=v.x && v.y>=v.z && v.y>=v.w)
+        else if (v.y >= v.x && v.y >= v.z && v.y >= v.w)
             return v.y;
-        else if(v.z>=v.x && v.z>=v.y && v.z>=v.w)
+        else if (v.z >= v.x && v.z >= v.y && v.z >= v.w)
             return v.z;
         else
             return v.w;
@@ -754,8 +791,8 @@ namespace cudars
             out.data_[2 * cudars::Three + 1] = 0.0;
 
             // third column
-            out.data_[0 * cudars::Three + 2] = (a.at(0, 0) * b.at(0, 2)) + (a.at(0, 1) * b.at(1, 2)) + a.at(0,2) * b.at(2,2);
-            out.data_[1 * cudars::Three + 2] = (a.at(1, 0) * b.at(0, 2)) + (a.at(1, 1) * b.at(1, 2)) + a.at(1,2) * b.at(2,2);
+            out.data_[0 * cudars::Three + 2] = (a.at(0, 0) * b.at(0, 2)) + (a.at(0, 1) * b.at(1, 2)) + a.at(0, 2) * b.at(2, 2);
+            out.data_[1 * cudars::Three + 2] = (a.at(1, 0) * b.at(0, 2)) + (a.at(1, 1) * b.at(1, 2)) + a.at(1, 2) * b.at(2, 2);
             //            out.data_[2 * cudars::Three + 2] = (a.at(2, 0) * b.at(0, 2)) + (a.at(2, 1) * b.at(1, 2)) + (a.at(2, 2) + b.at(2, 2));
             out.data_[2 * cudars::Three + 2] = 1.0;
         }

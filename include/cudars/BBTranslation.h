@@ -2,8 +2,9 @@
 #define CUDARS_BBTRANSLATION_H_
 
 #include <cudars/definitions.h>
-
 #include <cudars/utils.h>
+
+#include <cudars/Box.h>
 
 #include <queue>
 
@@ -17,7 +18,6 @@ namespace cudars
                             const Vec2d &boxMin,
                             const Vec2d &boxMax);
 
-    std::ostream &operator<<(std::ostream &out, const Box &box);
 
     class BBTranslation
     {

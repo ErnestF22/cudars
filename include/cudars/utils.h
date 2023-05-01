@@ -94,32 +94,12 @@ namespace cudars
     int sumNaturalsUpToN(int n);
 
     /**
-     * @brief Box struct used in BBTransl 
+     * @brief Compute and @return distance as a double between 2D point @param p 
+     * and Box defined/comprised between @param boxMin and @param boxMax  
      */
-    struct Box
-    {
-        Vec2d min_;
-        Vec2d max_;
-        double lower_;
-        double upper_;
-        double eps_;
-
-        Box(const Vec2d &min, const Vec2d &max, const double eps);
-
-        Box(const Vec2d &min,
-            const Vec2d &max,
-            const VecVec2d &ptsSrc,
-            const VecVec2d &ptsDst,
-            const double eps);
-
-        virtual ~Box();
-
-        void computeBoundsNaive(const VecVec2d &ptsSrc,
-                                const VecVec2d &ptsDst);
-
-        void computeBoundsInlier(const VecVec2d &ptsSrc,
-                                 const VecVec2d &ptsDst);
-    };
+    double distancePointBox(const Vec2d &p,
+                            const Vec2d &boxMin,
+                            const Vec2d &boxMax);
 
     // --------------------------------------------------------
     // Below: Vec2d and Mat2d util functions (simpler reimplementation of basic Eigen functions)
@@ -131,113 +111,113 @@ namespace cudars
 
     __device__ void printfVec2d(const Vec2d &vec, const char *name);
 
-    double idxGetter(const Vec2d &vec, int idx);
+    __host__ __device__ double idxGetter(const Vec2d &vec, int idx);
 
-    double idxGetter(const Mat2d &vec, int idx);
+    __host__ __device__ double idxGetter(const Mat2d &vec, int idx);
 
-    void idxSetter(Vec2d &vec, int idx, double val);
+    __host__ __device__ void idxSetter(Vec2d &vec, int idx, double val);
 
-    void idxSetter(Mat2d &vec, int idx, double val);
+    __host__ __device__ void idxSetter(Mat2d &vec, int idx, double val);
 
-    void resetToZero(Vec2d &vec);
+    __host__ __device__ void resetToZero(Vec2d &vec);
 
-    void resetToZero(Mat2d &mtx);
+    __host__ __device__ void resetToZero(Mat2d &mtx);
 
-    void setToIdentity(Mat2d &mtx);
+    __host__ __device__ void setToIdentity(Mat2d &mtx);
 
-    void setDiagonal(Mat2d &mtx, double a11, double a22);
+    __host__ __device__ void setDiagonal(Mat2d &mtx, double a11, double a22);
 
-    void make2dRotMat(Mat2d &mtx, double theta);
+    __host__ __device__ void make2dRotMat(Mat2d &mtx, double theta);
 
-    void fillVec2d(Vec2d &vec, double x, double y);
+    __host__ __device__ void fillVec2d(Vec2d &vec, double x, double y);
 
-    void fillRowMajor(Mat2d &mtx, double a, double b, double c, double d);
+    __host__ __device__ void fillRowMajor(Mat2d &mtx, double a, double b, double c, double d);
 
-    void scalarMul(Vec2d &vec, double d);
+    __host__ __device__ void scalarMul(Vec2d &vec, double d);
 
-    Vec2d scalarMulWRV(const Vec2d &vec, double d);
+    __host__ __device__ Vec2d scalarMulWRV(const Vec2d &vec, double d);
 
-    void scalarMul(Mat2d &mtx, double d);
+    __host__ __device__ void scalarMul(Mat2d &mtx, double d);
 
-    Mat2d scalarMulWRV(const Mat2d &mtx, double d);
+    __host__ __device__ Mat2d scalarMulWRV(const Mat2d &mtx, double d);
 
-    void scalarDiv(Vec2d &vec, double d);
+    __host__ __device__ void scalarDiv(Vec2d &vec, double d);
 
-    Vec2d scalarDivWRV(const Vec2d &vec, double d);
+    __host__ __device__ Vec2d scalarDivWRV(const Vec2d &vec, double d);
 
-    void scalarDiv(Mat2d &mtx, double d);
+    __host__ __device__ void scalarDiv(Mat2d &mtx, double d);
 
-    Mat2d scalarDivWRV(const Mat2d &mtx, double d);
+    __host__ __device__ Mat2d scalarDivWRV(const Mat2d &mtx, double d);
 
-    void transpose(Mat2d &mtx);
+    __host__ __device__ void transpose(Mat2d &mtx);
 
-    Mat2d transposeWRV(const Mat2d &mtx);
+    __host__ __device__ Mat2d transposeWRV(const Mat2d &mtx);
 
-    double mat2dDeterminant(const Mat2d &mtx);
+    __host__ __device__ double mat2dDeterminant(const Mat2d &mtx);
 
-    double mat2dTrace(const Mat2d &mtx);
+    __host__ __device__ double mat2dTrace(const Mat2d &mtx);
 
-    void mat2dInvert(Mat2d &mtx);
+    __host__ __device__ void mat2dInvert(Mat2d &mtx);
 
-    Mat2d mat2dInverse(const Mat2d &mtx);
+    __host__ __device__ Mat2d mat2dInverse(const Mat2d &mtx);
 
-    void mat2dSum(Mat2d &resultMtx, const Mat2d &aMtx, const Mat2d &bMtx);
+    __host__ __device__ void mat2dSum(Mat2d &resultMtx, const Mat2d &aMtx, const Mat2d &bMtx);
 
-    Mat2d mat2dSumWRV(const Mat2d &aMtx, const Mat2d &bMtx);
+    __host__ __device__ Mat2d mat2dSumWRV(const Mat2d &aMtx, const Mat2d &bMtx);
 
-    void mat2dDiff(Mat2d &resultMtx, const Mat2d &aMtx, const Mat2d &bMtx);
+    __host__ __device__ void mat2dDiff(Mat2d &resultMtx, const Mat2d &aMtx, const Mat2d &bMtx);
 
-    Mat2d mat2dDiffWRV(const Mat2d &aMtx, const Mat2d &bMtx);
+    __host__ __device__ Mat2d mat2dDiffWRV(const Mat2d &aMtx, const Mat2d &bMtx);
 
-    void mat2dPlusEq(Mat2d &resultMtx, const Mat2d &aMtx);
+    __host__ __device__ void mat2dPlusEq(Mat2d &resultMtx, const Mat2d &aMtx);
 
-    void mat2dProd(Mat2d &resultMtx, const Mat2d &aMtx, const Mat2d &bMtx);
+    __host__ __device__ void mat2dProd(Mat2d &resultMtx, const Mat2d &aMtx, const Mat2d &bMtx);
 
-    Mat2d mat2dProdWRV(const Mat2d &aMtx, const Mat2d &bMtx);
+    __host__ __device__ Mat2d mat2dProdWRV(const Mat2d &aMtx, const Mat2d &bMtx);
 
-    void threeMats2dProd(Mat2d &resultMtx, const Mat2d &aMtx, const Mat2d &bMtx, const Mat2d &cMtx);
+    __host__ __device__ void threeMats2dProd(Mat2d &resultMtx, const Mat2d &aMtx, const Mat2d &bMtx, const Mat2d &cMtx);
 
-    double vec2norm(const Vec2d &v);
+    __host__ __device__ double vec2norm(const Vec2d &v);
 
-    double vec2squarednorm(const Vec2d &v);
+    __host__ __device__ double vec2squarednorm(const Vec2d &v);
 
-    void vec2sum(Vec2d &result, const Vec2d &a, const Vec2d &b);
+    __host__ __device__ void vec2sum(Vec2d &result, const Vec2d &a, const Vec2d &b);
 
-    Vec2d vec2sumWRV(const Vec2d &a, const Vec2d &b);
+    __host__ __device__ Vec2d vec2sumWRV(const Vec2d &a, const Vec2d &b);
 
-    void vec2dPlusEq(Vec2d &result, const Vec2d &v);
+    __host__ __device__ void vec2dPlusEq(Vec2d &result, const Vec2d &v);
 
-    void vec2diff(Vec2d &result, const Vec2d &a, const Vec2d &b);
+    __host__ __device__ void vec2diff(Vec2d &result, const Vec2d &a, const Vec2d &b);
 
-    Vec2d vec2diffWRV(const Vec2d &a, const Vec2d &b);
+    __host__ __device__ Vec2d vec2diffWRV(const Vec2d &a, const Vec2d &b);
 
-    double vec2dotProduct(const Vec2d &a, const Vec2d &b);
+    __host__ __device__ double vec2dotProduct(const Vec2d &a, const Vec2d &b);
 
-    void vec2outerProduct(Mat2d &result, const Vec2d &a, const Vec2d &b); //"anti-dot" product: terms are switched
+    __host__ __device__ void vec2outerProduct(Mat2d &result, const Vec2d &a, const Vec2d &b); //"anti-dot" product: terms are switched
 
-    Mat2d vec2outerProductWRV(const Vec2d &a, const Vec2d &b); //"anti-dot" product: terms are switched
+    __host__ __device__ Mat2d vec2outerProductWRV(const Vec2d &a, const Vec2d &b); //"anti-dot" product: terms are switched
 
-    Vec2d row2VecTimesMat2WRV(const Vec2d &v, const Mat2d &m);
+    __host__ __device__ Vec2d row2VecTimesMat2WRV(const Vec2d &v, const Mat2d &m);
 
-    void cwiseAbs(Vec2d &vOut, const Vec2d &vIn);
+    __host__ __device__ void cwiseAbs(Vec2d &vOut, const Vec2d &vIn);
 
-    void cwiseAbsWRV(Vec2d &v);
+    __host__ __device__ void cwiseAbsWRV(Vec2d &v);
 
-    Vec2d cwiseAbsWRV(const Vec2d &v);
+    __host__ __device__ Vec2d cwiseAbsWRV(const Vec2d &v);
 
-    void cwiseAbs(Mat2d &vOut, const Mat2d &vIn);
+    __host__ __device__ void cwiseAbs(Mat2d &vOut, const Mat2d &vIn);
 
-    void cwiseAbsWRV(Mat2d &v);
+    __host__ __device__ void cwiseAbsWRV(Mat2d &v);
 
-    Mat2d cwiseAbsWRV(const Mat2d &v);
+    __host__ __device__ Mat2d cwiseAbsWRV(const Mat2d &v);
 
-    void maxCoeff(double& maxVal, const Vec2d &v);
+    __host__ __device__ void maxCoeff(double& maxVal, const Vec2d &v);
 
-    double maxCoeffWRV(const Vec2d &v);
+    __host__ __device__ double maxCoeffWRV(const Vec2d &v);
 
-    void maxCoeff(const Mat2d &v);
+    __host__ __device__ void maxCoeff(const Mat2d &v);
 
-    double maxCoeffWRV(const Mat2d &v);
+    __host__ __device__ double maxCoeffWRV(const Mat2d &v);
 
     // affine matrices related
 

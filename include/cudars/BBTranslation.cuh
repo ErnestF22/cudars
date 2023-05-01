@@ -2,10 +2,11 @@
 #define CUDARS_BBTRANSLATION_CUH_
 
 #include <cudars/definitions.h>
-
 #include <cudars/utils.h>
 
-#include <queue>
+#include <cudars/CuBox.cuh>
+
+#include <cudars/prioqueue.h>
 
 static constexpr int DIM = 2;
 static constexpr int SPLIT_NUM = (1 << DIM);
