@@ -3,23 +3,30 @@
 namespace cudars
 {
 
-    // Box::Box(const Vec2d &min, const Vec2d &max, const double eps)
-    //     : min_(min), max_(max), lower_(0.0), upper_(0.0), eps_(eps) {}
+    initCuBox(CuBox &box, const Vec2d &min, const Vec2d &max, const double eps)
+    {
+        box.min_ = min;
+        box.max_ = max;
+        box.lower_ = 0.0;
+        box.upper_ = 0.0;
+        box.eps_ = eps;
+    }
 
-    // Box::Box(const Vec2d &min,
-    //          const Vec2d &max,
-    //          const VecVec2d &ptsSrc,
-    //          const VecVec2d &ptsDst,
-    //          const double eps)
-    // {
-    //     double dist, distMin, distUpper, distUpperMin;
-    //     Vec2d boxMin, boxMax, boxMid;
-    //     min_ = min;
-    //     max_ = max;
-    //     eps_ = eps;
-    //     // computeBoundsNaive(ptsSrc, ptsDst);
-    //     computeBoundsInlier(ptsSrc, ptsDst);
-    // }
+    initCuBox(CuBox &box,
+              const Vec2d &min,
+              const Vec2d &max,
+              const VecVec2d &ptsSrc,
+              const VecVec2d &ptsDst,
+              const double eps)
+    {
+        double dist, distMin, distUpper, distUpperMin;
+        Vec2d boxMin, boxMax, boxMid;
+        min_ = min;
+        max_ = max;
+        eps_ = eps;
+        // computeBoundsNaive(ptsSrc, ptsDst);
+        computeBoundsInlier(box, ptsSrc, ptsDst);
+    }
 
     // Box::~Box() {}
 
@@ -62,49 +69,48 @@ namespace cudars
     //     }
     // }
 
-    // void Box::computeBoundsInlier(const VecVec2d &ptsSrc,
-    //                               const VecVec2d &ptsDst)
-    // {
-    //     // Vec2d mid = 0.5 * (min_ + max_);
-    //     Vec2d mid = vec2sumWRV(min_, max_);
-    //     scalarMul(mid, 0.5);
-    //     Vec2d srcTransl;
-    //     double dist, len;
-    //     bool inlierFoundUpper, inlierFoundLower;
+    void Box::computeBoundsInlier(CuBox &box, const VecVec2d &ptsSrc, const VecVec2d &ptsDst)
+    {
+        // Vec2d mid = 0.5 * (min_ + max_);
+        Vec2d mid = vec2sumWRV(min_, max_);
+        scalarMul(mid, 0.5);
+        Vec2d srcTransl;
+        double dist, len;
+        bool inlierFoundUpper, inlierFoundLower;
 
-    //     // len = 0.5 * (max_ - min_).maxCoeff(); // Half of Infinity norm
-    //     len = 0.5 * maxCoeffWRV(vec2diffWRV(max_, min_)); // Half of Infinity norm
-    //     lower_ = (double)ptsSrc.size();
-    //     upper_ = (double)ptsSrc.size();
-    //     // ARS_VARIABLE4(lower_, upper_, len, mid);
-    //     for (int is = 0; is < ptsSrc.size(); ++is)
-    //     {
-    //         // srcTransl = ptsSrc[is] + mid;
-    //         vec2sum(srcTransl, ptsSrc[is], mid);
-    //         inlierFoundLower = false;
-    //         inlierFoundUpper = false;
-    //         // ARS_VAR1(srcTransl.transpose());
-    //         for (int id = 0; id < ptsDst.size() && !(inlierFoundLower && inlierFoundUpper); ++id)
-    //         {
-    //             // dist = (ptsDst[id] - srcTransl).norm();
-    //             // dist = (ptsDst[id] - srcTransl).cwiseAbs().maxCoeff(); // Infinity norm
-    //             dist = maxCoeffWRV(cwiseAbsWRV(vec2diffWRV(ptsDst[id], srcTransl))); // Infinity norm
-    //             // ARS_VARIABLE4(ptsDst[id].transpose(), dist, dist < eps_, dist < eps_ + len);
-    //             if (dist < eps_)
-    //             {
-    //                 inlierFoundUpper = true;
-    //             }
-    //             if (dist < eps_ + len)
-    //             {
-    //                 inlierFoundLower = true;
-    //             }
-    //         }
-    //         if (inlierFoundLower)
-    //             lower_ -= 1.0;
-    //         if (inlierFoundUpper)
-    //             upper_ -= 1.0;
-    //     }
-    // }
+        // len = 0.5 * (max_ - min_).maxCoeff(); // Half of Infinity norm
+        len = 0.5 * maxCoeffWRV(vec2diffWRV(max_, min_)); // Half of Infinity norm
+        lower_ = (double)ptsSrc.size();
+        upper_ = (double)ptsSrc.size();
+        // ARS_VARIABLE4(lower_, upper_, len, mid);
+        for (int is = 0; is < ptsSrc.size(); ++is)
+        {
+            // srcTransl = ptsSrc[is] + mid;
+            vec2sum(srcTransl, ptsSrc[is], mid);
+            inlierFoundLower = false;
+            inlierFoundUpper = false;
+            // ARS_VAR1(srcTransl.transpose());
+            for (int id = 0; id < ptsDst.size() && !(inlierFoundLower && inlierFoundUpper); ++id)
+            {
+                // dist = (ptsDst[id] - srcTransl).norm();
+                // dist = (ptsDst[id] - srcTransl).cwiseAbs().maxCoeff(); // Infinity norm
+                dist = maxCoeffWRV(cwiseAbsWRV(vec2diffWRV(ptsDst[id], srcTransl))); // Infinity norm
+                // ARS_VARIABLE4(ptsDst[id].transpose(), dist, dist < eps_, dist < eps_ + len);
+                if (dist < eps_)
+                {
+                    inlierFoundUpper = true;
+                }
+                if (dist < eps_ + len)
+                {
+                    inlierFoundLower = true;
+                }
+            }
+            if (inlierFoundLower)
+                lower_ -= 1.0;
+            if (inlierFoundUpper)
+                upper_ -= 1.0;
+        }
+    }
 
     // std::ostream &operator<<(std::ostream &out, const cudars::Box &box)
     // {

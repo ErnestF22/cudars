@@ -17,7 +17,9 @@ __global__ void computeBBTransl_kernel(cudars::VecVec2d &ptsSrc_, cudars::VecVec
 
     scoreTol = 0.05; // TODO: allow setting the value of scoreTol
 
-    cudars::CuBox boxCur(translMin_, translMax_, ptsSrc_, ptsDst_, eps_);
+    // cudars::CuBox boxCur(translMin_, translMax_, ptsSrc_, ptsDst_, eps_);
+    cudars::CuBox boxCur;
+    initCuBox(boxCur, translMin_, translMax_, ptsSrc_, ptsDst_, eps_);
     prioqueue.push(boxCur);
     scoreOpt = prioqueue.top().upper_;
     // translOpt = 0.5 * (boxCur.min_ + boxCur.max_);
@@ -66,7 +68,9 @@ __global__ void computeBBTransl_kernel(cudars::VecVec2d &ptsSrc_, cudars::VecVec
                     }
                     // ARS_VARIABLE2(boxSplitMin(d), boxSplitMax(d));
                 }
-                cudars::CuBox boxNew(boxSplitMin, boxSplitMax, ptsSrc_, ptsDst_, eps_);
+                // cudars::CuBox boxNew(boxSplitMin, boxSplitMax, ptsSrc_, ptsDst_, eps_);
+                cudars::CuBox boxNew;
+                initCuBox(boxNew, boxSplitMin, boxSplitMax, ptsSrc_, ptsDst_, eps_);
                 // ARS_VARIABLE(boxNew);
 
                 if (boxNew.upper_ < scoreOpt)

@@ -190,6 +190,10 @@ target_link_libraries(testBBTransl cudars rofl_common ${PCL_LIBRARIES} -lstdc++f
 # set_target_properties(gpu_testBBTransl PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
 # set_target_properties(gpu_testBBTransl PROPERTIES CUDA_ARCHITECTURES "75")
 
+### prioqueue
+add_executable(testPrioqueue test/testPrioqueue.cpp src/prioqueue.cpp)
+# target_link_libraries(testPrioqueue cudars rofl_common ${PCL_LIBRARIES} -lstdc++fs)
+
 ####################################################################################
 
 
