@@ -95,7 +95,7 @@ namespace cudars
    public: // TODO: improve separation between public and private
       double data_[Nine];
 
-      double rot_; //TODO: update these rot, transl after making products, transformations, ...
+      double rot_; // TODO: update these rot, transl after making products, transformations, ...
       double translX_;
       double translY_;
 
@@ -153,6 +153,31 @@ namespace cudars
    struct MakePt<double, 2>
    {
       using type = double2;
+   };
+
+   // Prioqueue, Box definitions
+   // Node
+   typedef struct node
+   {
+      int data;
+
+      // Lower values indicate
+      // higher priority
+      int priority;
+
+      struct node *next;
+
+   } Node;
+
+   /** @brief Box struct used in BBTransl
+    */
+   struct CuBox
+   {
+      Vec2d min_;
+      Vec2d max_;
+      double lower_;
+      double upper_;
+      double eps_;
    };
 
 } // end of namespace
