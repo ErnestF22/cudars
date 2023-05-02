@@ -65,13 +65,22 @@ int main(int argc, char **argv)
     cudars::printVec2d(cudars::vec2sumWRV(cudars::vec2diffWRV(maxB, minA), bias));
     std::cout << "]" << std::endl;
 
+    int ptsAsize = ptsA.size();
+    int ptsBsize = ptsB.size();
+
     cudars::Vec2d translMin = cudars::vec2diffWRV(minB, maxA);
     cudars::Vec2d translMax = cudars::vec2sumWRV(cudars::vec2diffWRV(maxB, minA), bias);
     // translEstim.setTranslMinMax(translMin, translMax, bias);
     // translEstim.setPts(ptsA, ptsB);
     cudars::Vec2d translOut;
     // translEstim.compute(translOut);
-    computeBBTransl_kernel<<<1,1>>>(ptsA, ptsB, translOut, translMin, translMax, eps, numMaxIter, res);
+    cudars::Vec2d * kernelInput1;
+    cudaMalloc((void**) &kernelInput1, ptsAsize * sizeof (cudars::Vec2d));
+    cudaMemcpy(kernelInput1, ptsA.data(), ptsAsize * sizeof (cudars::Vec2d), cudaMemcpyHostToDevice);
+    cudars::Vec2d * kernelInput2;
+    cudaMalloc((void**) &kernelInput2, ptsBsize * sizeof (cudars::Vec2d));
+    cudaMemcpy(kernelInput2, ptsB.data(), ptsBsize * sizeof (cudars::Vec2d), cudaMemcpyHostToDevice);
+    computeBBTransl_kernel<<<1,1>>>(kernelInput1, kernelInput2, translOut, translMin, translMax, eps, numMaxIter, res, ptsAsize, ptsBsize);
 
     std::cout << std::endl
               << "translOut";

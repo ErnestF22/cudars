@@ -1,8 +1,8 @@
 #include <cudars/BBTranslation.cuh>
 
-__global__ void computeBBTransl_kernel(cudars::VecVec2d &ptsSrc_, cudars::VecVec2d &ptsDst_,
+__global__ void computeBBTransl_kernel(cudars::Vec2d *ptsSrc_, cudars::Vec2d *ptsDst_,
                                        cudars::Vec2d &translOpt, cudars::Vec2d &translMin_, cudars::Vec2d &translMax_,
-                                       double eps_, int numMaxIter_, double res_)
+                                       double eps_, int numMaxIter_, double res_, int ptsSrcSize, int ptsDstSize)
 {
     cudars::Vec2d boxSplitMin, boxSplitMax;
 
@@ -14,20 +14,20 @@ __global__ void computeBBTransl_kernel(cudars::VecVec2d &ptsSrc_, cudars::VecVec
     //     return box1.lower_ > box2.lower_;
     // };
     // std::priority_queue<cudars::CuBox, std::vector<cudars::CuBox>, decltype(cmp)> prioqueue(cmp);
-    NodeBox* prioqueue;
+    NodeBox *prioqueue;
 
     scoreTol = 0.05; // TODO: allow setting the value of scoreTol
 
     // cudars::CuBox boxCur(translMin_, translMax_, ptsSrc_, ptsDst_, eps_);
     cudars::CuBox boxCur;
-    initCuBox(boxCur, translMin_, translMax_, ptsSrc_, ptsDst_, eps_);
+    initCuBox(boxCur, translMin_, translMax_, ptsSrc_, ptsDst_, eps_, ptsSrcSize, ptsDstSize);
     // prioqueue.push(boxCur);
     pushBox(&prioqueue, boxCur);
     // scoreOpt = prioqueue.top().upper_;
     scoreOpt = peekBox(&prioqueue).upper_;
     // translOpt = 0.5 * (boxCur.min_ + boxCur.max_);
-    cudars::vec2sum(translOpt, boxCur.min_, boxCur.max_);
-    cudars::scalarMul(translOpt, 0.5);
+    translOpt.x = 0.5 * (boxCur.min_.x + boxCur.max_.x);
+    translOpt.y = 0.5 * (boxCur.min_.y + boxCur.max_.y);
     // ARS_VARIABLE2(boxCur, scoreOpt);
     iterNum = 0;
     // while (!prioqueue.empty() && iterNum < numMaxIter_)
@@ -76,14 +76,15 @@ __global__ void computeBBTransl_kernel(cudars::VecVec2d &ptsSrc_, cudars::VecVec
                 }
                 // cudars::CuBox boxNew(boxSplitMin, boxSplitMax, ptsSrc_, ptsDst_, eps_);
                 cudars::CuBox boxNew;
-                initCuBox(boxNew, boxSplitMin, boxSplitMax, ptsSrc_, ptsDst_, eps_);
+                initCuBox(boxNew, boxSplitMin, boxSplitMax, ptsSrc_, ptsDst_, eps_, ptsSrcSize, ptsDstSize);
                 // ARS_VARIABLE(boxNew);
 
                 if (boxNew.upper_ < scoreOpt)
                 {
                     scoreOpt = boxNew.upper_;
                     // translOpt = 0.5 * (boxNew.min_ + boxNew.max_);
-                    translOpt = cudars::scalarMulWRV(cudars::vec2sumWRV(boxNew.min_, boxNew.max_), 0.5);
+                    translOpt.x = 0.5 * (boxNew.min_.x + boxNew.max_.x);
+                    translOpt.y = 0.5 * (boxNew.min_.y + boxNew.max_.y);
                     // ARS_PRINT("UPDATE optimum " << scoreOpt << " in "
                     //                             << translOpt.transpose());
                 }

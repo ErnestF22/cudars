@@ -95,7 +95,7 @@ add_library(cudars_ani STATIC
 ### Isotropic cuArs
 
 add_executable(gpu_testIsotropicArs test/gpu_testIsotropicArs.cu )
-target_link_libraries(gpu_testIsotropicArs  cudars rofl_common ${PCL_LIBRARIES})
+target_link_libraries(gpu_testIsotropicArs cudars rofl_common ${PCL_LIBRARIES})
 
 #target_compile_features(gpu_testIsotropicArs PUBLIC cxx_std_11)
 set_target_properties(gpu_testIsotropicArs PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
@@ -104,7 +104,7 @@ set_target_properties(gpu_testIsotropicArs PROPERTIES CUDA_ARCHITECTURES "75")
 ####################################################################################
  
 add_executable(gpu_testArsIsoMpeg7 test/gpu_testArsIsoMpeg7.cu)
-target_link_libraries(gpu_testArsIsoMpeg7  cudars ${PCL_LIBRARIES} rofl_common -lstdc++fs -lboost_filesystem)
+target_link_libraries(gpu_testArsIsoMpeg7 cudars ${PCL_LIBRARIES} rofl_common -lstdc++fs -lboost_filesystem)
 
 target_compile_features(gpu_testArsIsoMpeg7 PUBLIC cxx_std_11)
 set_target_properties(gpu_testArsIsoMpeg7 PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
@@ -183,18 +183,18 @@ target_link_libraries(testTlsScalarCons cudars rofl_common ${PCL_LIBRARIES} -lst
 add_executable(testBBTransl test/testBBTransl.cpp src/BBTranslation.cpp src/Box.cpp)
 target_link_libraries(testBBTransl cudars rofl_common ${PCL_LIBRARIES} -lstdc++fs)
 
-# add_executable(gpu_testBBTransl test/gpu_testBBTransl.cu src/BBTranslation.cu)
-# target_link_libraries(gpu_testBBTransl cudars rofl_common ${PCL_LIBRARIES} -lstdc++fs)
+add_executable(gpu_testBBTransl test/gpu_testBBTransl.cu src/BBTranslation.cu src/prioqueue.cu)
+target_link_libraries(gpu_testBBTransl cudars rofl_common ${PCL_LIBRARIES} -lstdc++fs)
 
-# target_compile_features(gpu_testBBTransl PUBLIC cxx_std_11)
-# set_target_properties(gpu_testBBTransl PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
-# set_target_properties(gpu_testBBTransl PROPERTIES CUDA_ARCHITECTURES "75")
+target_compile_features(gpu_testBBTransl PUBLIC cxx_std_11)
+set_target_properties(gpu_testBBTransl PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
+set_target_properties(gpu_testBBTransl PROPERTIES CUDA_ARCHITECTURES "75")
 
 ### prioqueue
-add_executable(testPrioqueue test/testPrioqueue.cpp src/prioqueue.cpp src/definitions.cpp src/utils.cpp)
+add_executable(testPrioqueue test/testPrioqueue.cpp src/definitions.cpp src/utils.cpp)
 # target_link_libraries(testPrioqueue cudars rofl_common ${PCL_LIBRARIES} -lstdc++fs)
 
-add_executable(testPrioqueueBox test/testPrioqueueBox.cpp src/prioqueue.cpp src/definitions.cpp src/utils.cpp)
+add_executable(testPrioqueueBox test/testPrioqueueBox.cu src/definitions.cpp src/utils.cpp src/prioqueue.cu)
 
 ####################################################################################
 

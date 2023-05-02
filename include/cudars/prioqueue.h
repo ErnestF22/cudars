@@ -5,7 +5,7 @@
 
 #include <cudars/definitions.h>
 
-#include <cudars/CuBox.cuh>
+// #include <cudars/CuBox.cuh>
 
 #define MAX_PRIOQUEUE_SIZE 1024
 

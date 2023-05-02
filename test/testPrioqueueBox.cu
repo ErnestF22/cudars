@@ -1,6 +1,6 @@
 #include <cudars/prioqueue.cuh>
 
-int main()
+int main(int argc, char **argv)
 {
     // C++ code to implement Priority Queue using Linked List
     // Code found at: https://www.geeksforgeeks.org/priority-queue-using-linked-list/#
