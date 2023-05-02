@@ -1,7 +1,6 @@
 #include <iostream>
 
 #include <cudars/BBTranslation.cuh>
-#include <cudars/BBTranslation.h>
 
 void findBoundingBox(const cudars::VecVec2d &pts,
                      cudars::Vec2d &ptMin,
@@ -12,7 +11,8 @@ int main(int argc, char **argv)
     cudars::VecVec2d ptsA, ptsB;
     cudars::Vec2d minA, maxA, minB, maxB;
     // int dim = 2;
-    cudars::BBTranslation translEstim;
+
+    // cudars::BBTranslation translEstim;
 
     cudars::Vec2d aA(make_double2(1, 1));
     cudars::Vec2d bA(make_double2(3, 4));
@@ -39,9 +39,12 @@ int main(int argc, char **argv)
         ptsB.push_back(cudars::Vec2d(ptsAiTransf));
     }
 
-    translEstim.setResolution(0.1);
-    translEstim.setEps(0.1);
-    translEstim.setNumMaxIterations(1000);
+    double res = 0.1;
+    // translEstim.setResolution(res);
+    double eps = 0.1;
+    // translEstim.setEps(eps);
+    int numMaxIter = 1000;
+    // translEstim.setNumMaxIterations(numMaxIter);
 
     findBoundingBox(ptsA, minA, maxA);
     findBoundingBox(ptsB, minB, maxB);
@@ -62,10 +65,13 @@ int main(int argc, char **argv)
     cudars::printVec2d(cudars::vec2sumWRV(cudars::vec2diffWRV(maxB, minA), bias));
     std::cout << "]" << std::endl;
 
-    translEstim.setTranslMinMax(cudars::vec2diffWRV(minB, maxA), cudars::vec2sumWRV(cudars::vec2diffWRV(maxB, minA), bias));
-    translEstim.setPts(ptsA, ptsB);
+    cudars::Vec2d translMin = cudars::vec2diffWRV(minB, maxA);
+    cudars::Vec2d translMax = cudars::vec2sumWRV(cudars::vec2diffWRV(maxB, minA), bias);
+    // translEstim.setTranslMinMax(translMin, translMax, bias);
+    // translEstim.setPts(ptsA, ptsB);
     cudars::Vec2d translOut;
     // translEstim.compute(translOut);
+    computeBBTransl_kernel<<<1,1>>>(ptsA, ptsB, translOut, translMin, translMax, eps, numMaxIter, res);
 
     std::cout << std::endl
               << "translOut";

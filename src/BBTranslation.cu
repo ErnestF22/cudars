@@ -9,28 +9,34 @@ __global__ void computeBBTransl_kernel(cudars::VecVec2d &ptsSrc_, cudars::VecVec
     double scoreOpt, scoreTol;
     int iterNum;
 
-    auto cmp = [](const cudars::CuBox &box1, const cudars::CuBox &box2)
-    {
-        return box1.lower_ > box2.lower_;
-    };
-    std::priority_queue<cudars::CuBox, std::vector<cudars::CuBox>, decltype(cmp)> prioqueue(cmp);
+    // auto cmp = [](const cudars::CuBox &box1, const cudars::CuBox &box2)
+    // {
+    //     return box1.lower_ > box2.lower_;
+    // };
+    // std::priority_queue<cudars::CuBox, std::vector<cudars::CuBox>, decltype(cmp)> prioqueue(cmp);
+    NodeBox* prioqueue;
 
     scoreTol = 0.05; // TODO: allow setting the value of scoreTol
 
     // cudars::CuBox boxCur(translMin_, translMax_, ptsSrc_, ptsDst_, eps_);
     cudars::CuBox boxCur;
     initCuBox(boxCur, translMin_, translMax_, ptsSrc_, ptsDst_, eps_);
-    prioqueue.push(boxCur);
-    scoreOpt = prioqueue.top().upper_;
+    // prioqueue.push(boxCur);
+    pushBox(&prioqueue, boxCur);
+    // scoreOpt = prioqueue.top().upper_;
+    scoreOpt = peekBox(&prioqueue).upper_;
     // translOpt = 0.5 * (boxCur.min_ + boxCur.max_);
     cudars::vec2sum(translOpt, boxCur.min_, boxCur.max_);
     cudars::scalarMul(translOpt, 0.5);
     // ARS_VARIABLE2(boxCur, scoreOpt);
     iterNum = 0;
-    while (!prioqueue.empty() && iterNum < numMaxIter_)
+    // while (!prioqueue.empty() && iterNum < numMaxIter_)
+    while (!isEmptyBox(&prioqueue) && iterNum < numMaxIter_)
     {
-        boxCur = prioqueue.top();
-        prioqueue.pop();
+        // boxCur = prioqueue.top();
+        boxCur = peekBox(&prioqueue);
+        // prioqueue.pop();
+        popBox(&prioqueue);
 
         // std::cout << "\n---\niteration " << iterNum << " queue size "
         //             << prioqueue.size() << std::endl;
@@ -84,7 +90,8 @@ __global__ void computeBBTransl_kernel(cudars::VecVec2d &ptsSrc_, cudars::VecVec
 
                 if (boxNew.lower_ < scoreOpt)
                 {
-                    prioqueue.push(boxNew);
+                    // prioqueue.push(boxNew);
+                    pushBox(&prioqueue, boxNew);
                 }
             }
         }

@@ -6,7 +6,7 @@
 
 #include <cudars/CuBox.cuh>
 
-#include <cudars/prioqueue.h>
+#include <cudars/prioqueue.cuh>
 
 static constexpr int DIM = 2;
 static constexpr int SPLIT_NUM = (1 << DIM);

@@ -1,4 +1,4 @@
-#include <cudars/prioqueue.h>
+#include <cudars/prioqueue.cuh>
 
 int main()
 {
@@ -11,10 +11,10 @@ int main()
     double eps = 0.1;
 
     cudars::CuBox box;
-    cudars::initCuBox(box, min, max, eps);
+    initCuBox(box, min, max, eps);
 
-    cudars::NodeBox *pq;
-    pq = cudars::newNodeBox(box);
+    NodeBox *pq;
+    pq = newNodeBox(box);
     pushBox(&pq, box);
     pushBox(&pq, box);
     pushBox(&pq, box);
