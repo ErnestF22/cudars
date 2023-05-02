@@ -51,26 +51,39 @@ __global__ void computeBBTransl_kernel(cudars::Vec2d *ptsSrc_, cudars::Vec2d *pt
 
         // Splits the current box into 2^DIM parts
         // if ((boxCur.max_ - boxCur.min_).maxCoeff() > res_)
-        if (cudars::maxCoeffWRV(cudars::vec2diffWRV(boxCur.max_, boxCur.min_)) > res_)
+        bool tmp = max(boxCur.max_.x - boxCur.min_.x, boxCur.max_.y - boxCur.min_.y) > res_;
+        if (tmp)
         {
             for (int j = 0; j < SPLIT_NUM; ++j)
             {
                 for (int d = 0; d < DIM; ++d)
                 {
                     // ARS_VARIABLE4(j, d, (1 << d), j & (1 << d));
-                    if (j & (1 << d))
+                    if (d == 0)
                     {
-                        // boxSplitMin(d) = 0.5 * (boxCur.min_(d) + boxCur.max_(d));
-                        cudars::idxSetter(boxSplitMin, d, 0.5 * (cudars::idxGetter(boxCur.min_, d) + cudars::idxGetter(boxCur.max_, d)));
-                        // boxSplitMax(d) = boxCur.max_(d);
-                        cudars::idxSetter(boxSplitMax, d, cudars::idxGetter(boxCur.max_, d));
+                        if (j & (1 << d))
+                        {
+                            boxSplitMin.x = 0.5 * (boxCur.min_.x + boxCur.max_.x);
+                            boxSplitMax.x = boxCur.max_.x;
+                        }
+                        else
+                        {
+                            boxSplitMin.x = boxCur.min_.x;
+                            boxSplitMax.x = 0.5 * (boxCur.min_.x + boxCur.max_.x);
+                        }
                     }
-                    else
+                    if (d == 0)
                     {
-                        // boxSplitMin(d) = boxCur.min_(d);
-                        cudars::idxSetter(boxSplitMin, d, cudars::idxGetter(boxCur.min_, d));
-                        // boxSplitMax(d) = 0.5 * (boxCur.min_(d) + boxCur.max_(d));
-                        cudars::idxSetter(boxSplitMax, d, 0.5 * (cudars::idxGetter(boxCur.min_, d) + cudars::idxGetter(boxCur.max_, d)));
+                        if (j & (1 << d))
+                        {
+                            boxSplitMin.y = 0.5 * (boxCur.min_.y + boxCur.max_.y);
+                            boxSplitMax.y = boxCur.max_.y;
+                        }
+                        else
+                        {
+                            boxSplitMin.y = boxCur.min_.y;
+                            boxSplitMax.y = 0.5 * (boxCur.min_.y + boxCur.max_.y);
+                        }
                     }
                     // ARS_VARIABLE2(boxSplitMin(d), boxSplitMax(d));
                 }

@@ -46,7 +46,7 @@ __host__ __device__ void computeBoundsInlier(cudars::Vec2d &min_, cudars::Vec2d 
     bool inlierFoundUpper, inlierFoundLower;
 
     // len = 0.5 * (max_ - min_).maxCoeff(); // Half of Infinity norm
-    len = 0.5 * cudars::maxCoeffWRV(cudars::vec2diffWRV(max_, min_)); // Half of Infinity norm
+    len = 0.5 * max(max_.x - min_.x, max_.y - min_.y); // Half of Infinity norm
     // lower_ = (double)ptsSrc.size();
     // upper_ = (double)ptsSrc.size();
     lower_ = (double)ptsSrcSize;
@@ -64,7 +64,8 @@ __host__ __device__ void computeBoundsInlier(cudars::Vec2d &min_, cudars::Vec2d 
         {
             // dist = (ptsDst[id] - srcTransl).norm();
             // dist = (ptsDst[id] - srcTransl).cwiseAbs().maxCoeff(); // Infinity norm
-            dist = cudars::maxCoeffWRV(cudars::cwiseAbsWRV(cudars::vec2diffWRV(ptsDst[id], srcTransl))); // Infinity norm
+            // dist = cudars::maxCoeffWRV(cudars::cwiseAbsWRV(cudars::vec2diffWRV(ptsDst[id], srcTransl))); // Infinity norm
+            dist = max(fabs(ptsDst[id].x - srcTransl.x), fabs(ptsDst[id].y - srcTransl.y));
             // ARS_VARIABLE4(ptsDst[id].transpose(), dist, dist < eps_, dist < eps_ + len);
             if (dist < eps_)
             {
