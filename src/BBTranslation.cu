@@ -4,6 +4,8 @@ __global__ void computeBBTransl_kernel(cudars::Vec2d *ptsSrc_, cudars::Vec2d *pt
                                        cudars::Vec2d &translOpt, cudars::Vec2d &translMin_, cudars::Vec2d &translMax_,
                                        double eps_, int numMaxIter_, double res_, int ptsSrcSize, int ptsDstSize)
 {
+    printf("Running computeBBTransl_kernel\n"); 
+
     cudars::Vec2d boxSplitMin, boxSplitMax;
 
     double scoreOpt, scoreTol;
@@ -20,7 +22,9 @@ __global__ void computeBBTransl_kernel(cudars::Vec2d *ptsSrc_, cudars::Vec2d *pt
 
     // cudars::CuBox boxCur(translMin_, translMax_, ptsSrc_, ptsDst_, eps_);
     cudars::CuBox boxCur;
+    printf("Initializing first box...\n");
     initCuBox(boxCur, translMin_, translMax_, ptsSrc_, ptsDst_, eps_, ptsSrcSize, ptsDstSize);
+    printf("First box has been initialized\n");
     // prioqueue.push(boxCur);
     pushBox(&prioqueue, boxCur);
     // scoreOpt = prioqueue.top().upper_;
@@ -33,14 +37,17 @@ __global__ void computeBBTransl_kernel(cudars::Vec2d *ptsSrc_, cudars::Vec2d *pt
     // while (!prioqueue.empty() && iterNum < numMaxIter_)
     while (!isEmptyBox(&prioqueue) && iterNum < numMaxIter_)
     {
+        printf("iterNum %d\n", iterNum);
+
         // boxCur = prioqueue.top();
         boxCur = peekBox(&prioqueue);
         // prioqueue.pop();
         popBox(&prioqueue);
 
-        // std::cout << "\n---\niteration " << iterNum << " queue size "
-        //             << prioqueue.size() << std::endl;
+        printf("\n---\niteration %d queue size %d\n", iterNum, getSizeBox(&prioqueue));
         // ARS_PRINT("boxCur " << boxCur << ", score optimum " << scoreOpt);
+        printf("boxCur min [%f %f] max [%d %d] lower %d upper %d score optimum %d\n",
+                        boxCur.min_.x, boxCur.min_.y, boxCur.max_.x, boxCur.max_.y, boxCur.lower_, boxCur.upper_, scoreOpt);
         // ARS_VARIABLE4(boxCur.upper_, boxCur.lower_, scoreTol * scoreOpt,
         //          boxCur.upper_ - boxCur.lower_ <= scoreTol * scoreOpt);
         if (scoreOpt - boxCur.lower_ <= scoreTol * scoreOpt)

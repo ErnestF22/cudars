@@ -82,12 +82,23 @@ int main(int argc, char **argv)
     cudaMemcpy(kernelInput2, ptsB.data(), ptsBsize * sizeof (cudars::Vec2d), cudaMemcpyHostToDevice);
     computeBBTransl_kernel<<<1,1>>>(kernelInput1, kernelInput2, translOut, translMin, translMax, eps, numMaxIter, res, ptsAsize, ptsBsize);
 
+    cudaError_t cudaerr = cudaDeviceSynchronize();
+    if (cudaerr != cudaSuccess)
+        printf("kernel launch failed with error \"%s\".\n",
+            cudaGetErrorString(cudaerr));
+
     std::cout << std::endl
               << "translOut";
     cudars::printVec2d(translOut);
     std::cout << std::endl
               << "translTrue";
     cudars::printVec2d(transfTrue.translation());
+
+     //    //Free GPU and CPU memory
+    cudaFree(kernelInput1);
+    delete ptsA.data();
+    cudaFree(kernelInput2);
+    delete ptsB.data(); 
 
     return 0;
 }

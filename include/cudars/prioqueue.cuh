@@ -65,4 +65,7 @@ __host__ __device__ void pushBox(NodeBox **head, cudars::CuBox box);
 // Function to check is list is empty
 __host__ __device__ int isEmptyBox(NodeBox **head);
 
+// Function that returns size of prioqueue
+__host__ __device__ int getSizeBox(NodeBox **head);
+
 #endif /*CUDARS_PRIOQUEUE_CUH_*/

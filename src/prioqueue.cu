@@ -129,6 +129,7 @@ __host__ __device__ void initCuBox(cudars::CuBox &box,
                                    int ptsDstSize,
                                    const double eps)
 {
+    printf("Running initCuBox\n");
     // double dist, distMin, distUpper, distUpperMin;
     // Vec2d boxMin, boxMax, boxMid;
     box.min_ = min;
@@ -136,6 +137,7 @@ __host__ __device__ void initCuBox(cudars::CuBox &box,
     box.eps_ = eps;
     // computeBoundsNaive(ptsSrc, ptsDst);
     NodeBox *nodeBox = newNodeBox(box);
+    printf("Running computeBoundsInlier inside initCuBox\n");
     computeBoundsInlier(nodeBox->box.min_, nodeBox->box.max_, nodeBox->box.lower_, nodeBox->box.upper_, nodeBox->box.eps_, ptsSrc, ptsDst, ptsSrcSize, ptsDstSize);
 }
 
@@ -229,5 +231,17 @@ __host__ __device__ void pushBox(NodeBox **head, cudars::CuBox box)
 
 __host__ __device__ int isEmptyBox(NodeBox **head)
 {
+    printf("isEmptyBox int: %d\n", (*head) == NULL);
     return (*head) == NULL;
+}
+
+__host__ __device__ int getSizeBox(NodeBox **head) {
+    int sz = 0;
+    while ((*head)->next != NULL)
+    {
+        sz++;
+        printf("queue size %d\n", sz);
+        *head = (*head) -> next; 
+    }
+    return sz;
 }
