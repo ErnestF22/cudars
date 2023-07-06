@@ -107,7 +107,6 @@ int main(int argc, char **argv)
     bool arsIsoEnable, niArsEnable, hsEnable;
 
     // Other params used only in executable and not during computations
-    int fileSkipper;
     bool plotGrid, plotOutput, extrainfoEnable;
     // ArsIso params (CPU and GPU)
     params.getParam<bool>("arsisoEnable", tparams.arsIsoEnable, false);
@@ -220,7 +219,8 @@ int main(int argc, char **argv)
     int countPairs = 0;
     for (auto &comp : outPairs)
     {
-        if (countPairs % fileSkipper)
+        // std::cout << "countPairs " << countPairs << " fileSkipper " << tparams.fileSkipper << std::endl;
+        if (countPairs % tparams.fileSkipper)
         {
             countPairs++;
             std::cout << "\n\n-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-\n";
