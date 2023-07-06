@@ -51,7 +51,7 @@ int main(int argc, char **argv)
     std::string outputFilename;
     std::string resumeFilename;
 
-    double rotTrue, rotArsIso, rotNiArs, rotHS;
+    double rotTrue, rotArsIso, rotArsIso_gpu, rotNiArs, rotHS;
     cudars::Vec2d translTrue, translBbTransl;
 
     CudarsImgTests::PointReaderWriter pointsSrc;
@@ -117,7 +117,6 @@ int main(int argc, char **argv)
     tparams.aiPms.arsIsoThetaToll *= M_PI / 180.0;
     //    params.getParam<unsigned int>("arsisoPnebiMode", tparams.arsIsoPnebiMode, cudars::ArsKernelIsotropic2d::ComputeMode::PNEBI_DOWNWARD);
 
-
     arsSrc.setARSFOrder(tparams.aiPms.arsIsoOrder);
     //    arsSrc.initLUT(0.0001);
     //    arsSrc.setComputeMode(ars::ArsKernelIsotropic2d::ComputeMode::PNEBI_LUT);
@@ -125,14 +124,13 @@ int main(int argc, char **argv)
     arsDst.setARSFOrder(tparams.aiPms.arsIsoOrder);
     arsDst.setComputeMode(cudars::ArsKernelIso2dComputeMode::PNEBI_DOWNWARD);
 
-
-    //parallelization parameters
+    // parallelization parameters
     params.getParam<int>("blockSz", paiParams.blockSz, 256);
     params.getParam<int>("chunkMaxSz", paiParams.chunkMaxSz, 4096);
 
     params.getParam<int>("fileSkipper", tparams.fileSkipper, 1);
 
-     // adapt tildes
+    // adapt tildes
     params.adaptTildeInPaths();
     params.getParam<std::string>("in", inputGlob, std::string(""));
 
@@ -193,11 +191,15 @@ int main(int argc, char **argv)
     outfile << "# Parameters:\n";
     params.write(outfile, "#  ");
     outfile << "# \n";
-    outfile << "# file1 numpts1 file2 numpts2 translTrue translTrue[m] ";
+    outfile << "# file1 numpts1 file2 numpts2 rotTrue rotTrue[deg] translTrue translTrue[m] ";
 
-    if (arsTecEnable)
+    if (tparams.gpu_arsIsoEnable)
     {
-        outfile << "ars translArs[m] ";
+        outfile << "rotArsIso_gpu gpu_arsiso[deg] ";
+    }
+    if (bbTranslEnable)
+    {
+        outfile << "translBbTransl translBBtransl[m] ";
     }
     if (extrainfoEnable)
     {
@@ -270,20 +272,21 @@ int main(int argc, char **argv)
         std::cout << std::fixed << std::setprecision(2) << std::setw(10)
                   << "  rotTrue \t" << (180.0 / M_PI * rotTrue) << " deg\t\t" << (180.0 / M_PI * cudars::mod180(rotTrue)) << " deg [mod 180]\n";
 
+        std::cout << std::fixed << std::setprecision(2) << std::setw(10) << "\ntranslTrue [m]\t" << translTrue.x << " " << translTrue.y << std::endl;
         outfile
             << std::setw(12) << mpeg7io::getPrefix(inputFilenames[comp.first]) << " "
             << std::setw(6) << pointsSrc.points().size() << " "
             << std::setw(12) << mpeg7io::getPrefix(inputFilenames[comp.second]) << " "
             << std::setw(6) << pointsDst.points().size() << " "
+            << std::fixed << std::setprecision(2) << std::setw(10) << "  rotTrue \t" << (180.0 / M_PI * cudars::mod180(rotTrue)) << "\t"
             << "translTrue" << std::fixed << std::setprecision(2) << std::setw(8) << translTrue.x << " " << translTrue.y << "\t";
 
-        double rotArsIso_gpu;
-        if (arsIsoEnable)
+        if (tparams.gpu_arsIsoEnable)
         {
             gpu_estimateRotationArsIso(pointsSrc.points(), pointsDst.points(), tparams, paiParams, rotArsIso_gpu);
             std::cout << std::fixed << std::setprecision(2) << std::setw(10)
-                      << "  rotArsIso \t" << (180.0 / M_PI * rotArsIso) << " deg\t\t" << (180.0 / M_PI * cudars::mod180(rotArsIso)) << " deg [mod 180]\n";
-            outfile << std::setw(6) << "arsIso " << std::fixed << std::setprecision(2) << std::setw(6) << (180.0 / M_PI * cudars::mod180(rotArsIso)) << " ";
+                      << "  rotArsIso_gpu \t" << (180.0 / M_PI * rotArsIso_gpu) << " deg\t\t" << (180.0 / M_PI * cudars::mod180(rotArsIso_gpu)) << " deg [mod 180]\n";
+            outfile << std::setw(6) << "rotArsIso_gpu " << std::fixed << std::setprecision(2) << std::setw(6) << (180.0 / M_PI * cudars::mod180(rotArsIso_gpu)) << " ";
         }
         // if (niArsEnable)
         // {
