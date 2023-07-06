@@ -133,10 +133,6 @@ int main(int argc, char **argv)
 
     params.getParam<int>("fileSkipper", tparams.fileSkipper, 1);
 
-     // adapt tildes
-    params.adaptTildeInPaths();
-    params.getParam<std::string>("in", inputGlob, std::string(""));
-
     std::cout << "Params:\n";
     params.write(std::cout);
     std::cout << std::endl;

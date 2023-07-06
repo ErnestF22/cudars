@@ -64,9 +64,11 @@
 namespace cudars
 {
 
-   static const size_t Two = 2;   // useful for expanding (i,j) indexing into  i*Two+j
-   static const size_t Three = 3; // useful for expanding (i,j) indexing into  i*Three+j
-   static const size_t Nine = 9;  // useful for expanding (i,j) indexing into  i*NUM_COLS+j
+   static const size_t Two = 2;     // useful for expanding (i,j) indexing into  i*Two+j
+   static const size_t Three = 3;   // useful for expanding (i,j) indexing into  i*Three+j
+   static const size_t Four = 4;    // useful for expanding (i,j) indexing into  i*Four+j
+   static const size_t Nine = 9;    // useful for expanding (i,j) indexing into  i*NUM_COLS+j
+   static const size_t Sixteen = 9; // useful for expanding (i,j) indexing into  i*NUM_COLS+j
 
    using Scalar = double;
 
@@ -126,6 +128,50 @@ namespace cudars
          return os << m.data_[0 * cudars::Three + 0] << " \t" << m.data_[0 * cudars::Three + 1] << " \t" << m.data_[0 * cudars::Three + 2] << " \n"
                    << m.data_[1 * cudars::Three + 0] << " \t" << m.data_[1 * cudars::Three + 1] << " \t" << m.data_[1 * cudars::Three + 2] << " \n"
                    << m.data_[2 * cudars::Three + 0] << " \t" << m.data_[2 * cudars::Three + 1] << " \t" << m.data_[2 * cudars::Three + 2] << " \n";
+      }
+   };
+
+   class Affine3d
+   {
+   public: // TODO: improve separation between public and private
+      double data_[Sixteen];
+
+      double rotX_, rotY_, rotZ_; // TODO: update these rot, transl after making products, transformations, ...
+      double translX_;
+      double translY_;
+
+      Affine3d();
+
+      // Affine3d(double rotX, double rotY, double rotZ, double tx, double ty, double tz);
+
+      virtual ~Affine3d();
+
+      // void initdata(double rotX, double rotY, double rotZ, double tx, double ty, double tz);
+
+      // double determinant() const;
+
+      // void invert();
+
+      // Affine2d inverse();
+
+      // bool isLastRowOK() const;
+
+      // bool isScale1();
+
+      // double at(int r, int c) const;
+
+      // Vec3d translation() const;
+
+      friend std::ostream &operator<<(std::ostream &os, cudars::Affine3d const &m)
+      {
+         return os << m.data_[0 * cudars::Four + 0] << " \t" << m.data_[0 * cudars::Four + 1] << " \t"
+                   << m.data_[0 * cudars::Four + 2] << " \t" << m.data_[0 * cudars::Four + 3] << " \n"
+                   << m.data_[1 * cudars::Four + 0] << " \t" << m.data_[1 * cudars::Four + 1] << " \t"
+                   << m.data_[1 * cudars::Four + 2] << " \t" << m.data_[1 * cudars::Four + 3] << " \n"
+                   << m.data_[2 * cudars::Four + 0] << " \t" << m.data_[2 * cudars::Four + 1] << " \t"
+                   << m.data_[2 * cudars::Four + 2] << " \t" << m.data_[2 * cudars::Four + 3] << " \n"
+                   << m.data_[3 * cudars::Four + 0] << " \t" << m.data_[3 * cudars::Four + 1] << " \t"
+                   << m.data_[3 * cudars::Four + 2] << " \t" << m.data_[3 * cudars::Four + 3] << " \n";
       }
    };
 

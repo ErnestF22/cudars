@@ -2,9 +2,7 @@
 
 #include <cudars/BBTranslation.h>
 
-void findBoundingBox(const cudars::VecVec2d &pts,
-                     cudars::Vec2d &ptMin,
-                     cudars::Vec2d &ptMax);
+
 
 int main(int argc, char **argv)
 {
@@ -42,8 +40,8 @@ int main(int argc, char **argv)
     translEstim.setEps(0.1);
     translEstim.setNumMaxIterations(1000);
 
-    findBoundingBox(ptsA, minA, maxA);
-    findBoundingBox(ptsB, minB, maxB);
+    cudars::findBoundingBox(ptsA, minA, maxA);
+    cudars::findBoundingBox(ptsB, minB, maxB);
     cudars::Vec2d bias = make_double2(20.0, 20.0);
     std::cout << "ptsA: size " << ptsA.size() << ", min [";
     cudars::printVec2d(minA);
@@ -76,30 +74,3 @@ int main(int argc, char **argv)
     return 0;
 }
 
-void findBoundingBox(const cudars::VecVec2d &pts,
-                     cudars::Vec2d &ptMin,
-                     cudars::Vec2d &ptMax)
-{
-    for (int i = 0; i < pts.size(); ++i)
-    {
-        for (int d = 0; d < 2; ++d)
-        {
-            // if (i == 0 || pts[i](d) < ptMin(d))
-            // {
-            //     ptMin(d) = pts[i](d);
-            // }
-            // if (i == 0 || pts[i](d) > ptMax(d))
-            // {
-            //     ptMax(d) = pts[i](d);
-            // }
-            if (i == 0 || cudars::idxGetter(pts[i], d) < cudars::idxGetter(ptMin, d))
-            {
-                cudars::idxSetter(ptMin, d, cudars::idxGetter(pts[i], d));
-            }
-            if (i == 0 || cudars::idxGetter(pts[i], d) > cudars::idxGetter(ptMax, d))
-            {
-                cudars::idxSetter(ptMax, d, cudars::idxGetter(pts[i], d));
-            }
-        }
-    }
-}

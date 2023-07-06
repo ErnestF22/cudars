@@ -21,6 +21,7 @@
 
 namespace cudars
 {
+    /********** AFFINE2D ***********/
 
     Affine2d::Affine2d()
     {
@@ -175,4 +176,9 @@ namespace cudars
         return make_double2(data_[0 * Three + 2] / a22, data_[1 * Three + 2] / a22);
     }
 
+    /********** AFFINE3D ***********/
+
+    Affine3d::Affine3d() {}
+
+    Affine3d::~Affine3d() {}
 }

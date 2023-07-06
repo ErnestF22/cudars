@@ -137,6 +137,34 @@ namespace cudars
         return dist;
     }
 
+    void findBoundingBox(const cudars::VecVec2d &pts,
+                         cudars::Vec2d &ptMin,
+                         cudars::Vec2d &ptMax)
+    {
+        for (int i = 0; i < pts.size(); ++i)
+        {
+            for (int d = 0; d < 2; ++d)
+            {
+                // if (i == 0 || pts[i](d) < ptMin(d))
+                // {
+                //     ptMin(d) = pts[i](d);
+                // }
+                // if (i == 0 || pts[i](d) > ptMax(d))
+                // {
+                //     ptMax(d) = pts[i](d);
+                // }
+                if (i == 0 || cudars::idxGetter(pts[i], d) < cudars::idxGetter(ptMin, d))
+                {
+                    cudars::idxSetter(ptMin, d, cudars::idxGetter(pts[i], d));
+                }
+                if (i == 0 || cudars::idxGetter(pts[i], d) > cudars::idxGetter(ptMax, d))
+                {
+                    cudars::idxSetter(ptMax, d, cudars::idxGetter(pts[i], d));
+                }
+            }
+        }
+    }
+
     // --------------------------------------------------------
     // Below: Vec2d and Mat2d util functions (simpler reimplementation of basic Eigen functions)
     // --------------------------------------------------------
@@ -848,6 +876,56 @@ namespace cudars
             printf("ERROR: Transf Matrix last row != 0  0  1\n");
         }
         return result;
+    }
+
+    Affine3d aff3Inverse(const Affine2d &a)
+    {
+        double s0 = a.at(0, 0) * a.at(1, 1) - a.at(1, 0) * a.at(0, 1);
+        double s1 = a.at(0, 0) * a.at(1, 2) - a.at(1, 0) * a.at(0, 2);
+        double s2 = a.at(0, 0) * a.at(1, 3) - a.at(1, 0) * a.at(0, 3);
+        double s3 = a.at(0, 1) * a.at(1, 2) - a.at(1, 1) * a.at(0, 2);
+        double s4 = a.at(0, 1) * a.at(1, 3) - a.at(1, 1) * a.at(0, 3);
+        double s5 = a.at(0, 2) * a.at(1, 3) - a.at(1, 2) * a.at(0, 3);
+
+        double c5 = a.at(2, 2) * a.at(3, 3) - a.at(3, 2) * a.at(2, 3);
+        double c4 = a.at(2, 1) * a.at(3, 3) - a.at(3, 1) * a.at(2, 3);
+        double c3 = a.at(2, 1) * a.at(3, 2) - a.at(3, 1) * a.at(2, 2);
+        double c2 = a.at(2, 0) * a.at(3, 3) - a.at(3, 0) * a.at(2, 3);
+        double c1 = a.at(2, 0) * a.at(3, 2) - a.at(3, 0) * a.at(2, 2);
+        double c0 = a.at(2, 0) * a.at(3, 1) - a.at(3, 0) * a.at(2, 1);
+
+        // Should check for 0 determinant
+        double det = (s0 * c5 - s1 * c4 + s2 * c3 + s3 * c2 - s4 * c1 + s5 * c0);
+        if (abs(det) < EPS_)
+        {
+            std::cerr << "Affine matrix determinant = 0 -> cannot invert -> returning Affine Identity" << std::endl;
+            return Affine3d();
+        }
+        double invdet = 1.0 / det;
+
+        Affine3d b; // TODO: real init of b after Affine3d class is done properly
+
+        b.data_[0 * cudars::Four + 0] = (a.at(1, 1) * c5 - a.at(1, 2) * c4 + a.at(1, 3) * c3) * invdet;
+        b.data_[0 * cudars::Four + 1] = (-a.at(0, 1) * c5 + a.at(0, 2) * c4 - a.at(0, 3) * c3) * invdet;
+        b.data_[0 * cudars::Four + 2] = (a.at(3, 1) * s5 - a.at(3, 2) * s4 + a.at(3, 3) * s3) * invdet;
+        b.data_[0 * cudars::Four + 3] = (-a.at(2, 1) * s5 + a.at(2, 2) * s4 - a.at(2, 3) * s3) * invdet;
+
+        b.data_[1 * cudars::Four + 0] = (-a.at(1, 0) * c5 + a.at(1, 2) * c2 - a.at(1, 3) * c1) * invdet;
+        b.data_[1 * cudars::Four + 1] = (a.at(0, 0) * c5 - a.at(0, 2) * c2 + a.at(0, 3) * c1) * invdet;
+        b.data_[1 * cudars::Four + 2] = (-a.at(3, 0) * s5 + a.at(3, 2) * s2 - a.at(3, 3) * s1) * invdet;
+        b.data_[1 * cudars::Four + 3] = (a.at(2, 0) * s5 - a.at(2, 2) * s2 + a.at(2, 3) * s1) * invdet;
+
+        b.data_[2 * cudars::Four + 0] = (a.at(1, 0) * c4 - a.at(1, 1) * c2 + a.at(1, 3) * c0) * invdet;
+        b.data_[2 * cudars::Four + 1] = (-a.at(0, 0) * c4 + a.at(0, 1) * c2 - a.at(0, 3) * c0) * invdet;
+        b.data_[2 * cudars::Four + 2] = (a.at(3, 0) * s4 - a.at(3, 1) * s2 + a.at(3, 3) * s0) * invdet;
+        b.data_[2 * cudars::Four + 3] = (-a.at(2, 0) * s4 + a.at(2, 1) * s2 - a.at(2, 3) * s0) * invdet;
+
+        b.data_[3 * cudars::Four + 0] = (-a.at(1, 0) * c3 + a.at(1, 1) * c1 - a.at(1, 2) * c0) * invdet;
+        b.data_[3 * cudars::Four + 1] = (a.at(0, 0) * c3 - a.at(0, 1) * c1 + a.at(0, 2) * c0) * invdet;
+        b.data_[3 * cudars::Four + 2] = (-a.at(3, 0) * s3 + a.at(3, 1) * s1 - a.at(3, 2) * s0) * invdet;
+        b.data_[3 * cudars::Four + 3] = (a.at(2, 0) * s3 - a.at(2, 1) * s1 + a.at(2, 2) * s0) * invdet;
+
+        return b;
     }
 
     // Quaternions, Euler Angles related

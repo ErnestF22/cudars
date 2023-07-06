@@ -23,6 +23,8 @@
 
 #include <cmath>
 
+#define EPS_ 1e-4
+
 #define PRINT_DIM(X) std::cout << #X << " rows " << X.rows() << " cols " << X.cols() << std::endl;
 #define RAD2DEG(X) (180.0 / M_PI * (X))
 
@@ -100,6 +102,14 @@ namespace cudars
     double distancePointBox(const Vec2d &p,
                             const Vec2d &boxMin,
                             const Vec2d &boxMax);
+
+    /**
+     * @brief Find Bounding Box edges of point set @param pts and save
+     * these edges in @param ptMin and, respectively, @param ptMax 
+     */
+    void findBoundingBox(const cudars::VecVec2d &pts,
+                     cudars::Vec2d &ptMin,
+                     cudars::Vec2d &ptMax);
 
     // --------------------------------------------------------
     // Below: Vec2d and Mat2d util functions (simpler reimplementation of basic Eigen functions)
@@ -234,6 +244,8 @@ namespace cudars
     Affine2d aff2ProdWRV(const Affine2d &a, const Affine2d &b);
 
     Vec2d aff2TimesVec2WRV(const Affine2d &mAff, const Vec2d &p);
+
+    Affine3d aff3Inverse(const Affine3d &a);
 
     // Quaternions, Euler angles related
 
