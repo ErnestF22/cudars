@@ -2,11 +2,11 @@
 
 namespace cudars
 {
-    void computeArsBBTransl(Vec2d &translOpt, VecVec2d ptsSrc, VecVec2d ptsDst, Vec2d translMin, Vec2d translMax)
+    void computeArsBBTransl(Vec2d &translOpt, const VecVec2d& ptsSrc, const VecVec2d& ptsDst, Vec2d translMin, Vec2d translMax)
     {
-        double res = 0.1; //TODO: make this settable
-        double eps = 0.1; //TODO: make this settable
-        int numMaxIter = 100; //TODO: make this settable
+        double res = 0.1;     // TODO: make this settable
+        double eps = 0.1;     // TODO: make this settable
+        int numMaxIter = 100; // TODO: make this settable
 
         Vec2d boxSplitMin, boxSplitMax;
 
@@ -23,7 +23,7 @@ namespace cudars
         scoreTol = 0.05; // TODO: allow setting the value of scoreTol
         // Box boxCur(translMin, translMax, ptsSrc, ptsDst, eps);
         CuBox box;
-        initCuBox(box, translMin, translMax, eps);
+        initCuBox(box, translMin, translMax, ptsSrc, ptsDst, eps);
         // prioqueue.push(boxCur);
         pq = newNodeBox(box);
         // scoreOpt = prioqueue.top().upper_;
@@ -32,7 +32,11 @@ namespace cudars
         // vec2sum(translOpt, boxCur.min_, boxCur.max_);
         vec2sum(translOpt, box.min_, box.max_);
         scalarMul(translOpt, 0.5);
-        // ARS_VARIABLE2(boxCur, scoreOpt); //TODO: output
+        // ARS_VARIABLE2(boxCur, scoreOpt); //TODO: output OK
+        std::cout << "box ";
+        printfCuBox(box);
+        std::cout << std::endl
+                  << "score optimum " << scoreOpt << std::endl;
         iterNum = 0;
         // while (!prioqueue.empty() && iterNum < numMaxIter_)
         CuBox boxCur;
@@ -46,7 +50,11 @@ namespace cudars
 
             std::cout << "\n---\niteration " << iterNum << " queue size "
                       << getSizeBox(&pq) << std::endl;
-            // ARS_PRINT("boxCur " << boxCur << ", score optimum " << scoreOpt); //TODO: output
+            // ARS_PRINT("boxCur " << boxCur << ", score optimum " << scoreOpt); //TODO: output OK
+            std::cout << "boxCur ";
+            printfCuBox(boxCur);
+            std::cout << std::endl
+                      << "score optimum " << scoreOpt << std::endl;
             if (scoreOpt - boxCur.lower_ <= scoreTol * scoreOpt)
             {
                 ARS_PRINT("STOP");
@@ -81,7 +89,9 @@ namespace cudars
                     // Box boxNew(boxSplitMin, boxSplitMax, ptsSrc_, ptsDst_, eps_);
                     CuBox boxNew;
                     initCuBox(boxNew, boxSplitMin, boxSplitMax, eps);
-                    // ARS_VARIABLE(boxNew); //TODO: output 
+                    // ARS_VARIABLE(boxNew); //TODO: output OK
+                    std::cout << "boxNew ";
+                    printfCuBox(boxNew);
 
                     if (boxNew.upper_ < scoreOpt)
                     {

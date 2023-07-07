@@ -33,26 +33,25 @@ __host__ __device__ NodeBox *newNodeBox(cudars::CuBox box)
 //     return temp;
 // }
 
-__host__ __device__ void computeBoundsInlier(cudars::Vec2d &min_, cudars::Vec2d &max_, double &lower_, double &upper_, double eps_,
-                                             cudars::Vec2d *ptsSrc, cudars::Vec2d *ptsDst, int ptsSrcSize, int ptsDstSize)
+__host__ void computeBoundsInlier(cudars::CuBox& box,
+                                  const cudars::VecVec2d &ptsSrc, const cudars::VecVec2d &ptsDst)
 {
     // Vec2d mid = 0.5 * (min_ + max_);
     cudars::Vec2d mid;
-    mid.x = 0.5 * (min_.x + max_.x);
-    mid.y = 0.5 * (min_.y + max_.y);
+    mid.x = 0.5 * (box.min_.x + box.max_.x);
+    mid.y = 0.5 * (box.min_.y + box.max_.y);
 
     cudars::Vec2d srcTransl;
     double dist, len;
     bool inlierFoundUpper, inlierFoundLower;
 
     // len = 0.5 * (max_ - min_).maxCoeff(); // Half of Infinity norm
-    len = 0.5 * max(max_.x - min_.x, max_.y - min_.y); // Half of Infinity norm
-    // lower_ = (double)ptsSrc.size();
-    // upper_ = (double)ptsSrc.size();
-    lower_ = (double)ptsSrcSize;
-    upper_ = (double)ptsDstSize;
+    len = 0.5 * max(box.max_.x - box.min_.x, box.max_.y - box.min_.y); // Half of Infinity norm
+    box.lower_ = (double)ptsSrc.size();
+    box.upper_ = (double)ptsSrc.size();
+    ARS_VARIABLE2(box.lower_, box.upper_);
     // ARS_VARIABLE4(lower_, upper_, len, mid);
-    for (int is = 0; is < ptsSrcSize; ++is)
+    for (int is = 0; is < ptsSrc.size(); ++is)
     {
         // srcTransl = ptsSrc[is] + mid;
         srcTransl.x = ptsSrc[is].x + mid.x;
@@ -60,27 +59,79 @@ __host__ __device__ void computeBoundsInlier(cudars::Vec2d &min_, cudars::Vec2d 
         inlierFoundLower = false;
         inlierFoundUpper = false;
         // ARS_VAR1(srcTransl.transpose());
-        for (int id = 0; id < ptsDstSize && !(inlierFoundLower && inlierFoundUpper); ++id)
+        for (int id = 0; id < ptsDst.size() && !(inlierFoundLower && inlierFoundUpper); ++id)
         {
             // dist = (ptsDst[id] - srcTransl).norm();
             // dist = (ptsDst[id] - srcTransl).cwiseAbs().maxCoeff(); // Infinity norm
             // dist = cudars::maxCoeffWRV(cudars::cwiseAbsWRV(cudars::vec2diffWRV(ptsDst[id], srcTransl))); // Infinity norm
             dist = max(fabs(ptsDst[id].x - srcTransl.x), fabs(ptsDst[id].y - srcTransl.y));
             // ARS_VARIABLE4(ptsDst[id].transpose(), dist, dist < eps_, dist < eps_ + len);
-            if (dist < eps_)
+            if (dist < box.eps_)
             {
                 inlierFoundUpper = true;
             }
-            if (dist < eps_ + len)
+            if (dist < box.eps_ + len)
             {
                 inlierFoundLower = true;
             }
         }
         if (inlierFoundLower)
-            lower_ -= 1.0;
+            box.lower_ -= 1.0;
         if (inlierFoundUpper)
-            upper_ -= 1.0;
+            box.upper_ -= 1.0;
     }
+    printf("lower %f upper %f at the end of computeBoundsInlier()\n", box.lower_, box.upper_);
+    // ARS_VARIABLE2(box.lower_, box.upper_);
+}
+
+__host__ __device__ void computeBoundsInlier(cudars::Vec2d &min_, cudars::Vec2d &max_, double &lower_, double &upper_, double eps_,
+                                             cudars::Vec2d *ptsSrc, cudars::Vec2d *ptsDst, int ptsSrcSize, int ptsDstSize)
+{
+    // // Vec2d mid = 0.5 * (min_ + max_);
+    // cudars::Vec2d mid;
+    // mid.x = 0.5 * (min_.x + max_.x);
+    // mid.y = 0.5 * (min_.y + max_.y);
+
+    // cudars::Vec2d srcTransl;
+    // double dist, len;
+    // bool inlierFoundUpper, inlierFoundLower;
+
+    // // len = 0.5 * (max_ - min_).maxCoeff(); // Half of Infinity norm
+    // len = 0.5 * max(max_.x - min_.x, max_.y - min_.y); // Half of Infinity norm
+    // // lower_ = (double)ptsSrc.size();
+    // // upper_ = (double)ptsSrc.size();
+    // lower_ = (double)ptsSrcSize;
+    // upper_ = (double)ptsDstSize;
+    // // ARS_VARIABLE4(lower_, upper_, len, mid);
+    // for (int is = 0; is < ptsSrcSize; ++is)
+    // {
+    //     // srcTransl = ptsSrc[is] + mid;
+    //     srcTransl.x = ptsSrc[is].x + mid.x;
+    //     srcTransl.y = ptsSrc[is].y + mid.y;
+    //     inlierFoundLower = false;
+    //     inlierFoundUpper = false;
+    //     // ARS_VAR1(srcTransl.transpose());
+    //     for (int id = 0; id < ptsDstSize && !(inlierFoundLower && inlierFoundUpper); ++id)
+    //     {
+    //         // dist = (ptsDst[id] - srcTransl).norm();
+    //         // dist = (ptsDst[id] - srcTransl).cwiseAbs().maxCoeff(); // Infinity norm
+    //         // dist = cudars::maxCoeffWRV(cudars::cwiseAbsWRV(cudars::vec2diffWRV(ptsDst[id], srcTransl))); // Infinity norm
+    //         dist = max(fabs(ptsDst[id].x - srcTransl.x), fabs(ptsDst[id].y - srcTransl.y));
+    //         // ARS_VARIABLE4(ptsDst[id].transpose(), dist, dist < eps_, dist < eps_ + len);
+    //         if (dist < eps_)
+    //         {
+    //             inlierFoundUpper = true;
+    //         }
+    //         if (dist < eps_ + len)
+    //         {
+    //             inlierFoundLower = true;
+    //         }
+    //     }
+    //     if (inlierFoundLower)
+    //         lower_ -= 1.0;
+    //     if (inlierFoundUpper)
+    //         upper_ -= 1.0;
+    // }
 }
 
 NodeBox *newNodeBox(NodeBox *queue,
@@ -120,6 +171,25 @@ __host__ __device__ void initCuBox(cudars::CuBox &box, const cudars::Vec2d &min,
     box.eps_ = eps;
 }
 
+__host__ void initCuBox(cudars::CuBox &box, const cudars::Vec2d &min, const cudars::Vec2d &max,
+                        const cudars::VecVec2d &ptsSrc, const cudars::VecVec2d &ptsDst, const double eps)
+{
+    printf("Running initCuBox\n");
+    // double dist, distMin, distUpper, distUpperMin;
+    // Vec2d boxMin, boxMax, boxMid;
+    box.min_ = min;
+    box.max_ = max;
+    box.eps_ = eps;
+    // computeBoundsNaive(ptsSrc, ptsDst);
+    // NodeBox *nodeBox = newNodeBox(box);
+    printf("Running computeBoundsInlier inside initCuBox\n");
+    int ptsSrcSize = ptsSrc.size();
+    int ptsDstSize = ptsDst.size();
+    computeBoundsInlier(box, ptsSrc, ptsDst);
+    printf("InitCuBox after computeBoundsInlier()\n");
+    printfCuBox(box);
+}
+
 __host__ __device__ void initCuBox(cudars::CuBox &box,
                                    const cudars::Vec2d &min,
                                    const cudars::Vec2d &max,
@@ -129,16 +199,16 @@ __host__ __device__ void initCuBox(cudars::CuBox &box,
                                    int ptsDstSize,
                                    const double eps)
 {
-    printf("Running initCuBox\n");
-    // double dist, distMin, distUpper, distUpperMin;
-    // Vec2d boxMin, boxMax, boxMid;
-    box.min_ = min;
-    box.max_ = max;
-    box.eps_ = eps;
-    // computeBoundsNaive(ptsSrc, ptsDst);
-    NodeBox *nodeBox = newNodeBox(box);
-    printf("Running computeBoundsInlier inside initCuBox\n");
-    computeBoundsInlier(nodeBox->box.min_, nodeBox->box.max_, nodeBox->box.lower_, nodeBox->box.upper_, nodeBox->box.eps_, ptsSrc, ptsDst, ptsSrcSize, ptsDstSize);
+    // printf("Running initCuBox\n");
+    // // double dist, distMin, distUpper, distUpperMin;
+    // // Vec2d boxMin, boxMax, boxMid;
+    // box.min_ = min;
+    // box.max_ = max;
+    // box.eps_ = eps;
+    // // computeBoundsNaive(ptsSrc, ptsDst);
+    // NodeBox *nodeBox = newNodeBox(box);
+    // printf("Running computeBoundsInlier inside initCuBox\n");
+    // computeBoundsInlier(nodeBox->box.min_, nodeBox->box.max_, nodeBox->box.lower_, nodeBox->box.upper_, nodeBox->box.eps_, ptsSrc, ptsDst, ptsSrcSize, ptsDstSize);
 }
 
 // void Box::computeBoundsNaive(const VecVec2d &ptsSrc,
@@ -235,13 +305,21 @@ __host__ __device__ int isEmptyBox(NodeBox **head)
     return (*head) == NULL;
 }
 
-__host__ __device__ int getSizeBox(NodeBox **head) {
+__host__ __device__ int getSizeBox(NodeBox **head)
+{
     int sz = 0;
+    if ((*head) == NULL)
+        return 0;
     while ((*head)->next != NULL)
     {
         sz++;
         printf("queue size %d\n", sz);
-        *head = (*head) -> next; 
+        *head = (*head)->next;
     }
     return sz;
+}
+
+__host__ __device__ void printfCuBox(const cudars::CuBox &box)
+{
+    printf("min [%f  %f] max [%f %f] lower %f upper %f\n", box.min_.x, box.min_.y, box.max_.x, box.max_.y, box.lower_, box.upper_);
 }

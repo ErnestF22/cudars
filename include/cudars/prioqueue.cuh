@@ -31,6 +31,9 @@ struct NodeBox
 // Function to create a new node
 __host__ __device__ NodeBox *newNodeBox(cudars::CuBox box);
 
+__host__ void computeBoundsInlier(cudars::Vec2d &min_, cudars::Vec2d &max_, double &lower_, double &upper_, double eps_,
+                                  const cudars::VecVec2d &ptsSrc, const cudars::VecVec2d &ptsDst);
+
 __host__ __device__ void computeBoundsInlier(cudars::Vec2d &min_, cudars::Vec2d &max_, double &lower_, double &upper_, double eps_,
                                              cudars::Vec2d *ptsSrc, cudars::Vec2d *ptsDst, int ptsSrcSize, int ptsDstSize);
 
@@ -42,6 +45,9 @@ NodeBox *newNodeBox(NodeBox *queue,
                     int ptsDstSize);
 
 __host__ __device__ void initCuBox(cudars::CuBox &box, const cudars::Vec2d &min, const cudars::Vec2d &max, const double eps);
+
+__host__ void initCuBox(cudars::CuBox &box, const cudars::Vec2d &min, const cudars::Vec2d &max,
+                                   const cudars::VecVec2d &ptsSrc, const cudars::VecVec2d &ptsDst, const double eps);
 
 __host__ __device__ void initCuBox(cudars::CuBox &box,
                                    const cudars::Vec2d &min,
@@ -67,5 +73,8 @@ __host__ __device__ int isEmptyBox(NodeBox **head);
 
 // Function that returns size of prioqueue
 __host__ __device__ int getSizeBox(NodeBox **head);
+
+// print box parameters min_, max_, lower_, upper_
+__host__ __device__ void printfCuBox(const cudars::CuBox &box);
 
 #endif /*CUDARS_PRIOQUEUE_CUH_*/

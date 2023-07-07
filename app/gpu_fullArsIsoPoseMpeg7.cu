@@ -229,7 +229,6 @@ int main(int argc, char **argv)
         if (countPairs % tparams.fileSkipper)
         {
             countPairs++;
-            std::cout << "\n\n-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-\n";
             continue;
         }
 

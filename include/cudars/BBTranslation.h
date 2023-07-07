@@ -22,7 +22,7 @@ namespace cudars
                             const Vec2d &boxMin,
                             const Vec2d &boxMax);
 
-    void computeArsBBTransl(Vec2d &translOpt, VecVec2d ptsSrc, VecVec2d ptsDst, Vec2d translMin, Vec2d translMax);
+    void computeArsBBTransl(Vec2d &translOpt, const VecVec2d& ptsSrc, const VecVec2d& ptsDst, Vec2d translMin, Vec2d translMax);
 
 
     class BBTranslation
