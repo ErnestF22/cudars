@@ -5,11 +5,15 @@
 #include <cudars/utils.h>
 
 #include <cudars/Box.h>
+#include <cudars/prioqueue.cuh>
 
 #include <queue>
 
 // #include <Eigen/Dense>
 // #include <Eigen/Core>
+
+static constexpr int DIM = 2;
+static constexpr int SPLIT_NUM = (1 << DIM);
 
 namespace cudars
 {
@@ -17,6 +21,8 @@ namespace cudars
     double distancePointBox(const Vec2d &p,
                             const Vec2d &boxMin,
                             const Vec2d &boxMax);
+
+    void computeArsBBTransl(Vec2d &translOpt, VecVec2d ptsSrc, VecVec2d ptsDst, Vec2d translMin, Vec2d translMax);
 
 
     class BBTranslation

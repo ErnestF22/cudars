@@ -133,7 +133,7 @@ set_target_properties(gpu_fullArsIsoMpeg7 PROPERTIES CUDA_SEPARABLE_COMPILATION 
 set_target_properties(gpu_fullArsIsoMpeg7 PROPERTIES CUDA_ARCHITECTURES "75")
 
 ### + transl (full pose)
-add_executable(gpu_fullArsIsoPoseMpeg7 app/gpu_fullArsIsoPoseMpeg7.cu)
+add_executable(gpu_fullArsIsoPoseMpeg7 app/gpu_fullArsIsoPoseMpeg7.cu src/prioqueue.cu src/Box.cpp src/BBTranslation.cpp src/BBTranslation.cu)
 target_link_libraries(gpu_fullArsIsoPoseMpeg7 cudars cudars_bbtransl rofl_common ${PCL_LIBRARIES} -lstdc++fs)
 
 # target_compile_features(gpu_fullArsIsoPoseMpeg7 PUBLIC cxx_std_11)
@@ -192,7 +192,7 @@ target_link_libraries(testTlsScalarCons cudars rofl_common ${PCL_LIBRARIES} -lst
 
 ### translation - B&B Transl
 
-add_executable(testBBTransl test/testBBTransl.cpp)
+add_executable(testBBTransl test/testBBTransl.cpp src/prioqueue.cu)
 target_link_libraries(testBBTransl cudars cudars_bbtransl rofl_common ${PCL_LIBRARIES} -lstdc++fs)
 
 add_executable(gpu_testBBTransl test/gpu_testBBTransl.cu src/BBTranslation.cu src/prioqueue.cu)
@@ -202,7 +202,7 @@ target_compile_features(gpu_testBBTransl PUBLIC cxx_std_11)
 set_target_properties(gpu_testBBTransl PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
 set_target_properties(gpu_testBBTransl PROPERTIES CUDA_ARCHITECTURES "75")
 
-add_executable(fullBBTransl app/fullBBTransl.cpp src/Box.cpp src/BBTranslation.cpp)
+add_executable(fullBBTransl app/fullBBTransl.cpp src/prioqueue.cu src/Box.cpp src/BBTranslation.cpp src/BBTranslation.cu)
 target_link_libraries(fullBBTransl cudars rofl_common ${PCL_LIBRARIES} -lstdc++fs)
 
 target_compile_features(fullBBTransl PUBLIC cxx_std_11)

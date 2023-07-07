@@ -39,9 +39,8 @@ int main(int argc, char **argv)
 
     /////////////////////////////////////////////////////////////////////////////////////////////
 
-    cudars::Vec2d translMin, translMax, translGt, p;
-
-    double translRes;
+    // cudars::Vec2d translMin, translMax, translGt, p;
+    // double translRes;
 
     std::string configFilename;
     std::string inputGlob;
@@ -51,7 +50,8 @@ int main(int argc, char **argv)
     std::string outputFilename;
     std::string resumeFilename;
 
-    double rotTrue, rotArsIso, rotArsIso_gpu, rotNiArs, rotHS;
+    // double rotArsIso;
+    double rotArsIso_gpu;
     cudars::Vec2d translTrue, translBbTransl;
 
     CudarsImgTests::PointReaderWriter pointsSrc;
@@ -93,9 +93,9 @@ int main(int argc, char **argv)
     arsBBTransl.setNumMaxIterations(bbTranslMaxIterations);
 
     // Enabled methods bool params
-    bool rotEvalEnable, arsTecEnable;
+    // bool rotEvalEnable;
     bool arsIcpEnable;
-    bool procrUmeyEnable;
+    // bool procrUmeyEnable;
 
     // Parameters value
     params.getParam<std::string>("in", inputGlob, expfs::current_path().string() + "/*");
@@ -104,10 +104,12 @@ int main(int argc, char **argv)
     //    params.getParam<std::string>("rots", rotsFilename, "");
 
     // Enabled methods bool params
-    bool arsIsoEnable, niArsEnable, hsEnable;
+    bool arsIsoEnable;
+    // bool niArsEnable, hsEnable;
 
     // Other params used only in executable and not during computations
-    bool plotGrid, plotOutput, extrainfoEnable;
+    // bool plotGrid, plotOutput;
+    bool extrainfoEnable;
     // ArsIso params (CPU and GPU)
     params.getParam<bool>("arsisoEnable", tparams.arsIsoEnable, false);
     params.getParam<bool>("gpu_arsisoEnable", tparams.gpu_arsIsoEnable, true);
@@ -129,6 +131,8 @@ int main(int argc, char **argv)
     params.getParam<int>("chunkMaxSz", paiParams.chunkMaxSz, 4096);
 
     params.getParam<int>("fileSkipper", tparams.fileSkipper, 1);
+
+    params.getParam<bool>("extrainfoEnable", extrainfoEnable, true);
 
     // adapt tildes
     params.adaptTildeInPaths();
@@ -160,10 +164,10 @@ int main(int argc, char **argv)
         std::cout << std::endl
                   << "leafDir: \"" << leafDir << "\"" << std::endl;
         std::string methodSuffix;
-        if (arsTecEnable)
-        {
-            methodSuffix = methodSuffix + "_arstec";
-        }
+        // if (arsTecEnable)
+        // {
+        //     methodSuffix = methodSuffix + "_arstec";
+        // }
         if (extrainfoEnable)
         {
             methodSuffix = methodSuffix + "_extrainfo";
@@ -252,7 +256,6 @@ int main(int argc, char **argv)
         std::cout << "diff transform" << std::endl
                   << transfSrcToDst << std::endl;
         translTrue = transfSrcToDst.translation();
-        translGt = translTrue;
 
         //        std::cout << "transl src [m]\n" << pointsSrc.getTransl() << "\ntransl dst [m]\n" << pointsDst.getTransl() << std::endl;
         std::cout << std::fixed << std::setprecision(2) << std::setw(10)
@@ -312,21 +315,11 @@ int main(int argc, char **argv)
             cudars::findBoundingBox(pointsSrc.points(), minA, maxA);
             cudars::findBoundingBox(pointsDst.points(), minB, maxB);
 
-            // Add bias
-            // cudars::Vec2d bias;
-            // bias << 20.0, 20.0;
-            // std::cout << "ptsA: size " << ptsA.size() << ", min [" << minA.transpose()
-            //           << "]  max [" << maxA.transpose() << "]" << std::endl;
-            // std::cout << "ptsB: size " << ptsB.size() << ", min [" << minB.transpose()
-            //           << "]  max [" << maxB.transpose() << "]" << std::endl;
-            // std::cout << "translation interval: min [" << (minB - maxA).transpose()
-            //           << "]  max [" << (maxB - minA + bias).transpose() << "]" << std::endl;
-            // arsBBTransl.setTranslMinMax(minB - maxA, maxB - minA + bias);
-
-            arsBBTransl.setTranslMinMax(cudars::vec2diffWRV(minB, maxA), cudars::vec2diffWRV(maxB, minA));
-
-            arsBBTransl.setPts(pointsSrc.points(), pointsDst.points()); //?? need to clear before setting the new ones?
-            arsBBTransl.compute(translBbTransl);
+            // arsBBTransl.setTranslMinMax(cudars::vec2diffWRV(minB, maxA), cudars::vec2diffWRV(maxB, minA));
+            // arsBBTransl.setPts(pointsSrc.points(), pointsDst.points());
+            // arsBBTransl.compute(translBbTransl);
+            cudars::Vec2d translBBTransl;
+            cudars::computeArsBBTransl(translBBTransl, pointsSrc.points(), pointsDst.points(), cudars::vec2diffWRV(minB, maxA), cudars::vec2diffWRV(maxB, minA));
 
             std::cout << std::fixed << std::setprecision(2) << std::setw(10)
                       << "  rotTrue  \t" << (180.0 / M_PI * rotTrue) << " deg\t\t" << std::endl
