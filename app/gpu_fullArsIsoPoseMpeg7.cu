@@ -52,7 +52,7 @@ int main(int argc, char **argv)
 
     // double rotArsIso;
     double rotArsIso_gpu;
-    cudars::Vec2d translTrue, translBbTransl;
+    cudars::Vec2d translTrue, translBBTransl;
 
     CudarsImgTests::PointReaderWriter pointsSrc;
     CudarsImgTests::PointReaderWriter pointsDst;
@@ -203,7 +203,7 @@ int main(int argc, char **argv)
     }
     if (bbTranslEnable)
     {
-        outfile << "translBbTransl translBBtransl[m] ";
+        outfile << "translBBTransl translBBtransl[m] ";
     }
     if (extrainfoEnable)
     {
@@ -309,23 +309,24 @@ int main(int argc, char **argv)
             cudars::Vec2d minA, maxA, minB, maxB;
             cudars::Affine2d transf;
 
-            pointsSrc.applyTransform(0.0, 0.0, rotTrue);
+            pointsSrc.applyTransform(0.0, 0.0, rotArsIso_gpu);
 
             cudars::findBoundingBox(pointsSrc.points(), minA, maxA);
             cudars::findBoundingBox(pointsDst.points(), minB, maxB);
 
-            // arsBBTransl.setTranslMinMax(cudars::vec2diffWRV(minB, maxA), cudars::vec2diffWRV(maxB, minA));
-            // arsBBTransl.setPts(pointsSrc.points(), pointsDst.points());
-            // arsBBTransl.compute(translBbTransl);
-            cudars::Vec2d translBBTransl;
-            cudars::computeArsBBTransl(translBBTransl, pointsSrc.points(), pointsDst.points(), cudars::vec2diffWRV(minB, maxA), cudars::vec2diffWRV(maxB, minA));
+            arsBBTransl.setTranslMinMax(cudars::vec2diffWRV(minB, maxA), cudars::vec2diffWRV(maxB, minA));
+            arsBBTransl.setPts(pointsSrc.points(), pointsDst.points());
+            arsBBTransl.compute(translBBTransl);
 
+            // cudars::computeArsBBTransl(translBBTransl, pointsSrc.points(), pointsDst.points(), cudars::vec2diffWRV(minB, maxA), cudars::vec2diffWRV(maxB, minA));
+
+            std::cout << std::fixed << std::setprecision(2) << std::setw(10) 
+                        << "\ntranslTrue [m]\t" << translTrue.x << " " << translTrue.y << std::endl;
             std::cout << std::fixed << std::setprecision(2) << std::setw(10)
-                      << "  rotTrue  \t" << (180.0 / M_PI * rotTrue) << " deg\t\t" << std::endl
-                      << "  translBbTransl  \t" << translBbTransl.x << " " << translBbTransl.y << " \t[m]" << std::endl;
-            outfile << std::setw(6) << "  translBbTransl  \t" << translBbTransl.x << " " << translBbTransl.y;
+                        << "  translBBTransl  \t" << translBBTransl.x << " " << translBBTransl.y << " \t[m]" << std::endl;
+            outfile << std::setw(6) << "  translBBTransl  \t" << translBBTransl.x << " " << translBBTransl.y;
 
-            pointsSrc.applyTransform(0.0, 0.0, -rotTrue);
+            pointsSrc.applyTransform(0.0, 0.0, -rotArsIso_gpu);
         }
 
         if (tparams.extrainfoEnable)

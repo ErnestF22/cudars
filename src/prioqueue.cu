@@ -33,7 +33,7 @@ __host__ __device__ NodeBox *newNodeBox(cudars::CuBox box)
 //     return temp;
 // }
 
-__host__ void computeBoundsInlier(cudars::CuBox& box,
+__host__ void computeBoundsInlier(cudars::CuBox &box,
                                   const cudars::VecVec2d &ptsSrc, const cudars::VecVec2d &ptsDst)
 {
     // Vec2d mid = 0.5 * (min_ + max_);
@@ -61,6 +61,8 @@ __host__ void computeBoundsInlier(cudars::CuBox& box,
         // ARS_VAR1(srcTransl.transpose());
         for (int id = 0; id < ptsDst.size() && !(inlierFoundLower && inlierFoundUpper); ++id)
         {
+            // ARS_VARIABLE3(id, box.lower_, box.upper_);
+
             // dist = (ptsDst[id] - srcTransl).norm();
             // dist = (ptsDst[id] - srcTransl).cwiseAbs().maxCoeff(); // Infinity norm
             // dist = cudars::maxCoeffWRV(cudars::cwiseAbsWRV(cudars::vec2diffWRV(ptsDst[id], srcTransl))); // Infinity norm
@@ -81,7 +83,6 @@ __host__ void computeBoundsInlier(cudars::CuBox& box,
             box.upper_ -= 1.0;
     }
     printf("lower %f upper %f at the end of computeBoundsInlier()\n", box.lower_, box.upper_);
-    // ARS_VARIABLE2(box.lower_, box.upper_);
 }
 
 __host__ __device__ void computeBoundsInlier(cudars::Vec2d &min_, cudars::Vec2d &max_, double &lower_, double &upper_, double eps_,
@@ -142,22 +143,22 @@ NodeBox *newNodeBox(NodeBox *queue,
                     int ptsDstSize)
 {
 
-    NodeBox *temp = (NodeBox *)malloc(sizeof(NodeBox));
+    // NodeBox *temp = (NodeBox *)malloc(sizeof(NodeBox));
 
-    // temp->box.min_ = box.min_;
-    // temp->box.max_ = box.max_;
-    // temp->box.lower_ = 0.0;
-    // temp->box.upper_ = 0.0;
-    // temp->box.eps_ = box.eps_;
-    temp->box = newBox;
+    // // temp->box.min_ = box.min_;
+    // // temp->box.max_ = box.max_;
+    // // temp->box.lower_ = 0.0;
+    // // temp->box.upper_ = 0.0;
+    // // temp->box.eps_ = box.eps_;
+    // temp->box = newBox;
 
-    temp->priority = newBox.lower_;
-    temp->next = NULL;
+    // temp->priority = newBox.lower_;
+    // temp->next = NULL;
 
-    queue = temp;
+    // queue = temp;
 
-    computeBoundsInlier(temp->box.min_, temp->box.max_, temp->box.lower_, temp->box.upper_, temp->box.eps_,
-                        ptsSrc, ptsDst, ptsSrcSize, ptsDstSize);
+    // computeBoundsInlier(temp->box.min_, temp->box.max_, temp->box.lower_, temp->box.upper_, temp->box.eps_,
+    //                     ptsSrc, ptsDst, ptsSrcSize, ptsDstSize);
 
     return queue;
 }

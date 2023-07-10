@@ -19,6 +19,11 @@ namespace cudars
         eps_ = eps;
         // computeBoundsNaive(ptsSrc, ptsDst);
         computeBoundsInlier(ptsSrc, ptsDst);
+        
+        printf("Box constructor after computeBoundsInlier()\n");
+        std::cout << "New Box: " << "min_ " << min_.x << " " << min_.y 
+                << " max_ " << max_.x << " " << max_.y
+                << " lower_ " << lower_ << " upper_ " << upper_ << std::endl;
     }
 
     Box::~Box() {}
@@ -86,6 +91,7 @@ namespace cudars
             // ARS_VAR1(srcTransl.transpose());
             for (int id = 0; id < ptsDst.size() && !(inlierFoundLower && inlierFoundUpper); ++id)
             {
+                // ARS_VARIABLE3(id, lower_, upper_);
                 // dist = (ptsDst[id] - srcTransl).norm();
                 // dist = (ptsDst[id] - srcTransl).cwiseAbs().maxCoeff(); // Infinity norm
                 dist = maxCoeffWRV(cwiseAbsWRV(vec2diffWRV(ptsDst[id], srcTransl))); // Infinity norm
