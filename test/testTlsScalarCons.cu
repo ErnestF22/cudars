@@ -20,6 +20,7 @@
 
 
 #include "cudars/tls_scalar_consensus.cuh"
+#include "cudars/tls_scalar_consensus.h"
 
 #include <boost/version.hpp>
 #include <iostream>
@@ -108,8 +109,8 @@ int main(int argc, char** argv) {
     // rofl::estimateTranslationTls(valuesDif.begin(), valuesDif.end(),
     //                             ranges.begin(), ranges.end(), translEst, inliers);
     
-    // cudars::estimateTranslationTls(valuesDif, ranges, translEst, inliers);
-    estimateTranslationTls(valuesDif, ranges, translEst, inliers);
+    cudars::estimateTranslationTls(valuesDif, ranges, translEst, inliers);
+    // estimateTranslationTls(valuesDif, ranges, translEst, inliers);
     
 
     std::cout << "Estimated translation: " << translEst << std::endl;
