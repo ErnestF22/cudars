@@ -14,7 +14,7 @@ If you use this library, please cite the following paper:
 
 Fontana E, Lodi Rizzini D. 
 Accurate Global Point Cloud Registration Using GPU-Based Parallel Angular Radon Spectrum. 
-Sensors. 2023; 23(20):8628. DOI[10.3390/s23208628](https://doi.org/10.3390/s23208628).
+Sensors. 2023; 23(20):8628. DOI [10.3390/s23208628](https://doi.org/10.3390/s23208628).
 
 ````
   @Article{FontanaLodiRizzini2023cudars,
