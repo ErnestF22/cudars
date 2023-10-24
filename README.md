@@ -12,29 +12,27 @@ It has been kept to a minimal design.
 
 If you use this library, please cite the following paper: 
 
-D. Lodi Rizzini. 
-Angular Radon Spectrum for Rotation Estimation. 
-Pattern Recognition, Volume 84, Dec. 2018, Pages 182-196, 
-DOI [10.1016/j.patcog.2018.07.017](https://doi.org/10.1016/j.patcog.2018.07.017).
+Fontana E, Lodi Rizzini D. 
+Accurate Global Point Cloud Registration Using GPU-Based Parallel Angular Radon Spectrum. 
+Sensors. 2023; 23(20):8628. DOI[10.3390/s23208628](https://doi.org/10.3390/s23208628).
 
 ````
-  @article{lodirizzini2018pr,
-    author={Lodi Rizzini, D.},
-    title={{Angular Radon Spectrum for Rotation Estimation}}
-    journal={Pattern Recognition},
-    volume={84},
-    pages={182--196},
-    month={dec},
-    year={2018},
-    publisher={Elsevier},
-    issn = {},
-    doi = {10.1016/j.patcog.2018.07.017},
-    note = {DOI 10.1016/j.patcog.2018.07.017, EID 2-s2.0-85050072081},
-  }
+  @Article{FontanaLodiRizzini2023cudars,
+	AUTHOR = {Fontana, Ernesto and Lodi Rizzini, Dario},
+	TITLE = {Accurate Global Point Cloud Registration Using GPU-Based Parallel Angular Radon Spectrum},
+	JOURNAL = {Sensors},
+	VOLUME = {23},
+	YEAR = {2023},
+	NUMBER = {20},
+	ARTICLE-NUMBER = {8628},
+	URL = {https://www.mdpi.com/1424-8220/23/20/8628},
+	ISSN = {1424-8220},
+	DOI = {10.3390/s23208628}
+}
 ````
 
 or the most relevant associated publications by visiting: 
-http://rimlab.ce.unipr.it/
+https://rimlab.ce.unipr.it/
 
 
 DEPENDENCIES
