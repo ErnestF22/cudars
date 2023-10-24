@@ -17,7 +17,7 @@ Accurate Global Point Cloud Registration Using GPU-Based Parallel Angular Radon 
 Sensors. 2023; 23(20):8628. DOI [10.3390/s23208628](https://doi.org/10.3390/s23208628).
 
 ````
-  @Article{FontanaLodiRizzini2023cudars,
+@Article{FontanaLodiRizzini2023cudars,
 	AUTHOR = {Fontana, Ernesto and Lodi Rizzini, Dario},
 	TITLE = {Accurate Global Point Cloud Registration Using GPU-Based Parallel Angular Radon Spectrum},
 	JOURNAL = {Sensors},
