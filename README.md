@@ -60,11 +60,11 @@ Let ${cudars_ROOT} be the install directory of your local copy
 of library cudars. 
 The following standard commands are required to compile it:
 
--  cd ${cudars_ROOT}
--  mkdir build
--  cd build
--  cmake ..
--  make
+>  cd ${cudars_ROOT}\
+>  mkdir build\
+>  cd build\
+>  cmake ..\
+>  make
 
 You can also install the library into a system directory. 
 To change the install directory you must set cmake environment
@@ -73,17 +73,32 @@ before calling "cmake ..").
 Its default value on UNIX-like/Linux systems is "/usr/local".
 After compiling library cudars, run the command:
 
--  sudo make install
+>  sudo make install
 
 The command "sudo" is required only if ${CMAKE_INSTALL_PREFIX} 
 is a system diretory managed by administrator user root.
 Such command copies:
-- header files of ${cudars_ROOT}/include/cudars to
-   ${CMAKE_INSTALL_PREFIX}/include/cudars/
-- library files ${cudars_ROOT}/lib/libcudars.a to
-   ${CMAKE_INSTALL_PREFIX}/lib/
-- cmake script ${cudars_ROOT}/cmake_modules/cudarsConfig.cmake to
-   ${CMAKE_INSTALL_PREFIX}/share/cudars/
+
+1. header files of
+> \${cudars_ROOT}/include/cudars
+
+&ensp; to 
+  
+> \${CMAKE_INSTALL_PREFIX}/include/cudars/ 
+
+2. library files
+> \${cudars_ROOT}/lib/libcudars.a
+
+&ensp; to 
+
+> \${CMAKE_INSTALL_PREFIX}/lib/
+
+3. cmake script
+> \${cudars_ROOT}/cmake_modules/cudarsConfig.cmake
+
+&ensp; to 
+
+> \${CMAKE_INSTALL_PREFIX}/share/cudars/
 
 
 HOW TO USE LIBRARY cudars IN YOUR PROJECT
@@ -108,14 +123,14 @@ You need to add the following lines to your project as in this example:
 >   link_directories(${cudars_LIBRARY_DIRS})  
 > endif()  
 > 
-> add_executable(foobar foobar.cpp)  
+> add_executable(foobar foobar.cpp)
 > target_link_libraries(foobar ${cudars_LIBRARIES})  
 
 The above example uses the variables defined in cudarsConfig.cmake:
 
--  cudars_FOUND - system has cudars module
--  cudars_INCLUDE_DIRS - the cudars include directories
--  cudars_LIBRARY_DIRS - the cudars library directories
--  cudars_LIBRARIES - link these to use cudars
+>  cudars_FOUND - system has cudars module\
+>  cudars_INCLUDE_DIRS - the cudars include directories\
+>  cudars_LIBRARY_DIRS - the cudars library directories\
+>  cudars_LIBRARIES - link these to use cudars
 
 
