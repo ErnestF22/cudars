@@ -12,29 +12,27 @@ It has been kept to a minimal design.
 
 If you use this library, please cite the following paper: 
 
-D. Lodi Rizzini. 
-Angular Radon Spectrum for Rotation Estimation. 
-Pattern Recognition, Volume 84, Dec. 2018, Pages 182-196, 
-DOI [10.1016/j.patcog.2018.07.017](https://doi.org/10.1016/j.patcog.2018.07.017).
+Fontana E, Lodi Rizzini D. 
+Accurate Global Point Cloud Registration Using GPU-Based Parallel Angular Radon Spectrum. 
+Sensors. 2023; 23(20):8628. DOI [10.3390/s23208628](https://doi.org/10.3390/s23208628).
 
 ````
-  @article{lodirizzini2018pr,
-    author={Lodi Rizzini, D.},
-    title={{Angular Radon Spectrum for Rotation Estimation}}
-    journal={Pattern Recognition},
-    volume={84},
-    pages={182--196},
-    month={dec},
-    year={2018},
-    publisher={Elsevier},
-    issn = {},
-    doi = {10.1016/j.patcog.2018.07.017},
-    note = {DOI 10.1016/j.patcog.2018.07.017, EID 2-s2.0-85050072081},
-  }
+@Article{FontanaLodiRizzini2023cudars,
+	AUTHOR = {Fontana, Ernesto and Lodi Rizzini, Dario},
+	TITLE = {Accurate Global Point Cloud Registration Using GPU-Based Parallel Angular Radon Spectrum},
+	JOURNAL = {Sensors},
+	VOLUME = {23},
+	YEAR = {2023},
+	NUMBER = {20},
+	ARTICLE-NUMBER = {8628},
+	URL = {https://www.mdpi.com/1424-8220/23/20/8628},
+	ISSN = {1424-8220},
+	DOI = {10.3390/s23208628}
+}
 ````
 
 or the most relevant associated publications by visiting: 
-http://rimlab.ce.unipr.it/
+https://rimlab.ce.unipr.it/
 
 
 DEPENDENCIES
@@ -62,11 +60,11 @@ Let ${cudars_ROOT} be the install directory of your local copy
 of library cudars. 
 The following standard commands are required to compile it:
 
--  cd ${cudars_ROOT}
--  mkdir build
--  cd build
--  cmake ..
--  make
+>  cd ${cudars_ROOT}\
+>  mkdir build\
+>  cd build\
+>  cmake ..\
+>  make
 
 You can also install the library into a system directory. 
 To change the install directory you must set cmake environment
@@ -75,17 +73,32 @@ before calling "cmake ..").
 Its default value on UNIX-like/Linux systems is "/usr/local".
 After compiling library cudars, run the command:
 
--  sudo make install
+>  sudo make install
 
 The command "sudo" is required only if ${CMAKE_INSTALL_PREFIX} 
 is a system diretory managed by administrator user root.
 Such command copies:
-- header files of ${cudars_ROOT}/include/cudars to
-   ${CMAKE_INSTALL_PREFIX}/include/cudars/
-- library files ${cudars_ROOT}/lib/libcudars.a to
-   ${CMAKE_INSTALL_PREFIX}/lib/
-- cmake script ${cudars_ROOT}/cmake_modules/cudarsConfig.cmake to
-   ${CMAKE_INSTALL_PREFIX}/share/cudars/
+
+1. header files of
+> \${cudars_ROOT}/include/cudars
+
+&ensp; to 
+  
+> \${CMAKE_INSTALL_PREFIX}/include/cudars/ 
+
+2. library files
+> \${cudars_ROOT}/lib/libcudars.a
+
+&ensp; to 
+
+> \${CMAKE_INSTALL_PREFIX}/lib/
+
+3. cmake script
+> \${cudars_ROOT}/cmake_modules/cudarsConfig.cmake
+
+&ensp; to 
+
+> \${CMAKE_INSTALL_PREFIX}/share/cudars/
 
 
 HOW TO USE LIBRARY cudars IN YOUR PROJECT
@@ -110,14 +123,14 @@ You need to add the following lines to your project as in this example:
 >   link_directories(${cudars_LIBRARY_DIRS})  
 > endif()  
 > 
-> add_executable(foobar foobar.cpp)  
+> add_executable(foobar foobar.cpp)
 > target_link_libraries(foobar ${cudars_LIBRARIES})  
 
 The above example uses the variables defined in cudarsConfig.cmake:
 
--  cudars_FOUND - system has cudars module
--  cudars_INCLUDE_DIRS - the cudars include directories
--  cudars_LIBRARY_DIRS - the cudars library directories
--  cudars_LIBRARIES - link these to use cudars
+>  cudars_FOUND - system has cudars module\
+>  cudars_INCLUDE_DIRS - the cudars include directories\
+>  cudars_LIBRARY_DIRS - the cudars library directories\
+>  cudars_LIBRARIES - link these to use cudars
 
 
